@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">SeniorDesignProjectCordiusMotus</string>
+    <string name="app_name">CordisMotus</string>
+    <string name="cali_button">I am the Patient</string>
+    <string name="medic_button">I am the Respondent</string>
 </resources>
