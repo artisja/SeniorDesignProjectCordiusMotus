@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_contacts"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="mult_603.seniordesignprojectcordiusmotus.ContactsActivity">
+
+    <mult_603.seniordesignprojectcordiusmotus.TextInputRow
+        android:id="@+id/emergency_contact_one"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    </mult_603.seniordesignprojectcordiusmotus.TextInputRow>
+
+    <mult_603.seniordesignprojectcordiusmotus.TextInputRow
+        android:id="@+id/emergency_contact_two"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    </mult_603.seniordesignprojectcordiusmotus.TextInputRow>
+
+    <mult_603.seniordesignprojectcordiusmotus.TextInputRow
+        android:id="@+id/emergency_contact_three"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    </mult_603.seniordesignprojectcordiusmotus.TextInputRow>
+
+</LinearLayout>

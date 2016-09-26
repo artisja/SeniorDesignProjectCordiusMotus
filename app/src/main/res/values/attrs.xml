@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="TextInputRow">
+        <attr name="textLabel" format="string"/>
+        <attr name="textInput" format="string"/>
+    </declare-styleable>
+</resources>
