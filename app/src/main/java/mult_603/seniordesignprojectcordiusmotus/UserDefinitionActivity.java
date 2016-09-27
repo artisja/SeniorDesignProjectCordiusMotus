@@ -10,12 +10,15 @@ import android.widget.Toast;
 public class UserDefinitionActivity extends AppCompatActivity {
 
     private Button medicButton,caliButton;
+    private Intent medicMapIntent;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_definition);
         findViews();
         setButtonDestination();
+
     }
 
     private void setButtonDestination() {
@@ -30,14 +33,15 @@ public class UserDefinitionActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Toast.makeText(UserDefinitionActivity.this, "Google Maps/medical data view screen", Toast.LENGTH_SHORT).show();
-
+                medicMapIntent = new Intent(getApplicationContext(), UserMapsActivity.class);
+                startActivity(medicMapIntent);
             }
         });
     }
 
     private void findViews() {
-     caliButton = (Button) findViewById(R.id.cali_Button);
-     medicButton = (Button) findViewById(R.id.medic_Button);
+        caliButton = (Button) findViewById(R.id.cali_Button);
+        medicButton = (Button) findViewById(R.id.medic_Button);
     }
 
 }
