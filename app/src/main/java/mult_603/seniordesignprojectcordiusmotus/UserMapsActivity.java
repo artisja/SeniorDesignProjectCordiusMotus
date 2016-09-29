@@ -3,6 +3,9 @@ package mult_603.seniordesignprojectcordiusmotus;
 import android.Manifest;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -21,14 +24,20 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
 public class UserMapsActivity extends FragmentActivity implements OnMapReadyCallback,
         OnConnectionFailedListener,
         GoogleApiClient.ConnectionCallbacks,
-        LocationListener{
+        LocationListener {
 
     private GoogleMap mMap;
     private final static int CONNETION_TIMEOUT = 5000;
@@ -50,11 +59,14 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
+
         // Create location request the time interval directly affects power usage and we want the highest accuracy
+        // Priority high accuracy paired with fine location in the manifest file can find a users location within
+        // the accuracy of a few feet
         locationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setFastestInterval(10 * 1000)  // 10 seconds
-                .setInterval(1 * 1000);        // 1 second
+                .setFastestInterval(5 * 1000)  // 5 seconds
+                .setInterval(10 * 1000);        // 10 second
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -79,11 +91,53 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
     }
 
     public void setUpMapMarkerByLocation(LatLng location){
-        MarkerOptions options = new MarkerOptions();
-        options.position(location)
+        MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.position(location)
                 .title("My Current Location!")
                 .position(location);
-        mMap.addMarker(options);
+        mMap.addMarker(markerOptions);
+
+//        CircleOptions circleOptions = new CircleOptions();
+//        circleOptions.fillColor(Color.BLUE)
+//                .center(location)
+//                .radius(70.0)
+//                .strokeColor(Color.BLUE)
+//                .visible(true);
+//        mMap.addCircle(circleOptions);
+
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                Geocoder gc = new Geocoder(getApplicationContext(), Locale.getDefault());
+                LatLng currentLatLng = marker.getPosition();
+                Address currentAddress = new Address(Locale.getDefault());
+                String streetAddress = new String();
+                String cityAddress = new String();
+                String countryAddress = new String();
+
+                try {
+                    List<Address> addressList = gc.getFromLocation(currentLatLng.latitude, currentLatLng.longitude, 1);
+                    for(int i = 0; i < addressList.size(); i++){
+                        currentAddress = addressList.get(i);
+                        streetAddress = currentAddress.getAddressLine(0);
+                        cityAddress = currentAddress.getAddressLine(1);
+                        countryAddress = currentAddress.getAddressLine(2);
+                        Log.i(TAG, i + ". " + streetAddress + " " + cityAddress + " " + countryAddress);
+                    }
+                }catch(IOException e){
+                    e.printStackTrace();
+                }
+
+                marker.showInfoWindow();
+                String locationString = "Location (" + currentLatLng.latitude + " , " + currentLatLng.longitude + ")\n"
+                        + "Street: " + streetAddress + "\n"
+                        + "City: " + cityAddress + "\n"
+                        + "Country: " + countryAddress;
+                Toast.makeText(getApplicationContext(), locationString , Toast.LENGTH_LONG).show();
+                return true;
+            }
+        });
+
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 17));
     }
 
