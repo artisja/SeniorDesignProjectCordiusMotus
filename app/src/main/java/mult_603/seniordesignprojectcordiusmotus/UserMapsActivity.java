@@ -9,10 +9,16 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -29,17 +35,31 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ *  The Icons used in this Map activity come from flaticon.com
+ *  The Temperature icon was made by EpicCoders in Tools and Utensils
+ *  The location icon wass made by Freepik in Maps and Flags
+ *  The people icon was made by Freepik in People
+ *  The heart icon was made by Freepik in Interface
+ */
+
 public class UserMapsActivity extends FragmentActivity implements OnMapReadyCallback,
         OnConnectionFailedListener,
         GoogleApiClient.ConnectionCallbacks,
-        LocationListener {
+        LocationListener , ActivityCompat.OnRequestPermissionsResultCallback{
 
     private GoogleMap mMap;
+    private RelativeLayout personFrameLayout;
+    private TextView personText;
+    private TextView personHeartRate;
+    private TextView personLocation;
+    private static final int REQUEST_LOCATION = 2;
     private final static int CONNETION_TIMEOUT = 5000;
     public static final String TAG = UserMapsActivity.class.getSimpleName();
     private GoogleApiClient googleApiClient;
@@ -53,6 +73,7 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_maps);
+
         // Set up the api client
         googleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -72,6 +93,15 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        // Set up the parts of the relative layout on the map
+        personFrameLayout = (RelativeLayout) findViewById(R.id.person_fragment);
+        personText = (TextView) findViewById(R.id.person_text);
+        personHeartRate = (TextView) findViewById(R.id.person_heart_rate);
+        personLocation = (TextView) findViewById(R.id.person_location);
+
+        // Make the relative layout invisible
+        personFrameLayout.setVisibility(View.GONE);
     }
 
     /**
@@ -87,23 +117,23 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-
+        // Set Map Click Listener
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                if(personFrameLayout.getVisibility() == View.VISIBLE){
+                    personFrameLayout.setVisibility(View.GONE);
+                }
+            }
+        });
     }
 
-    public void setUpMapMarkerByLocation(LatLng location){
+    public void setUpMapMarkerByLocation(final LatLng location){
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(location)
                 .title("My Current Location!")
                 .position(location);
         mMap.addMarker(markerOptions);
-
-        CircleOptions circleOptions = new CircleOptions();
-        circleOptions.fillColor(Color.BLUE)
-                .center(location)
-                .radius(70.0)
-                .strokeColor(Color.BLUE)
-                .visible(true);
-        mMap.addCircle(circleOptions);
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
@@ -131,13 +161,27 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
                 marker.showInfoWindow();
                 String locationString = "Location (" + currentLatLng.latitude + " , " + currentLatLng.longitude + ")\n"
                         + "Street: " + streetAddress + "\n"
-                        + "City: " + cityAddress + "\n"
-                        + "Country: " + countryAddress;
-                Toast.makeText(getApplicationContext(), locationString , Toast.LENGTH_LONG).show();
+                        + "City: " + cityAddress + " , "
+                        + countryAddress;
+
+                personFrameLayout.setBackgroundColor(Color.BLACK);
+                personText.setText("Person: This is me");
+                personText.setTextColor(Color.WHITE);
+                personHeartRate.setText("Heart Rate: Excellent");
+                personHeartRate.setTextColor(Color.WHITE);
+                personLocation.setText(locationString);
+                personLocation.setTextColor(Color.WHITE);
+
+                // Make the relative layout visible
+                personFrameLayout.setVisibility(View.VISIBLE);
                 return true;
             }
         });
-
+        try {
+            mMap.setMyLocationEnabled(true);
+        }catch(SecurityException se){
+            Log.i(TAG, "Security Exception: " + se.getLocalizedMessage());
+        }
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 17));
     }
 
@@ -166,6 +210,7 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
             // Try to resolve the connection failure
             try {
                 connectionResult.startResolutionForResult(this, CONNETION_TIMEOUT);
+                Log.i(TAG, "Connection failed attempting to resolve");
             }
             catch (IntentSender.SendIntentException si){
                 si.printStackTrace();
@@ -180,7 +225,20 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         Log.i(TAG, "Connected");
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_LOCATION);
+
+            if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)){
+                Log.i(TAG, "Application DID show the request permission rationale");
+            }
+            else{
+                Log.i(TAG, "Application DID NOT show the request permission rationale");
+            }
+        }
+        else{
             Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
             if (lastLocation != null) {
                 latitude = lastLocation.getLatitude();
@@ -188,16 +246,29 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
                 currentPosition = new LatLng(latitude, longitude);
                 setUpMapMarkerByLocation(currentPosition);
                 Log.i(TAG, "( Latitude: " + latitude + " Longitude: " + longitude + " )");
-                Log.i(TAG, "Location To String: " + lastLocation.toString());
-                Toast.makeText(this, "Connected via the on connect method", Toast.LENGTH_LONG).show();
             } else {
                 Log.i(TAG, "Location was null");
             }
         }
-        else{
-            Log.i(TAG, "Could not get the permission to access fine loation");
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                       String[] permissions,
+                                       int[] grantResults) {
+        if (requestCode == REQUEST_LOCATION) {
+            if(grantResults.length == 1
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // We can now safely use the location API
+                Log.i(TAG, "On Request Permission Results -> Permission Granted");
+            }
+            else {
+                // Permission may have been denied
+                Log.i(TAG, "On Request Permission Results -> Permission Denied");
+            }
         }
     }
+
 
     @Override
     public void onConnectionSuspended(int i) {
