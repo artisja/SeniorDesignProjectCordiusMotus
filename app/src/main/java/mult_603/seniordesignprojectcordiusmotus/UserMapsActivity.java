@@ -9,6 +9,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -43,13 +44,14 @@ import java.util.Locale;
 public class UserMapsActivity extends FragmentActivity implements OnMapReadyCallback,
         OnConnectionFailedListener,
         GoogleApiClient.ConnectionCallbacks,
-        LocationListener {
+        LocationListener , ActivityCompat.OnRequestPermissionsResultCallback{
 
     private GoogleMap mMap;
     private RelativeLayout personFrameLayout;
     private TextView personText;
     private TextView personHeartRate;
     private TextView personLocation;
+    private static final int REQUEST_LOCATION = 2;
     private final static int CONNETION_TIMEOUT = 5000;
     public static final String TAG = UserMapsActivity.class.getSimpleName();
     private GoogleApiClient googleApiClient;
@@ -214,7 +216,20 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         Log.i(TAG, "Connected");
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_LOCATION);
+
+            if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)){
+                Log.i(TAG, "Application DID show the request permission rationale");
+            }
+            else{
+                Log.i(TAG, "Application DID NOT show the request permission rationale");
+            }
+        }
+        else{
             Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
             if (lastLocation != null) {
                 latitude = lastLocation.getLatitude();
@@ -226,10 +241,25 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
                 Log.i(TAG, "Location was null");
             }
         }
-        else{
-            Log.i(TAG, "Could not get the permission to access fine loation");
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                       String[] permissions,
+                                       int[] grantResults) {
+        if (requestCode == REQUEST_LOCATION) {
+            if(grantResults.length == 1
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // We can now safely use the location API
+                Log.i(TAG, "On Request Permission Results -> Permission Granted");
+            }
+            else {
+                // Permission may have been denied
+                Log.i(TAG, "On Request Permission Results -> Permission Denied");
+            }
         }
     }
+
 
     @Override
     public void onConnectionSuspended(int i) {
