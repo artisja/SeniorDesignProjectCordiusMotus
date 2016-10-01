@@ -97,13 +97,13 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
                 .position(location);
         mMap.addMarker(markerOptions);
 
-//        CircleOptions circleOptions = new CircleOptions();
-//        circleOptions.fillColor(Color.BLUE)
-//                .center(location)
-//                .radius(70.0)
-//                .strokeColor(Color.BLUE)
-//                .visible(true);
-//        mMap.addCircle(circleOptions);
+        CircleOptions circleOptions = new CircleOptions();
+        circleOptions.fillColor(Color.BLUE)
+                .center(location)
+                .radius(70.0)
+                .strokeColor(Color.BLUE)
+                .visible(true);
+        mMap.addCircle(circleOptions);
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override

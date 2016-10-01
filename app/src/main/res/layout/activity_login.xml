@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_login"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="mult_603.seniordesignprojectcordiusmotus.LoginActivity">
+
+    <Button android:id="@+id/login_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/login_label"
+        android:layout_marginBottom="50dp"/>
+    <EditText android:id="@+id/email_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Email"
+        android:singleLine="true"
+        android:maxLength="40"/>
+
+    <EditText android:id="@+id/password_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/password"
+        android:singleLine="true"
+        android:maxLength="20"/>
+
+    <Button android:id="@+id/sign_up_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/sign_up_label"/>
+
+    <Button android:id="@+id/submit_login_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=" Submit Password"
+        android:layout_gravity="right"
+        />
+</LinearLayout>

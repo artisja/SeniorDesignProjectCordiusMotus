@@ -7,4 +7,10 @@
     <string name="contact_label">Contact Name</string>
     <string name="name_hint">Name</string>
     <string name="phone_number_hint">Phone Number</string>
+    <string name="login_label">Login</string>
+    <string name="sign_up_label">Sign Up</string>
+    <string name="login_error">Password is not real</string>
+    <string name="password">Password</string>
+    <string name="userInstructionSignUp">Type in Unique Password</string>
+    <string name="emailHint">Email</string>
 </resources>

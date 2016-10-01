@@ -26,7 +26,7 @@ public class UserDefinitionActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Toast.makeText(UserDefinitionActivity.this, "Emergency Contact/Edit screen", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(getApplicationContext(),ContactsActivity.class);
+                Intent intent = new Intent(getApplicationContext(),LoginActivity.class);
                 startActivity(intent);
             }
         });
