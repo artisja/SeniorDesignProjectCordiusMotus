@@ -25,12 +25,29 @@
         android:padding="5dp"
         android:layout_gravity="right|bottom">
 
+        <ImageView
+            android:id="@+id/person_image"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:background="@drawable/people"/>
+
         <TextView
             android:id="@+id/person_text"
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:padding="5dp"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:layout_toRightOf="@+id/person_image"
+            android:layout_toEndOf="@+id/person_image" />
+
+        <ImageView
+            android:id="@+id/person_heart_image"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignTop="@+id/person_heart_rate"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:background="@drawable/favorite"/>
 
         <TextView
             android:id = "@+id/person_heart_rate"
@@ -39,7 +56,18 @@
             android:layout_height="40dp"
             android:layout_gravity="center"
             android:padding="5dp"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:layout_toRightOf="@+id/person_image"
+            android:layout_toEndOf="@+id/person_image" />
+
+        <ImageView
+            android:id="@+id/person_location_image"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_below="@+id/person_heart_rate"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:background="@drawable/location"/>
 
         <TextView
             android:id="@+id/person_location"
@@ -48,7 +76,9 @@
             android:layout_height="78dp"
             android:layout_gravity="center_horizontal|bottom"
             android:padding="5dp"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:layout_toRightOf="@+id/person_image"
+            android:layout_toEndOf="@+id/person_image" />
 
 
 

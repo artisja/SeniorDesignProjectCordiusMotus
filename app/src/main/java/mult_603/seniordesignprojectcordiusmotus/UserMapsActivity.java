@@ -41,6 +41,14 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ *  The Icons used in this Map activity come from flaticon.com
+ *  The Temperature icon was made by EpicCoders in Tools and Utensils
+ *  The location icon wass made by Freepik in Maps and Flags
+ *  The people icon was made by Freepik in People
+ *  The heart icon was made by Freepik in Interface
+ */
+
 public class UserMapsActivity extends FragmentActivity implements OnMapReadyCallback,
         OnConnectionFailedListener,
         GoogleApiClient.ConnectionCallbacks,
@@ -202,6 +210,7 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
             // Try to resolve the connection failure
             try {
                 connectionResult.startResolutionForResult(this, CONNETION_TIMEOUT);
+                Log.i(TAG, "Connection failed attempting to resolve");
             }
             catch (IntentSender.SendIntentException si){
                 si.printStackTrace();
