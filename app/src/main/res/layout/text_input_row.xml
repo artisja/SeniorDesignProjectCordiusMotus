@@ -8,6 +8,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/contact_label"
+        android:textColor="@color/wordColorWhite"
         android:singleLine="true"/>
 
 
@@ -23,6 +24,7 @@
             android:text=""
             android:textSize="20sp"
             android:visibility="gone"
+            android:textColor="@color/wordColorWhite"
             android:layout_alignParentRight="true"/>
 
     <EditText android:id="@+id/input_edittext_row"
@@ -33,6 +35,7 @@
         android:textSize="20sp"
         android:hint="@string/name_hint"
         android:gravity="right"
+        android:textColor="@color/wordColorWhite"
         android:textColorHighlight="@color/colorPrimaryDark"
         android:layout_alignParentRight="true"/>
     </RelativeLayout>
