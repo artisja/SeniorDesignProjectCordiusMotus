@@ -57,7 +57,7 @@ public class LoginActivity extends AppCompatActivity {
                         if(!task.isSuccessful()){
                             Toast.makeText(getApplicationContext(),"fuck",Toast.LENGTH_LONG).show();
                         }else{
-                            Intent intent = new Intent(LoginActivity.this,UserMapsActivity.class);
+                            Intent intent = new Intent(LoginActivity.this,ContactsActivity.class);
                             startActivity(intent);
                         }
                     }
