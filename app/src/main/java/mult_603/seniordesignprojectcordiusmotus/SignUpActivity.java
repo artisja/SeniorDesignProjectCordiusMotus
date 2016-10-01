@@ -39,7 +39,7 @@ public class SignUpActivity extends AppCompatActivity {
                String password = setPasswordEdit.getText().toString().trim();
                 String email = setEmailEdit.getText().toString().trim();
                 if(email.isEmpty() || password.isEmpty()){
-                    
+
                     Toast.makeText(SignUpActivity.this, "NO no silly", Toast.LENGTH_SHORT).show();
                 }else{
 
