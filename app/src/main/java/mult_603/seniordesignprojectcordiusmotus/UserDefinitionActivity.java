@@ -9,8 +9,9 @@ import android.widget.Toast;
 
 public class UserDefinitionActivity extends AppCompatActivity {
 
-    private Button medicButton,caliButton;
+    private Button medicButton,caliButton, bluetoothButton;
     private Intent medicMapIntent;
+    private Intent bluetoothActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,11 +40,20 @@ public class UserDefinitionActivity extends AppCompatActivity {
                 startActivity(medicMapIntent);
             }
         });
+
+        bluetoothButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bluetoothActivity = new Intent(getApplicationContext(), TemporaryBluetoothActivity.class);
+                startActivity(bluetoothActivity);
+            }
+        });
     }
 
     private void findViews() {
         caliButton = (Button) findViewById(R.id.cali_Button);
         medicButton = (Button) findViewById(R.id.medic_Button);
+        bluetoothButton = (Button) findViewById(R.id.bluetooth_Button);
     }
 
 }

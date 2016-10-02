@@ -51,17 +51,28 @@ public class LoginActivity extends AppCompatActivity {
               final String   typedEmail = emailEditText.getText().toString().trim();
               final String   typedPassword = passwordEditText.getText().toString().trim();
 
-                firebaseAuth.signInWithEmailAndPassword(typedEmail,typedPassword).addOnCompleteListener(LoginActivity.this, new OnCompleteListener<com.google.firebase.auth.AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<com.google.firebase.auth.AuthResult> task) {
-                        if(!task.isSuccessful()){
-                            Toast.makeText(getApplicationContext(),"fuck",Toast.LENGTH_LONG).show();
-                        }else{
-                            Intent intent = new Intent(LoginActivity.this,ContactsActivity.class);
-                            startActivity(intent);
+                // If the password and email are null then don't do anything.
+                if(typedEmail.isEmpty() && typedPassword.isEmpty()){
+                    Toast.makeText(getApplicationContext(), "Email and Password are empty", Toast.LENGTH_SHORT).show();
+                }
+                // If password or email is null then don't do anything.
+                else if(typedEmail.isEmpty() || typedPassword.isEmpty()){
+                    Toast.makeText(getApplicationContext(), "Email or Password is empty", Toast.LENGTH_SHORT).show();
+                }
+                // Use Firebase to sign into the application
+                else {
+                    firebaseAuth.signInWithEmailAndPassword(typedEmail, typedPassword).addOnCompleteListener(LoginActivity.this, new OnCompleteListener<com.google.firebase.auth.AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<com.google.firebase.auth.AuthResult> task) {
+                            if (!task.isSuccessful()) {
+                                Toast.makeText(getApplicationContext(), "fuck", Toast.LENGTH_LONG).show();
+                            } else {
+                                Intent intent = new Intent(LoginActivity.this, PatientEmergencyContactActivity.class);
+                                startActivity(intent);
+                            }
                         }
-                    }
-                });
+                    });
+                }
 
             }
         });

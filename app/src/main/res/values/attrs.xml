@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="TextInputRow">
-        <attr name="textLabel" format="string"/>
-        <attr name="textInput" format="string"/>
+    <declare-styleable name="ContactList">
+        <attr name="nameLabel" format="string"/>
+        <attr name="phoneLabel" format="string"/>
+        <attr name="emailLabel" format="string"/>
     </declare-styleable>
 </resources>
