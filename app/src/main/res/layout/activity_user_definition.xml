@@ -5,14 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/blackPrimary"
+    android:background="@color/whitePrimary"
     tools:context="mult_603.seniordesignprojectcordiusmotus.UserDefinitionActivity">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="50sp"
-        android:textColor="@color/wordColorRed"
+        android:textColor="@color/wordColorWhite"
         android:text="@string/app_name"
         android:gravity="center"
         />
@@ -26,7 +26,7 @@
         android:layout_height="100sp"
         android:layout_marginBottom="15dp"
         android:text= "@string/cali_button"
-        android:textColor="@color/wordColorRed"
+        android:textColor="@color/wordColorWhite"
         android:textColorHighlight="@color/colorAccent"
         android:id="@+id/cali_Button"
         android:gravity="center"
@@ -36,7 +36,7 @@
         android:layout_width="match_parent"
         android:layout_height="100sp"
         android:text="@string/medic_button"
-        android:textColor="@color/wordColorRed"
+        android:textColor="@color/wordColorWhite"
         android:textColorHighlight="@color/colorAccent"
         android:id="@+id/medic_Button"
         android:gravity="center"/>
