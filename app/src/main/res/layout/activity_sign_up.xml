@@ -13,21 +13,40 @@
         android:text="@string/userInstructionSignUp"
         android:textSize="30sp"
         android:layout_marginBottom="15sp"
-        android:layout_gravity="center"/>
-    <EditText android:id="@+id/input_email_edit"
+        android:layout_gravity="center_horizontal"/>
+
+    <ImageView
+        android:id="@+id/user_login_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/userlogin"
+        android:layout_gravity="center_horizontal" />
+
+    <EditText
+        android:id="@+id/input_email_edit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/emailHint"
-        android:layout_gravity="center"/>
-    <EditText android:id="@+id/set_password_edit"
+        android:textColorHint="@color/wordColorRed"
+        android:layout_gravity="center"
+        android:imeOptions="actionDone"/>
+
+    <EditText
+        android:id="@+id/set_password_edit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:singleLine="true"
         android:maxLength="20"
         android:hint="@string/password"
-        android:layout_gravity="center"/>
-    <Button android:id="@+id/submit_signup_button"
+        android:textColorHint="@color/wordColorRed"
+        android:layout_gravity="center"
+        android:imeOptions="actionDone"/>
+
+    <Button
+        android:id="@+id/submit_signup_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/submit_button"/>
+        android:text="@string/submit_button"
+        android:textColor="@color/wordColorRed"/>
+
 </LinearLayout>

@@ -1,10 +1,12 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -48,15 +50,19 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-              final String   typedEmail = emailEditText.getText().toString().trim();
-              final String   typedPassword = passwordEditText.getText().toString().trim();
-
+                final String typedEmail = emailEditText.getText().toString().trim();
+                final String typedPassword = passwordEditText.getText().toString().trim();
+                InputMethodManager imm = (InputMethodManager) getApplicationContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
                 // If the password and email are null then don't do anything.
                 if(typedEmail.isEmpty() && typedPassword.isEmpty()){
+                    // Hide the keyboard deliver toast
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                     Toast.makeText(getApplicationContext(), "Email and Password are empty", Toast.LENGTH_SHORT).show();
                 }
                 // If password or email is null then don't do anything.
                 else if(typedEmail.isEmpty() || typedPassword.isEmpty()){
+                    // Hide the keyboard deliver toast
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                     Toast.makeText(getApplicationContext(), "Email or Password is empty", Toast.LENGTH_SHORT).show();
                 }
                 // Use Firebase to sign into the application
@@ -65,7 +71,7 @@ public class LoginActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<com.google.firebase.auth.AuthResult> task) {
                             if (!task.isSuccessful()) {
-                                Toast.makeText(getApplicationContext(), "fuck", Toast.LENGTH_LONG).show();
+                                Toast.makeText(getApplicationContext(), "Login Unsuccessful", Toast.LENGTH_LONG).show();
                             } else {
                                 Intent intent = new Intent(LoginActivity.this, PatientEmergencyContactActivity.class);
                                 startActivity(intent);
@@ -92,6 +98,4 @@ public class LoginActivity extends AppCompatActivity {
         emailEditText = (EditText) findViewById(R.id.email_edit);
         passwordEditText = (EditText) findViewById(R.id.password_edit);
     }
-
-
 }
