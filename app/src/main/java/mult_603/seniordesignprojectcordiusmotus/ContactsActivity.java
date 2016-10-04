@@ -9,6 +9,7 @@ public class ContactsActivity extends AppCompatActivity {
 
     TextInputRow emergencyContact,emergencyContactTwo,emergencyContactThree;
     Button submitContactButton;
+    ContactsList contactsList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -16,6 +17,7 @@ public class ContactsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_contacts);
         findViews();
         buttonActions();
+        contactsList = new ContactsList();
     }
 
     private void buttonActions() {
