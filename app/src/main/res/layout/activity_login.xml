@@ -12,11 +12,13 @@
         android:layout_height="wrap_content"
         android:text="@string/login_label"
         android:layout_marginBottom="50dp"/>
+
     <EditText android:id="@+id/email_edit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Email"
         android:singleLine="true"
+        android:textColorHint="@color/wordColorRed"
         android:maxLength="40"/>
 
     <EditText android:id="@+id/password_edit"
@@ -24,7 +26,8 @@
         android:layout_height="wrap_content"
         android:hint="@string/password"
         android:singleLine="true"
-        android:maxLength="20"/>
+        android:maxLength="20"
+        android:textColorHint="@color/wordColorRed"/>
 
     <Button android:id="@+id/sign_up_button"
         android:layout_width="match_parent"

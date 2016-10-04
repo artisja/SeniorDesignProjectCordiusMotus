@@ -40,5 +40,13 @@
         android:textColorHighlight="@color/colorAccent"
         android:id="@+id/medic_Button"
         android:gravity="center"/>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="100sp"
+            android:id="@+id/bluetooth_Button"
+            android:textColor="@color/wordColorRed"
+            android:text="Bluetooth Button"/>
+
         </LinearLayout>
 </LinearLayout>
