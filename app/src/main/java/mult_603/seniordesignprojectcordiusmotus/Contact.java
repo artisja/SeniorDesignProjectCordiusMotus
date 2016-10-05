@@ -1,53 +1,34 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
-import android.util.Log;
-
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
 /**
  * Created by artisja on 10/1/2016.
  */
 
 public class Contact {
-    public static final String TAG = Contact.class.getSimpleName();
-    private String contactName;
-    private String contactEmail;
-    private String contactPhone;
-    private FirebaseDatabase firebaseDatabase;
 
-    public Contact(){
+    private String name,number;
 
+    public Contact(String newName,String newNumber){
+        name = newName;
+        number = newNumber;
     }
 
-    public void setContactName(String name){
-        this.contactName = name;
+    public String getNumber() {
+        return number;
     }
 
-    public void setContactPhone(String phone){
-        this.contactPhone = phone;
+    public String getName() {
+        return name;
     }
 
-    public void setContactEmail(String email){
-        this.contactEmail = email;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getContactName(){
-        return contactName;
+    public void setNumber(String number) {
+        this.number = number;
     }
 
-    public String getContactPhone(){
-        return contactPhone;
-    }
-
-    public String getContactEmail(){
-        return contactEmail;
-    }
-
-    // Add a patient object to the Firebase Database using a string reference
     public void addContactToDatabase(Contact contact, String reference){
         firebaseDatabase = FirebaseDatabase.getInstance();
         DatabaseReference ref = firebaseDatabase.getReference(reference);
