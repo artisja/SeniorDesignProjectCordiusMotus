@@ -21,11 +21,10 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
-
+import android.widget.Toast;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -60,6 +59,7 @@ public class TemporaryBluetoothActivity extends AppCompatActivity {
          * GETDEFAULTADAPTER FOR JELLY BEAN AND BELOW
          * ABOVE JELLYBEAN USE GETADAPTER
          */
+
         listView = (ListView) findViewById(R.id.bluetooth_list);
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         refreshButton = (Button) findViewById(R.id.refresh_button);
@@ -69,7 +69,12 @@ public class TemporaryBluetoothActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 bluetoothListAdapter.notifyDataSetChanged();
-                Log.i(TAG, "Devices: " );
+
+                if(bluetoothListAdapter.getCount() == 0){
+                    Toast.makeText(getApplicationContext(), "No devices found", Toast.LENGTH_LONG).show();
+                    Log.i(TAG, "No Bluetooth Devices were found");
+                }
+                Log.i(TAG, "Bluetooth Devices were found " );
             }
         });
 
@@ -91,7 +96,7 @@ public class TemporaryBluetoothActivity extends AppCompatActivity {
 
         // Start discovery
         bluetoothAdapter.startDiscovery();
-        final ArrayList<String> deviceList = new ArrayList<>();
+        final ArrayList<BluetoothDevice> deviceList = new ArrayList<>();
         BroadcastReceiver bluetoothReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -105,19 +110,19 @@ public class TemporaryBluetoothActivity extends AppCompatActivity {
                     BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                     final int state = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, BluetoothDevice.ERROR);
                     final int previousState = intent.getIntExtra(BluetoothDevice.EXTRA_PREVIOUS_BOND_STATE, BluetoothDevice.ERROR);
-                    String str = "Bluetooth device: " + device.getName() + " at address: " + device.getAddress();
+                    String str = device.getName() + ", " + device.getAddress();
 
-                    if(!deviceList.contains(str)) {
-                        deviceList.add(str);
+                    if(!deviceList.contains(device)) {
+                        deviceList.add(device);
                         deviceHashMap.put(str, device);
                         Log.i(TAG, "Device Found: " + str);
                     }
 
                     if (state == BluetoothDevice.BOND_BONDED && previousState == BluetoothDevice.BOND_BONDING){
-                        Log.i(TAG, "Paired");
+                        Log.i(TAG, "Paired in bluetooth receiver");
                     }
                     else if(state == BluetoothDevice.BOND_NONE && previousState == BluetoothDevice.BOND_BONDED){
-                        Log.i(TAG, "Unpaired");
+                        Log.i(TAG, "Unpaired in bluetooth receiver");
                     }
                 }
                 else{
@@ -129,16 +134,6 @@ public class TemporaryBluetoothActivity extends AppCompatActivity {
 
         bluetoothListAdapter = new BluetoothListAdapter(deviceList, getApplicationContext());
         listView.setAdapter(bluetoothListAdapter);
-
-//        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                String str = (String) parent.getItemAtPosition(position);
-//                BluetoothDevice device = deviceHashMap.get(str);
-//                Log.i(TAG, "Got this device from hashmap " + device.getName() + " " + device.getAddress());
-//                pairDevice(device);
-//            }
-//        });
 
         // Register broadcast receiver
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
@@ -175,15 +170,18 @@ public class TemporaryBluetoothActivity extends AppCompatActivity {
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
+    // This gets called when the pair device button is clicked.
     public void pairDevice(BluetoothDevice device){
         try {
             Method method = device.getClass().getMethod("createBond", (Class[]) null);
             method.invoke(device, (Object[]) null);
             Log.i(TAG, "Paired Device " + device.getName());
+//            return true;
         }
         catch (Exception e){
             e.printStackTrace();
             Log.i(TAG, "Error thrown while trying to pair device " + device.getName());
+//            return false;
         }
     }
 
@@ -243,7 +241,7 @@ public class TemporaryBluetoothActivity extends AppCompatActivity {
     private class AcceptThread extends Thread {
         private BluetoothServerSocket bsSocket = null;
 
-        public AcceptThread() {
+        public void acceptThread() {
             // Temp object later assigned to the bluetooth server socket
             BluetoothServerSocket temp = null;
             try {
@@ -288,7 +286,7 @@ public class TemporaryBluetoothActivity extends AppCompatActivity {
             }
         }
 
-        public void Cancel() {
+        public void cancel() {
             try {
                 bsSocket.close();
             } catch (IOException e) {

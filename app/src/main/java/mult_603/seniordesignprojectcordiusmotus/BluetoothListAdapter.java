@@ -1,5 +1,6 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,10 +19,10 @@ import java.util.ArrayList;
  */
 public class BluetoothListAdapter extends BaseAdapter implements ListAdapter {
     public final String TAG = BluetoothListAdapter.class.getSimpleName();
-    private ArrayList<String> bluetoothNameList;
+    private ArrayList<BluetoothDevice> bluetoothNameList;
     private Context context;
 
-    public BluetoothListAdapter(ArrayList<String> bluetoothNameList, Context context){
+    public BluetoothListAdapter(ArrayList<BluetoothDevice> bluetoothNameList, Context context){
         this.bluetoothNameList = bluetoothNameList;
         this.context = context;
     }
@@ -47,6 +48,8 @@ public class BluetoothListAdapter extends BaseAdapter implements ListAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View view = convertView;
+        final int listPosition = position;
+
         if (view == null){
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             view = inflater.inflate(R.layout.bluetooth_row_item, null);
@@ -55,23 +58,40 @@ public class BluetoothListAdapter extends BaseAdapter implements ListAdapter {
 
         // Device name text view
         TextView deviceName = (TextView) view.findViewById(R.id.bluetooth_device_name);
-        deviceName.setText(bluetoothNameList.get(position));
+
+        // Get the bluetooth device from the list and set the text fields based on name and address
+        final BluetoothDevice device = bluetoothNameList.get(position);
+        deviceName.setText("Name: " + device.getName());
 
         // Device address text view
         TextView deviceAddress = (TextView) view.findViewById(R.id.bluetooth_device_address);
-
+        deviceAddress.setText("Address: " + device.getAddress());
 
         // Device pair button
-        Button devicePairButton = (Button) view.findViewById(R.id.bluetooth_device_pair_button);
+        final Button devicePairButton = (Button) view.findViewById(R.id.bluetooth_device_pair_button);
 
         devicePairButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context, "Device Pair Button was clicked", Toast.LENGTH_LONG).show();
+                TemporaryBluetoothActivity tmp = new TemporaryBluetoothActivity();
+                BluetoothDevice bluetoothDevice = bluetoothNameList.get(listPosition);
+
+                // Attempt to pair or unpair device
+                if (devicePairButton.getText() == "Unpair"){
+                    Log.i(TAG, "Attempt to unpair device");
+                    tmp.pairDevice(device);
+                    devicePairButton.setText("Pair Device");
+                }
+                else{
+                    Log.i(TAG, "Attempt to pair device");
+                    tmp.unpairDevice(device);
+                    devicePairButton.setText("Unpair");
+                }
+
                 Log.i(TAG, "Device Pair Button was clicked");
             }
         });
-
+        // Return the view
         return view;
     }
 }
