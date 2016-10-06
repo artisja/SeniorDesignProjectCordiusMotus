@@ -42,17 +42,6 @@ public class PatientEmergencyContactActivity extends AppCompatActivity {
                 .LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT
                 , ViewGroup.LayoutParams.WRAP_CONTENT);
 
-        addButton = (Button) findViewById(R.id.add_button);
-
-        addButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                AddContactView view = new AddContactView(getApplicationContext(), null);
-//                container.addView(view);
-                Log.i(TAG, "Add button was clicked");
-            }
-        });
-
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -75,19 +64,15 @@ public class PatientEmergencyContactActivity extends AppCompatActivity {
         saveContactButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Contact c = new Contact();
                 String name = contactName.getText().toString();
                 String phone = contactPhone.getText().toString();
                 String email = contactEmail.getText().toString();
+                Contact c = new Contact(name, phone, email);
 
-                c.setContactName(name);
-                c.setContactPhone(phone);
-                c.setContactEmail(email);
                 Log.i(TAG, "This is a contact: " + c);
 //                c.addContactToDatabase(c, "Contact");
 
             }
         });
     }
-
 }

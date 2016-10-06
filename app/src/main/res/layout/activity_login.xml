@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/login_label"
-        android:layout_marginBottom="50dp"
+        android:layout_marginBottom="50sp"
         android:textColor="@color/wordColorRed"/>
 
     <EditText
@@ -23,7 +23,8 @@
         android:singleLine="true"
         android:textColorHint="@color/wordColorRed"
         android:maxLength="40"
-        android:imeOptions="actionDone"/>
+        android:imeOptions="actionDone"
+        android:layout_marginBottom="15sp"/>
 
     <EditText
         android:id="@+id/password_edit"
@@ -33,7 +34,8 @@
         android:singleLine="true"
         android:maxLength="20"
         android:textColorHint="@color/wordColorRed"
-        android:imeOptions="actionDone"/>
+        android:imeOptions="actionDone"
+        android:layout_marginBottom="15sp"/>
 
     <Button
         android:id="@+id/sign_up_button"

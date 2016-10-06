@@ -39,7 +39,7 @@ import java.util.UUID;
 public class TemporaryBluetoothActivity extends AppCompatActivity {
     public static final String TAG = TemporaryBluetoothActivity.class.getSimpleName();
     private final int REQUEST_BLUETOOTH_ENABLED = 2;
-    private ArrayAdapter<String> bluetoothListAdapter;
+    private BluetoothListAdapter bluetoothListAdapter;
     public ListView listView;
     Button refreshButton;
     BluetoothAdapter bluetoothAdapter;
@@ -69,6 +69,7 @@ public class TemporaryBluetoothActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 bluetoothListAdapter.notifyDataSetChanged();
+                Log.i(TAG, "Devices: " );
             }
         });
 
@@ -96,32 +97,48 @@ public class TemporaryBluetoothActivity extends AppCompatActivity {
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
 
+                if( bluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)){
+                    Log.i(TAG, "Action Bond State Changed");
+                }
                 if (bluetoothDevice.ACTION_FOUND.equals(action)) {
+
                     BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                    final int state = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, BluetoothDevice.ERROR);
+                    final int previousState = intent.getIntExtra(BluetoothDevice.EXTRA_PREVIOUS_BOND_STATE, BluetoothDevice.ERROR);
                     String str = "Bluetooth device: " + device.getName() + " at address: " + device.getAddress();
+
                     if(!deviceList.contains(str)) {
                         deviceList.add(str);
                         deviceHashMap.put(str, device);
+                        Log.i(TAG, "Device Found: " + str);
                     }
-                    Log.i(TAG, "Found Bluetooth device -> " + device.getName() + " at adress: " + device.getAddress());
+
+                    if (state == BluetoothDevice.BOND_BONDED && previousState == BluetoothDevice.BOND_BONDING){
+                        Log.i(TAG, "Paired");
+                    }
+                    else if(state == BluetoothDevice.BOND_NONE && previousState == BluetoothDevice.BOND_BONDED){
+                        Log.i(TAG, "Unpaired");
+                    }
+                }
+                else{
+                    Log.i(TAG, "Somthing went wrong");
                 }
             }
         };
 
-        //bluetoothAdapter.getProfileProxy(getApplicationContext(), , BluetoothProfile.GATT)
 
-        bluetoothListAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, deviceList);
+        bluetoothListAdapter = new BluetoothListAdapter(deviceList, getApplicationContext());
         listView.setAdapter(bluetoothListAdapter);
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String str = (String) parent.getItemAtPosition(position);
-                BluetoothDevice device = deviceHashMap.get(str);
-                Log.i(TAG, "Got this device from hashmap " + device.getName() + " " + device.getAddress());
-                pairDevice(device);
-            }
-        });
+//        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                String str = (String) parent.getItemAtPosition(position);
+//                BluetoothDevice device = deviceHashMap.get(str);
+//                Log.i(TAG, "Got this device from hashmap " + device.getName() + " " + device.getAddress());
+//                pairDevice(device);
+//            }
+//        });
 
         // Register broadcast receiver
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
