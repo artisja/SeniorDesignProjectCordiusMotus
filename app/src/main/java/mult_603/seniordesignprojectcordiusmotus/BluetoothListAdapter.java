@@ -78,17 +78,15 @@ public class BluetoothListAdapter extends BaseAdapter implements ListAdapter {
 
                 // Attempt to pair or unpair device
                 if (devicePairButton.getText() == "Unpair"){
-                    Log.i(TAG, "Attempt to unpair device");
-                    tmp.pairDevice(device);
+                    Log.i(TAG, "Attempt to unpair device " + bluetoothDevice.getAddress());
+                    tmp.unpairDevice(bluetoothDevice);
                     devicePairButton.setText("Pair Device");
                 }
                 else{
-                    Log.i(TAG, "Attempt to pair device");
-                    tmp.unpairDevice(device);
+                    Log.i(TAG, "Attempt to pair device " + bluetoothDevice.getAddress());
+                    tmp.pairDevice(bluetoothDevice);
                     devicePairButton.setText("Unpair");
                 }
-
-                Log.i(TAG, "Device Pair Button was clicked");
             }
         });
         // Return the view
