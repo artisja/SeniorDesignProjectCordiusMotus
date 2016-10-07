@@ -2,6 +2,7 @@ package mult_603.seniordesignprojectcordiusmotus;
 
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,7 +29,6 @@ public class BluetoothListAdapter extends BaseAdapter implements ListAdapter {
     }
     @Override
     public int getCount() {
-        Log.i(TAG, "Count of the List of devices is: " + bluetoothNameList.size());
         return bluetoothNameList.size();
     }
 
@@ -70,6 +70,16 @@ public class BluetoothListAdapter extends BaseAdapter implements ListAdapter {
         // Device pair button
         final Button devicePairButton = (Button) view.findViewById(R.id.bluetooth_device_pair_button);
 
+        // Set the device bonded or unbonded text
+        if(device.getBondState() == 12){
+            Log.i(TAG, "Device: " + device + " bond state: " + device.getBondState() + " PAIRED");
+            devicePairButton.setText("Unpair");
+        }
+        else if (device.getBondState() == 10){
+            devicePairButton.setText("Pair Device");
+            Log.i(TAG, "Device: " + device + " bond state: " + device.getBondState() + " UNPAIRED");
+        }
+
         devicePairButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -77,6 +87,8 @@ public class BluetoothListAdapter extends BaseAdapter implements ListAdapter {
                 BluetoothDevice bluetoothDevice = bluetoothNameList.get(listPosition);
 
                 // Attempt to pair or unpair device
+                // I Need to check if device is already paired with something or not.
+                // TODO - Check if device is already paired ????
                 if (devicePairButton.getText() == "Unpair"){
                     Log.i(TAG, "Attempt to unpair device " + bluetoothDevice.getAddress());
                     tmp.unpairDevice(bluetoothDevice);
