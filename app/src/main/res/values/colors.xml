@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="blackPrimary">#fcfafa</color>
+    <color name="whitePrimary">#fcfafa</color>
     <color name="wordColorRed">#b62520</color>
     <color name="colorAccent">#dc0950</color>
     <color name="colorPrimary">#000</color>
     <color name="colorPrimaryDark">#892e2e</color>
+    <color name="ColorWhite">#FFF</color>
+    <color name="wordColorWhite">#FFF</color>
 </resources>

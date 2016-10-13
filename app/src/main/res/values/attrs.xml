@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="ContactList">
+    <declare-styleable name="ContactCustomView">
         <attr name="nameLabel" format="string"/>
         <attr name="phoneLabel" format="string"/>
-        <attr name="emailLabel" format="string"/>
     </declare-styleable>
 </resources>

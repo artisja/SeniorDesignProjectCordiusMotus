@@ -1,12 +1,23 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
+import android.util.Log;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import static mult_603.seniordesignprojectcordiusmotus.UserMapsActivity.TAG;
+
 /**
  * Created by artisja on 10/1/2016.
  */
 
-public class Contact {
+public class Contact implements User{
 
-    private String name,number;
+
+    private String name,number,patientUuid;;
 
     public Contact(String newName,String newNumber){
         name = newName;
@@ -29,23 +40,14 @@ public class Contact {
         this.number = number;
     }
 
-    public void addContactToDatabase(Contact contact, String reference){
-        firebaseDatabase = FirebaseDatabase.getInstance();
-        DatabaseReference ref = firebaseDatabase.getReference(reference);
-        ref.setValue(contact);
 
-        // What if we could call this whenever the users position changes?
-        ref.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String data = dataSnapshot.getValue(String.class);
-                Log.i(TAG, "Contacts data has changed: " + data);
-            }
+    @Override
+    public String getUuid() {
+        return patientUuid;
+    }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.i(TAG, "Contacts data change was cancelled");
-            }
-        });
+    @Override
+    public void setUuid(String id) {
+        patientUuid=id;
     }
 }
