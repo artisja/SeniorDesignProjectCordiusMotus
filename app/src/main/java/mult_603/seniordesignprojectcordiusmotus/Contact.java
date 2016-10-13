@@ -1,8 +1,5 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
-/**
- * Created by artisja on 10/1/2016.
- */
 import android.util.Log;
 
 import com.google.firebase.database.DataSnapshot;
@@ -11,15 +8,20 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-public class Contact {
+import static mult_603.seniordesignprojectcordiusmotus.UserMapsActivity.TAG;
 
-    private String name,number, email;
-    public final String TAG = Contact.class.getSimpleName();
+/**
+ * Created by artisja on 10/1/2016.
+ */
 
-    public Contact(String newName,String newNumber, String newEmail){
+public class Contact implements User{
+
+
+    private String name,number,patientUuid;;
+
+    public Contact(String newName,String newNumber){
         name = newName;
         number = newNumber;
-        email = newEmail;
     }
 
     public String getNumber() {
@@ -30,10 +32,6 @@ public class Contact {
         return name;
     }
 
-    public String getEmail(){
-        return email;
-    }
-
     public void setName(String name) {
         this.name = name;
     }
@@ -42,27 +40,14 @@ public class Contact {
         this.number = number;
     }
 
-    public void setEmail(String email){
-        this.email = email;
+
+    @Override
+    public String getUuid() {
+        return patientUuid;
     }
 
-    public void addContactToDatabase(Contact contact, String reference){
-        FirebaseDatabase db = FirebaseDatabase.getInstance();
-        DatabaseReference ref = db.getReference(reference);
-        ref.setValue(contact);
-
-        // What if we could call this whenever the users position changes?
-        ref.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String data = dataSnapshot.getValue(String.class);
-                Log.i(TAG, "Contacts data has changed: " + data);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.i(TAG, "Contacts data change was cancelled");
-            }
-        });
+    @Override
+    public void setUuid(String id) {
+        patientUuid=id;
     }
 }

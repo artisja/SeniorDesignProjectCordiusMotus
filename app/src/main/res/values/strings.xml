@@ -3,6 +3,7 @@
     <string name="cali_button">I am the Patient</string>
     <string name="medic_button">I am the Respondent</string>
     <string name="title_activity_user_maps">Map</string>
+    <string name="submit_all_button">Submit All</string>
     <string name="submit_button">Submit</string>
     <string name="contact_label">Contact Name</string>
     <string name="name_hint">Name</string>
@@ -14,4 +15,5 @@
     <string name="userInstructionSignUp">Type in Unique Password</string>
     <string name="emailHint">Email</string>
     <string name="title_activity_patient_emergency_contact">PatientEmergencyContactActivity</string>
+    <string name="add_button_label">Add Button</string>
 </resources>

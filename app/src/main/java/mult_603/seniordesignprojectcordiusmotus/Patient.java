@@ -13,7 +13,7 @@ import java.lang.reflect.Array;
 /**
  * Created by Wes on 10/1/16.
  */
-public class Patient {
+public class Patient implements User {
 
     public String patientUserName;
     private double heartRate;
@@ -40,6 +40,7 @@ public class Patient {
     public String getUuid(){
         return uuid;
     }
+
 
     // Add a patient object to the Firebase Database using a string reference
     public void addPatientToDatabase(Patient patient, String reference){
@@ -77,6 +78,7 @@ public class Patient {
     public void setUuid(String id){
         this.uuid = id;
     }
+
     @Override
     public String toString(){
         String str = patientUserName + " " + heartRate + " " + temperature + " ";
