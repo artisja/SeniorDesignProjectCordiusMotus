@@ -70,11 +70,12 @@ public class BluetoothListAdapter extends BaseAdapter implements ListAdapter {
         // Device pair button
         final Button devicePairButton = (Button) view.findViewById(R.id.bluetooth_device_pair_button);
 
-        // Set the device bonded or unbonded text
+        // Device is bonded
         if(device.getBondState() == 12){
             Log.i(TAG, "Device: " + device + " bond state: " + device.getBondState() + " PAIRED");
             devicePairButton.setText("Unpair");
         }
+        // Device is not bonded
         else if (device.getBondState() == 10){
             devicePairButton.setText("Pair Device");
             Log.i(TAG, "Device: " + device + " bond state: " + device.getBondState() + " UNPAIRED");
