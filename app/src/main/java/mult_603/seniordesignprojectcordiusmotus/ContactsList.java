@@ -12,7 +12,7 @@ public class ContactsList {
         private  Contact contactPerson;
 
         public Node(Contact contact,Node prev,Node next){
-           contactPerson = contact;
+            contactPerson = contact;
             nextNode = next;
             prevNode = prev;
         }
@@ -36,8 +36,6 @@ public class ContactsList {
         public void setNextNode(Node nextNode) {
             this.nextNode = nextNode;
         }
-
-
 
         public void setPrevNode(Node prevNode) {
             this.prevNode = prevNode;

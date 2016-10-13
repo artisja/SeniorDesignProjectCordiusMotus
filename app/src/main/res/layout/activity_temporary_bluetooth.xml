@@ -18,7 +18,8 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Refresh"
+        android:text="Discover Devices"
+        android:textColor="@color/wordColorRed"
         android:id="@+id/refresh_button"
         android:layout_below="@+id/bluetooth_list"
         android:layout_centerHorizontal="true" />
