@@ -69,8 +69,8 @@ public class ContactActivity extends AppCompatActivity {
                 adapter.notifyDataSetChanged();
                 addContactToDatabase(contactsArray,contactsArray.get(0).getUuid());
                 Toast.makeText(ContactActivity.this, "Contacts Uploaded", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(ContactActivity.this,UserDefinitionActivity.class);
-                startActivity(intent);
+                Intent goingHomeintent = new Intent(ContactActivity.this,UserDefinitionActivity.class);
+                startActivity(goingHomeintent);
             }
         });
     }
