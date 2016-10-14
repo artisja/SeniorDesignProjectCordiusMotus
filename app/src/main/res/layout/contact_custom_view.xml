@@ -4,6 +4,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
     <EditText android:id="@+id/edit_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -14,7 +15,8 @@
     <TextView android:id="@+id/text_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        android:textSize="25sp"/>
 
     <EditText android:id="@+id/edit_number"
         android:layout_width="match_parent"
@@ -26,6 +28,7 @@
     <TextView android:id="@+id/text_number"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        android:textSize="25sp"/>
 
 </LinearLayout>

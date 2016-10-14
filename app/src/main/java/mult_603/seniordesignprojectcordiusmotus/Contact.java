@@ -20,16 +20,16 @@ public class Contact implements User{
     private String name,number,patientUuid;;
 
     public Contact(String newName,String newNumber){
-        name = newName;
-        number = newNumber;
+        this.name = newName;
+        this.number = newNumber;
     }
 
     public String getNumber() {
-        return number;
+        return this.number;
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public void setName(String name) {

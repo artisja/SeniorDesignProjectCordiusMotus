@@ -27,7 +27,7 @@ import static mult_603.seniordesignprojectcordiusmotus.UserMapsActivity.TAG;
 public class ContactActivity extends AppCompatActivity {
 
   private RecyclerView recyclerView;
-  private RecyclerView.Adapter adapter;
+  public static RecyclerView.Adapter adapter;
   private RecyclerView.LayoutManager layoutManager;
   private Button addButton;
   private Button submitButton;
@@ -41,8 +41,7 @@ public class ContactActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contact);
         contactsArray = new ArrayList<Contact>();
-        Contact contact = new Contact(null,null);
-        contactsArray.add(contact);
+        contactsArray.add(new Contact("",""));
         findViews();
         setUpClickListener();
 
@@ -66,7 +65,7 @@ public class ContactActivity extends AppCompatActivity {
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                adapter.notifyDataSetChanged();
+                contactsArray.get(0).setUuid("Pokemon");
                 addContactToDatabase(contactsArray,contactsArray.get(0).getUuid());
                 Toast.makeText(ContactActivity.this, "Contacts Uploaded", Toast.LENGTH_SHORT).show();
                 Intent goingHomeintent = new Intent(ContactActivity.this,UserDefinitionActivity.class);
@@ -82,12 +81,12 @@ public class ContactActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(layoutManager);
         addButton = (Button) findViewById(R.id.add_button);
-        submitButton = (Button) findViewById(R.id.submit_button);
+        submitButton = (Button) findViewById(R.id.submit_all_button);
     }
 
     public void addContactToDatabase(ArrayList<Contact> contact, String reference){
         firebaseDatabase = FirebaseDatabase.getInstance();
-        DatabaseReference ref = firebaseDatabase.getReference("Contact");
+        DatabaseReference ref = firebaseDatabase.getReference(reference);
         ref.setValue(contact);
     }
 }
