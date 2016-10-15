@@ -61,9 +61,9 @@ public class ContactCustomView extends LinearLayout {
         nameText.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                nameEdit.setText(nameText.getText().toString());
-                nameText.setVisibility(GONE);
-                nameEdit.setVisibility(VISIBLE);
+                    nameEdit.setText(nameText.getText().toString());
+                    nameText.setVisibility(GONE);
+                    nameEdit.setVisibility(VISIBLE);
                 ContactRecyclerAdapter.contactsArrayAdapter.get(ContactRecyclerAdapter.currentPositon).setNumber(numberText.getText().toString());
 
             }
@@ -117,5 +117,5 @@ public class ContactCustomView extends LinearLayout {
 
     public Contact getContact(){
         Contact contact = new Contact(name,number);
-        return contact;}
+    return contact;}
 }

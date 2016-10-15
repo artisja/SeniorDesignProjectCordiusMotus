@@ -27,7 +27,7 @@ public class ContactRecyclerAdapter extends RecyclerView.Adapter<ContactRecycler
         }
 
         public TextView getNameText(){
-            return (TextView) contactCustomView.findViewById(R.id.text_name);
+           return (TextView) contactCustomView.findViewById(R.id.text_name);
         }
 
         public TextView getNumberText(){

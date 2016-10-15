@@ -26,14 +26,14 @@ import static mult_603.seniordesignprojectcordiusmotus.UserMapsActivity.TAG;
 
 public class ContactActivity extends AppCompatActivity {
 
-    private RecyclerView recyclerView;
-    public static RecyclerView.Adapter adapter;
-    private RecyclerView.LayoutManager layoutManager;
-    private Button addButton;
-    private Button submitButton;
-    private ArrayList<Contact> contactsArray;
-    private FirebaseDatabase firebaseDatabase;
-    public static boolean isSubmitPressed =true;
+  private RecyclerView recyclerView;
+  public static RecyclerView.Adapter adapter;
+  private RecyclerView.LayoutManager layoutManager;
+  private Button addButton;
+  private Button submitButton;
+  private ArrayList<Contact> contactsArray;
+  private FirebaseDatabase firebaseDatabase;
+  public static boolean isSubmitPressed =true;
 
 
     @Override
@@ -68,10 +68,8 @@ public class ContactActivity extends AppCompatActivity {
                 contactsArray.get(0).setUuid("Pokemon");
                 addContactToDatabase(contactsArray,contactsArray.get(0).getUuid());
                 Toast.makeText(ContactActivity.this, "Contacts Uploaded", Toast.LENGTH_SHORT).show();
-//                Intent goingHomeintent = new Intent(ContactActivity.this,UserDefinitionActivity.class);
-//                startActivity(goingHomeintent);
-                Intent contactListIntent = new Intent(ContactActivity.this, ContactListActivity.class);
-                startActivity(contactListIntent);
+                Intent goingHomeintent = new Intent(ContactActivity.this,UserDefinitionActivity.class);
+                startActivity(goingHomeintent);
             }
         });
     }
