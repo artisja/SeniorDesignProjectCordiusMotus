@@ -7,20 +7,13 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".BluetoothActivity">
+    tools:context="mult_603.seniordesignprojectcordiusmotus.ContactListActivity">
 
     <ListView
-        android:layout_width="match_parent"
-        android:layout_height="450dp"
-        android:id="@+id/bluetooth_list">
-    </ListView>
-
-    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Discover Devices"
-        android:textColor="@color/wordColorRed"
-        android:id="@+id/refresh_button"
-        android:layout_below="@+id/bluetooth_list"
-        android:layout_centerHorizontal="true" />
+        android:id="@+id/contact_list"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 </RelativeLayout>

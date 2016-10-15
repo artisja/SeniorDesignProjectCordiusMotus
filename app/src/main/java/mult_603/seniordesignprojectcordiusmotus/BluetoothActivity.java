@@ -10,10 +10,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
-import android.renderscript.ScriptGroup;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -21,21 +19,20 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.Toast;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
-import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.UUID;
 
-public class TemporaryBluetoothActivity extends AppCompatActivity {
-    public static final String TAG = TemporaryBluetoothActivity.class.getSimpleName();
+public class BluetoothActivity extends AppCompatActivity {
+    public static final String TAG = BluetoothActivity.class.getSimpleName();
     private final int REQUEST_BLUETOOTH_ENABLED = 2;
     private BluetoothListAdapter bluetoothListAdapter;
     private BluetoothAdapter bluetoothAdapter;
@@ -57,6 +54,7 @@ public class TemporaryBluetoothActivity extends AppCompatActivity {
     private final UUID CONNECTION_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     private Handler mHandler;
     private BluetoothDevice connectedDevice;
+    private ConnectedThread mConnectedThread;
 
 
     @Override
@@ -123,6 +121,17 @@ public class TemporaryBluetoothActivity extends AppCompatActivity {
         // Get bonded devices
         getBondedDevices();
 
+        // Create a thread between the device and the application
+        if (connectedDevice != null){
+            //AcceptThread acceptThread = new AcceptThread();
+            ConnectThread connectThread = new ConnectThread(connectedDevice);
+            connectThread.start();
+            Log.i(TAG, "Connect Thread " + connectThread.getName() + "\n"
+                    + "Connect Thread State " + connectThread.getState() + "\n"
+                    + "Connect Thread Id " + connectThread.getId());
+
+        }
+
     }
 
     // Set up the variables for this class
@@ -168,12 +177,16 @@ public class TemporaryBluetoothActivity extends AppCompatActivity {
                 int begin = (int) msg.arg1;
                 int end = (int) msg.arg2;
 
+
                 switch (msg.what) {
                     case 1:
-                        String writeMessage = new String(writeBuf);
-                        writeMessage = writeMessage.substring(begin, end);
-                        Log.i(TAG, "Writing...");
-                        Log.i(TAG, writeMessage);
+                        try {
+                            String read = new String(writeBuf, begin, end, "UTF-8").trim();
+                            Log.i(TAG, "Handler Message -> " + read);
+                        }catch(Exception e){
+                            Log.i(TAG, "String conversion exception " + e.getMessage());
+                        }
+
                         break;
                 }
             }
@@ -221,24 +234,6 @@ public class TemporaryBluetoothActivity extends AppCompatActivity {
                     deviceList.add(device);
                     connectedDevice = device;
                 }
-
-//                ConnectThread connectThread = new ConnectThread(device);
-//                connectThread.start();
-//                Log.i(TAG, "Connect Thread Client " + connectThread.getId() + " " + connectThread.getName());
-
-
-                AcceptThread acceptThread = new AcceptThread();
-                acceptThread.start();
-                ConnectThread connectThread = new ConnectThread(connectedDevice);
-                connectThread.start();
-
-                Log.i(TAG, "Connect Thread Server " + acceptThread.getId() + " " + acceptThread.getName());
-
-
-                // Log the device UUID
-//                Log.i(TAG, "Device UUID: " + device.getUuids());
-
-
             }
         }
     }
@@ -267,122 +262,7 @@ public class TemporaryBluetoothActivity extends AppCompatActivity {
         }
     }
 
-    /*
-        Accept Thread for starting communication
-     */
-    private class AcceptThread extends Thread{
-        // Local server socket
-        public final BluetoothServerSocket serverSocket;
-
-        public AcceptThread(){
-            BluetoothServerSocket temp = null;
-
-            try{
-                temp = bluetoothAdapter.listenUsingRfcommWithServiceRecord("HeartRate",UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
-
-            }catch(IOException e){
-                Log.i(TAG, "ERROR creating server socket " + e.getMessage());
-            }
-            serverSocket = temp;
-        }
-
-        public void run(){
-            BluetoothSocket socket = null;
-            // Listen until exception occurs or connection is established
-            while(true){
-                try{
-                    socket = serverSocket.accept();
-                }catch(IOException e){
-                    Log.i(TAG, "ERROR trying to accept server socket " + e.getMessage());
-                    break;
-                }
-
-                // If a connection was established
-                if(socket != null){
-                    // Manage the connection
-
-                    try {
-                        manageConnectedSocket(socket);
-                        serverSocket.close();
-                    }catch(IOException eE){
-                        Log.i(TAG, "ERROR trying to close the open server socket connection " + eE.getMessage());
-                    }
-
-                    break;
-                }
-            }
-        }
-
-        private void manageConnectedSocket(BluetoothSocket socket){
-            Log.i(TAG, "Managing the socket Connection");
-            
-        }
-
-        public void cancel(){
-            try {
-                serverSocket.close();
-            }catch(IOException eE){
-                Log.i(TAG, "ERROR trying to close the open server socket connection " + eE.getMessage());
-            }
-        }
-
-    }
-
-    private class ServerConnectedThread extends Thread {
-        private final BluetoothSocket connectedSocket;
-        public final InputStream inputStream;
-        private final OutputStream outputStream;
-        private InputStream tempIn;
-        private OutputStream tempOut;
-
-        public ServerConnectedThread(BluetoothSocket socket) {
-            connectedSocket = socket;
-            tempIn = null;
-            tempOut = null;
-
-            // Temporary input and output streams because the others are final
-            try {
-                tempIn = socket.getInputStream();
-                tempOut = socket.getOutputStream();
-
-            } catch (IOException e) {
-                Log.i(TAG, "ERROR trying to get input and output streams of connected thread " + e.getMessage());
-            }
-            // If the input streams were there then initialize them as final variables
-            inputStream = tempIn;
-            outputStream = tempOut;
-        }
-
-        public void run() {
-            byte[] buffer = new byte[24];
-            int bytes;
-
-            while (true) {
-                try {
-                    // Read from the input stream
-                    bytes = inputStream.read(buffer);
-                    // Send the bytes to the activity
-                    mHandler.obtainMessage(1 , bytes, -1, buffer)
-                            .sendToTarget();
-
-                } catch (IOException e) {
-                    Log.i(TAG, "ERROR running the connected thread " + e.getMessage());
-                    break;
-                }
-            }
-        }
-
-        // How to cancel the connection from the UI
-        public void cancel(){
-            try{
-                connectedSocket.close();
-            }catch (IOException e){
-                Log.i(TAG, "ERROR canceling the connected thread " + e.getMessage());
-            }
-        }
-    }
-
-
+    // This thread creates a socket and a connected thread and instantiates it.
     private class ConnectThread extends Thread {
         public final BluetoothSocket mmSocket;
         private final BluetoothDevice mmDevice;
@@ -412,6 +292,12 @@ public class TemporaryBluetoothActivity extends AppCompatActivity {
                 }
                 return;
             }
+            // Connect the socket and get information
+            mConnectedThread = new ConnectedThread(mmSocket);
+            mConnectedThread.start();
+            Log.i(TAG, "Connected Thread " + mConnectedThread.getName() + "\n"
+                    + "Connected Thread State " + mConnectedThread.getState() + "\n"
+                    + "Connected Thread Id " + mConnectedThread.getId());
         }
 
         public void cancel() {
@@ -443,24 +329,27 @@ public class TemporaryBluetoothActivity extends AppCompatActivity {
             }
 
             public void run() {
+//                byte[] buffer = new byte[20];
                 byte[] buffer = new byte[1024];
                 int begin = 0;
                 int bytes = 0;
                 while (true) {
                     try {
-                        bytes += mmInStream.read(buffer, bytes, buffer.length - bytes);
+                        bytes += mmInStream.read(buffer, bytes, buffer.length - bytes); // - bytes);
+                        Log.i(TAG, "Buffer Length: " + buffer.length
+                                + "\n" + "Bytes " + bytes);
+
                         for (int i = begin; i < bytes; i++) {
-                            Log.i(TAG, "Information from the input stream");
-                            if (buffer[i] == "#".getBytes()[0]) {
-                                mHandler.obtainMessage(1, begin, i, buffer).sendToTarget();
-                                begin = i + 1;
-                                if (i == bytes - 1) {
+                            if(buffer[i] == " H".getBytes()[0]){
+                                // Send the heart rate data to the handler.
+                                mHandler.obtainMessage(1, begin, bytes, buffer).sendToTarget();
+                                if(i == bytes - 1){
                                     bytes = 0;
                                     begin = 0;
                                 }
                             }
-
                         }
+
                         Log.i(TAG, "Bytes -> " + bytes);
                     } catch (IOException e) {
                         Log.i(TAG, "ERROR reading information from buffer " + e.getMessage());

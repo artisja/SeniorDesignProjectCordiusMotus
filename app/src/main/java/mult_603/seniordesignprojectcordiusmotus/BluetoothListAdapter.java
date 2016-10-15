@@ -2,7 +2,6 @@ package mult_603.seniordesignprojectcordiusmotus;
 
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,7 +10,6 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -84,12 +82,10 @@ public class BluetoothListAdapter extends BaseAdapter implements ListAdapter {
         devicePairButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TemporaryBluetoothActivity tmp = new TemporaryBluetoothActivity();
+                BluetoothActivity tmp = new BluetoothActivity();
                 BluetoothDevice bluetoothDevice = bluetoothNameList.get(listPosition);
 
                 // Attempt to pair or unpair device
-                // I Need to check if device is already paired with something or not.
-                // TODO - Check if device is already paired ????
                 if (devicePairButton.getText() == "Unpair"){
                     Log.i(TAG, "Attempt to unpair device " + bluetoothDevice.getAddress());
                     tmp.unpairDevice(bluetoothDevice);

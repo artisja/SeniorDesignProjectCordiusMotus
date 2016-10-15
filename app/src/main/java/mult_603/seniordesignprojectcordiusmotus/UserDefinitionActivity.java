@@ -44,7 +44,7 @@ public class UserDefinitionActivity extends AppCompatActivity {
         bluetoothButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                bluetoothActivity = new Intent(getApplicationContext(), TemporaryBluetoothActivity.class);
+                bluetoothActivity = new Intent(getApplicationContext(), BluetoothActivity.class);
                 startActivity(bluetoothActivity);
             }
         });

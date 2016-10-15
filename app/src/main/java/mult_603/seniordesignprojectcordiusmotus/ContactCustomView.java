@@ -41,26 +41,58 @@ public class ContactCustomView extends LinearLayout {
         nameEdit = (EditText) findViewById(R.id.edit_name);
         numberEdit = (EditText) findViewById(R.id.edit_number);
         nameText = (TextView) findViewById(R.id.text_name);
-        numberText = (TextView) findViewById(R.id.text_name);
+        numberText = (TextView) findViewById(R.id.text_number);
 
         nameEdit.setOnFocusChangeListener(new OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if(!hasFocus){
-                    name = nameEdit.getText().toString();
-                    nameText.setText(name);
+                if(hasFocus && !nameEdit.getText().toString().equals("")){
+                    nameText.setVisibility(GONE);
+                    nameEdit.setVisibility(VISIBLE);
+                }else if(!hasFocus && !nameEdit.getText().toString().equals("")) {
+                    nameText.setText(nameEdit.getText().toString());
+                    nameText.setVisibility(VISIBLE);
+                    nameEdit.setVisibility(GONE);
+                    ContactRecyclerAdapter.contactsArrayAdapter.get(ContactRecyclerAdapter.currentPositon).setName(nameText.getText().toString());
                 }
             }
         });
 
+        nameText.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                nameEdit.setText(nameText.getText().toString());
+                nameText.setVisibility(GONE);
+                nameEdit.setVisibility(VISIBLE);
+                ContactRecyclerAdapter.contactsArrayAdapter.get(ContactRecyclerAdapter.currentPositon).setNumber(numberText.getText().toString());
+
+            }
+        });
 
         numberEdit.setOnFocusChangeListener(new OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if(!hasFocus){
-                    number = numberEdit.getText().toString();
-                    numberText.setText(number);
+                if(hasFocus && !nameEdit.getText().toString().equals("")){
+                    numberText.setVisibility(GONE);
+                    numberEdit.setVisibility(VISIBLE);
+                    nameText.setText(numberEdit.getText());
+                }else if (!hasFocus && !nameEdit.getText().toString().equals("")) {
+                    numberEdit.setVisibility(GONE);
+                    numberText.setText(numberEdit.getText().toString());
+                    numberText.setVisibility(VISIBLE);
+                    ContactRecyclerAdapter.contactsArrayAdapter.get(ContactRecyclerAdapter.currentPositon).setNumber(numberText.getText().toString());
                 }
+            }
+        });
+
+        numberText.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                numberEdit.setText(numberText.getText().toString());
+                numberText.setVisibility(GONE);
+                numberEdit.setVisibility(VISIBLE);
+                ContactRecyclerAdapter.contactsArrayAdapter.get(ContactRecyclerAdapter.currentPositon).setNumber(numberText.getText().toString());
+
             }
         });
 
@@ -85,5 +117,5 @@ public class ContactCustomView extends LinearLayout {
 
     public Contact getContact(){
         Contact contact = new Contact(name,number);
-    return contact;}
+        return contact;}
 }
