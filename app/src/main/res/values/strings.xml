@@ -16,4 +16,5 @@
     <string name="emailHint">Email</string>
     <string name="title_activity_patient_emergency_contact">PatientEmergencyContactActivity</string>
     <string name="add_button_label">Add Button</string>
+    <string name="title_activity_contact_simple">ContactSimpleActivity</string>
 </resources>

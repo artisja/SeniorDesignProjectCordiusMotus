@@ -1,15 +1,5 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
-import android.util.Log;
-
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
-import static mult_603.seniordesignprojectcordiusmotus.UserMapsActivity.TAG;
-
 /**
  * Created by artisja on 10/1/2016.
  */
@@ -17,19 +7,24 @@ import static mult_603.seniordesignprojectcordiusmotus.UserMapsActivity.TAG;
 public class Contact implements User{
 
 
-    private String name,number,patientUuid;;
+    private String name,number,email,patientUuid;;
 
-    public Contact(String newName,String newNumber){
+    public Contact(String newName,String newNumber, String newEmail){
         this.name = newName;
         this.number = newNumber;
+        this.email = newEmail;
+    }
+
+    public String getName() {
+        return this.name;
     }
 
     public String getNumber() {
         return this.number;
     }
 
-    public String getName() {
-        return this.name;
+    public String getEmail(){
+        return this.email;
     }
 
     public void setName(String name) {
@@ -40,6 +35,9 @@ public class Contact implements User{
         this.number = number;
     }
 
+    public void setEmail(String email){
+        this.email = email;
+    }
 
     @Override
     public String getUuid() {
@@ -49,6 +47,14 @@ public class Contact implements User{
     @Override
     public void setUuid(String id) {
         patientUuid=id;
+    }
+
+    @Override
+    public String toString(){
+        return "Name: " + this.name
+                + "\nNumber: " + this.number
+                + "\nEmail: " + this.email
+                + "\nUUID: " + this.patientUuid;
     }
 }
 

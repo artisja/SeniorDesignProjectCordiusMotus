@@ -52,7 +52,6 @@ public class ContactListAdapter extends BaseAdapter implements ListAdapter {
         if (view == null){
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             view = inflater.inflate(R.layout.contact_row_item, null);
-            Log.i(TAG, "Set up a contact view that was initially null");
         }
 
         // Get the contact from the array list

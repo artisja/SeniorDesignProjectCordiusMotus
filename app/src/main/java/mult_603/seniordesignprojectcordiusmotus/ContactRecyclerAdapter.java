@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import java.util.ArrayList;
 
 /**
@@ -46,14 +45,13 @@ public class ContactRecyclerAdapter extends RecyclerView.Adapter<ContactRecycler
         return vh;
     }
 
-
-
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         currentPositon=position;
         contactsArrayAdapter.get(position).setName(holder.getNameText().getText().toString());
         contactsArrayAdapter.get(position).setNumber(holder.getNumberText().getText().toString());
     }
+
     @Override
     public int getItemCount() {
         return contactsArrayAdapter.size();

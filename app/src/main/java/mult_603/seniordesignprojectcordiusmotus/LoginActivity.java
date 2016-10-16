@@ -1,14 +1,15 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -48,15 +49,19 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-              final String   typedEmail = emailEditText.getText().toString().trim();
-              final String   typedPassword = passwordEditText.getText().toString().trim();
+                final String   typedEmail = emailEditText.getText().toString().trim();
+                final String   typedPassword = passwordEditText.getText().toString().trim();
+                final InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                final View currentView = v;
 
                 // If the password and email are null then don't do anything.
                 if(typedEmail.isEmpty() && typedPassword.isEmpty()){
+                    inputMethodManager.hideSoftInputFromWindow(currentView.getWindowToken(), 0);
                     Toast.makeText(getApplicationContext(), "Email and Password are empty", Toast.LENGTH_SHORT).show();
                 }
                 // If password or email is null then don't do anything.
                 else if(typedEmail.isEmpty() || typedPassword.isEmpty()){
+                    inputMethodManager.hideSoftInputFromWindow(currentView.getWindowToken(), 0);
                     Toast.makeText(getApplicationContext(), "Email or Password is empty", Toast.LENGTH_SHORT).show();
                 }
                 // Use Firebase to sign into the application
@@ -64,10 +69,14 @@ public class LoginActivity extends AppCompatActivity {
                     firebaseAuth.signInWithEmailAndPassword(typedEmail, typedPassword).addOnCompleteListener(LoginActivity.this, new OnCompleteListener<com.google.firebase.auth.AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<com.google.firebase.auth.AuthResult> task) {
+                            // If logging in is unsuccessful then hide keyboard and display toast
                             if (!task.isSuccessful()) {
-                                Toast.makeText(getApplicationContext(), "fuck", Toast.LENGTH_LONG).show();
+                                // Hide the keyboard
+                                inputMethodManager.hideSoftInputFromWindow(currentView.getWindowToken(), 0);
+                                Toast.makeText(getApplicationContext(), "Email or Password was Incorrect", Toast.LENGTH_LONG).show();
                             } else {
-                                Intent intent = new Intent(LoginActivity.this, ContactActivity.class);
+//                                Intent intent = new Intent(LoginActivity.this, ContactActivity.class);
+                                Intent intent = new Intent(LoginActivity.this, ContactSimpleActivity.class);
                                 startActivity(intent);
                             }
                         }
@@ -92,6 +101,4 @@ public class LoginActivity extends AppCompatActivity {
         emailEditText = (EditText) findViewById(R.id.email_edit);
         passwordEditText = (EditText) findViewById(R.id.password_edit);
     }
-
-
 }

@@ -15,7 +15,7 @@ import android.widget.TextView;
  */
 
 public class ContactCustomView extends LinearLayout {
-    private String name,number;
+    private String name,number, email;
     private EditText nameEdit,numberEdit;
     private TextView nameText,numberText;
 
@@ -107,6 +107,8 @@ public class ContactCustomView extends LinearLayout {
         return number;
     }
 
+    public String getEmail() { return email; }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -115,7 +117,10 @@ public class ContactCustomView extends LinearLayout {
         this.number = number;
     }
 
+    public void setEmail(String email){this.email = email;}
+
+
     public Contact getContact(){
-        Contact contact = new Contact(name,number);
+        Contact contact = new Contact(name,number,email);
     return contact;}
 }

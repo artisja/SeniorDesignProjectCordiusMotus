@@ -12,28 +12,24 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
 import java.util.ArrayList;
 
-import static mult_603.seniordesignprojectcordiusmotus.UserMapsActivity.TAG;
-
 public class ContactActivity extends AppCompatActivity {
-
-  private RecyclerView recyclerView;
-  public static RecyclerView.Adapter adapter;
-  private RecyclerView.LayoutManager layoutManager;
-  private Button addButton;
-  private Button submitButton;
-  private ArrayList<Contact> contactsArray;
-  private FirebaseDatabase firebaseDatabase;
-  public static boolean isSubmitPressed =true;
+    public final String TAG = ContactActivity.class.getSimpleName();
+    private RecyclerView recyclerView;
+    public static RecyclerView.Adapter adapter;
+    private RecyclerView.LayoutManager layoutManager;
+    private Button addButton;
+    private Button submitButton;
+    private ArrayList<Contact> contactsArray;
+    private FirebaseDatabase firebaseDatabase;
+    public static boolean isSubmitPressed =true;
 
 
     @Override
@@ -41,7 +37,7 @@ public class ContactActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contact);
         contactsArray = new ArrayList<Contact>();
-        contactsArray.add(new Contact("",""));
+        contactsArray.add(new Contact("Example","777-7777", "someone@somewhere.com"));
         findViews();
         setUpClickListener();
 
@@ -53,7 +49,7 @@ public class ContactActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(contactsArray.size()<3){
-                    Contact contact = new Contact(null,null);
+                    Contact contact = new Contact(null,null,null);
                     contactsArray.add(contact);
                     adapter.notifyDataSetChanged();
                 }else{
@@ -68,8 +64,10 @@ public class ContactActivity extends AppCompatActivity {
                 contactsArray.get(0).setUuid("Pokemon");
                 addContactToDatabase(contactsArray,contactsArray.get(0).getUuid());
                 Toast.makeText(ContactActivity.this, "Contacts Uploaded", Toast.LENGTH_SHORT).show();
-                Intent goingHomeintent = new Intent(ContactActivity.this,UserDefinitionActivity.class);
-                startActivity(goingHomeintent);
+//                Intent goingHomeintent = new Intent(ContactActivity.this,UserDefinitionActivity.class);
+//                startActivity(goingHomeintent);
+                Intent contactListIntent = new Intent(ContactActivity.this, ContactListActivity.class);
+                startActivity(contactListIntent);
             }
         });
     }
@@ -85,8 +83,28 @@ public class ContactActivity extends AppCompatActivity {
     }
 
     public void addContactToDatabase(ArrayList<Contact> contact, String reference){
+        final ArrayList<Contact> contacts = contact;
         firebaseDatabase = FirebaseDatabase.getInstance();
         DatabaseReference ref = firebaseDatabase.getReference(reference);
+
+        // Attaching a value listener to see what is being sent to the database
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(Contact c: contacts){
+                    Log.i(TAG, "Contact "  + c.toString());
+                }
+                Log.i(TAG, "Data Snapshot key " + dataSnapshot.getKey());
+                Log.i(TAG, "Data Snapshot to string " + dataSnapshot.toString());
+                Log.i(TAG, "Data Snapshot get children count " + dataSnapshot.getChildrenCount());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.i(TAG, "Database addition was cancelled");
+            }
+        });
+
         ref.setValue(contact);
     }
 }
