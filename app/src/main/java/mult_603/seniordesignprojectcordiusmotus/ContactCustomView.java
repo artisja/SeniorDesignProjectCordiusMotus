@@ -64,7 +64,7 @@ public class ContactCustomView extends LinearLayout {
                     nameEdit.setText(nameText.getText().toString());
                     nameText.setVisibility(GONE);
                     nameEdit.setVisibility(VISIBLE);
-                ContactRecyclerAdapter.contactsArrayAdapter.get(ContactRecyclerAdapter.currentPositon).setNumber(numberText.getText().toString());
+                ContactRecyclerAdapter.contactsArrayAdapter.get(ContactRecyclerAdapter.currentPositon).setNumber(nameText.getText().toString());
 
             }
         });
