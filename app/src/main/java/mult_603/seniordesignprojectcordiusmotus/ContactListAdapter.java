@@ -1,7 +1,6 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.util.Log;
@@ -12,6 +11,9 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.TextView;
+
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 
@@ -64,30 +66,42 @@ public class ContactListAdapter extends BaseAdapter implements ListAdapter {
         TextView contactPhone = (TextView) view.findViewById(R.id.contact_list_phone);
         contactPhone.setText(contact.getNumber());
 
+        TextView contactEmail = (TextView) view.findViewById(R.id.contact_list_email);
+        contactEmail.setText(contact.getEmail());
+
         final Button removeContactButton = (Button) view.findViewById(R.id.contact_list_remove_button);
         removeContactButton.setText("Remove");
 
-        /*
+        final AlertDialog confirmationDialog = new AlertDialog.Builder(context)
+                .setTitle("Remove Contact")
+                .setMessage("Are you sure you want to delete this contact?")
+                .setPositiveButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Log.i(TAG, "Do NOT Delete this contact: " + contact.toString());
+                        dialog.dismiss();
+
+                    }
+                })
+                // TODO This probablly needs to be changed to delete specific contacts based on name etc.
+                // TODO Notify the contact list that this value has been removed
+                .setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Log.i(TAG, "Delete this contact " + contact.toString());
+                        DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("Contact");
+                        dRef.removeValue();
+                        dialog.dismiss();
+                    }
+                }).create();
+
         removeContactButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                new AlertDialog.Builder(v.getContext())
-                    .setTitle("Remove Contact")
-                    .setMessage("Are you sure you want to delete this contact?")
-                    .setPositiveButton("No", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Log.i(TAG, "Delete this contact: " + contact.toString());
-                            dialog.dismiss();
-
-                        }
-                    })
-                    .create()
-                    .show();
+                confirmationDialog.show();
             }
         });
-        */
+
         return view;
     }
 }

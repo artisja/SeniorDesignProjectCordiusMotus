@@ -15,7 +15,7 @@ import android.widget.TextView;
  */
 
 public class ContactCustomView extends LinearLayout {
-    private String name,number, email;
+    private String name,number,email;
     private EditText nameEdit,numberEdit;
     private TextView nameText,numberText;
 

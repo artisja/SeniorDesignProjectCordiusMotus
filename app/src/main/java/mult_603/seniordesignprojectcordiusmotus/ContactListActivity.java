@@ -14,6 +14,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,8 +23,11 @@ public class ContactListActivity extends AppCompatActivity {
     private ListView contactListView;
     private TextView contactName;
     private TextView contactPhone;
+    private TextView contactEmail;
     private Button removeButton;
     private FirebaseDatabase firebaseDatabase;
+    private ContactListAdapter contactListAdapter;
+    private ArrayList<Contact> contactList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,29 +35,27 @@ public class ContactListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_contact_list);
 
         findViews();
-        firebaseDatabase = FirebaseDatabase.getInstance();
-        final DatabaseReference databaseReference = firebaseDatabase.getReference("Contact");
 
-        final ArrayList<Contact> contactList = new ArrayList<>();
+        final DatabaseReference databaseReference = firebaseDatabase.getReference("Contact");
 
         String dbKey = databaseReference.getKey();
         Log.i(TAG, "Database Key " + dbKey);
 
-        // TODO Does this work ???
+        // TODO This needs to be more dynamic
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.i(TAG, "Database Snapshot get value " + dataSnapshot.getValue());
 
-                for(DataSnapshot contactSnapshot: dataSnapshot.getChildren()){
-                    Log.i(TAG, "Contact Children " + dataSnapshot.getChildrenCount());
-                    Log.i(TAG, "Name Key ");
-                    String name = (String) contactSnapshot.child("Name").getValue();
-                    String phone = (String) contactSnapshot.child("Phone").getValue();
-                    String email = (String) contactSnapshot.child("Email").getValue();
-                    Log.i(TAG, "String name " + name + "\nString number " + phone + "\nString email " + email);
+                String name = (String) dataSnapshot.child("Name").getValue();
+                String phone = (String) dataSnapshot.child("Phone").getValue();
+                String email = (String) dataSnapshot.child("Email").getValue();
 
-                }
+                Log.i(TAG, "Name -> " + name);
+                Log.i(TAG, "Phone -> " + phone);
+                Log.i(TAG, "Email -> " + email);
+                Contact contact = new Contact(name, phone, email);
+                contactList.add(contact);
             }
 
             @Override
@@ -61,12 +63,8 @@ public class ContactListActivity extends AppCompatActivity {
                 Log.i(TAG, "Database Error occurred " + databaseError.getDetails());
             }
         });
-
-        // TODO - Get the contact items from the database
-        //Contact contactForList = new Contact("Blah", "777-777-7777");
-        //contactList.add(contactForList);
-        ContactListAdapter contactAdapter = new ContactListAdapter(contactList, getApplicationContext());
-        contactListView.setAdapter(contactAdapter);
+        contactListAdapter = new ContactListAdapter(contactList, ContactListActivity.this);
+        contactListView.setAdapter(contactListAdapter);
 
 
     }
@@ -75,7 +73,9 @@ public class ContactListActivity extends AppCompatActivity {
         contactListView = (ListView) findViewById(R.id.contact_list);
         contactName = (TextView) findViewById(R.id.contact_list_name);
         contactPhone = (TextView) findViewById(R.id.contact_list_phone);
+        contactEmail = (TextView) findViewById(R.id.contact_list_email);
         removeButton = (Button) findViewById(R.id.contact_list_remove_button);
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        contactList = new ArrayList<>();
     }
-
 }
