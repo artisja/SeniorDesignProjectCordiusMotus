@@ -1,12 +1,15 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
+import android.util.Log;
+
+import com.google.firebase.database.DatabaseReference;
+
 /**
  * Created by artisja on 10/1/2016.
  */
 
 public class Contact implements User{
-
-
+    public final String TAG = Contact.class.getSimpleName();
     private String name,number,email,patientUuid;;
 
     public Contact(String newName,String newNumber, String newEmail){
@@ -47,6 +50,33 @@ public class Contact implements User{
     @Override
     public void setUuid(String id) {
         patientUuid=id;
+    }
+
+    @Override
+    public boolean equals(Object o){
+        if(this == o){
+            return true;
+        }
+        if(o == null){
+            return false;
+        }
+        if(getClass() != o.getClass()){
+            return false;
+        }
+
+        Contact c = (Contact) o;
+        if(!(this.name.equals(c.name) && this.number.equals(c.number) && this.email.equals(c.email))){
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode(){
+        int result = 31 * this.name.hashCode() + this.email.hashCode() + this.number.hashCode();
+        Log.i(TAG, "Contact HashCode => " + result);
+        return result;
+
     }
 
     @Override

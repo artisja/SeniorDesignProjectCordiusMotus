@@ -30,8 +30,8 @@
         android:hint="@string/emailHint"
         android:textColorHint="@color/wordColorRed"
         android:layout_gravity="center"
-        android:imeOptions="actionDone"
-        android:layout_marginBottom="5sp"/>
+        android:layout_marginBottom="5sp"
+        android:imeOptions="actionNext"/>
 
     <EditText
         android:id="@+id/set_password_edit"

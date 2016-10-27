@@ -21,8 +21,6 @@ public class SignUpActivity extends AppCompatActivity {
     private Button createdPasswordButton;
     private FirebaseAuth mFirebaseAuth;
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,8 +37,7 @@ public class SignUpActivity extends AppCompatActivity {
                String password = setPasswordEdit.getText().toString().trim();
                 String email = setEmailEdit.getText().toString().trim();
                 if(email.isEmpty() || password.isEmpty()){
-
-                    Toast.makeText(SignUpActivity.this, "NO no silly", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SignUpActivity.this, "No Password or Email was entered", Toast.LENGTH_SHORT).show();
                 }else{
 
                     mFirebaseAuth.createUserWithEmailAndPassword(email,password);
