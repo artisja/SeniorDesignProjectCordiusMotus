@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -27,9 +28,8 @@ public class ContactActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager layoutManager;
     private Button addButton;
     private Button submitButton;
-    private ArrayList<Contact> contactsArray;
+    public static ArrayList<Contact> contactsArray;
     private FirebaseDatabase firebaseDatabase;
-    public static boolean isSubmitPressed =true;
 
 
     @Override
@@ -37,10 +37,9 @@ public class ContactActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contact);
         contactsArray = new ArrayList<Contact>();
-        contactsArray.add(new Contact("Example","777-7777", "someone@somewhere.com"));
+        contactsArray.add(new Contact("Example","0898709678", "someone@somewhere.com"));
         findViews();
         setUpClickListener();
-
     }
 
     private void setUpClickListener() {
@@ -51,7 +50,7 @@ public class ContactActivity extends AppCompatActivity {
                 if(contactsArray.size()<3){
                     Contact contact = new Contact(null,null,null);
                     contactsArray.add(contact);
-                    adapter.notifyDataSetChanged();
+                notify();
                 }else{
                     Toast.makeText(ContactActivity.this, "No more than three contacts", Toast.LENGTH_SHORT).show();
                 }
@@ -63,11 +62,27 @@ public class ContactActivity extends AppCompatActivity {
             public void onClick(View v) {
                 contactsArray.get(0).setUuid("Pokemon");
                 addContactToDatabase(contactsArray,contactsArray.get(0).getUuid());
+                try {
+
+                   SmsManager smsManager = SmsManager.getDefault();
+                   String phoneNum = ContactRecyclerAdapter.contactsArrayAdapter.get(0).getNumber().toString();
+                   Toast.makeText(ContactActivity.this, contactsArray.get(0).getNumber().toString(), Toast.LENGTH_SHORT).show();
+                   String message = "You have been added as an emergency contact for User "  + "Patient ID" + "/n This is your UUID for the device location.";
+                   smsManager.sendTextMessage(phoneNum, null,message, null, null);
+//               Intent sendIntent = new Intent(Intent.ACTION_VIEW);
+//               sendIntent.putExtra("sms_body", "You got a pretty kind of dirty face.");
+//               sendIntent.setType("vnd.android-dir/mms-sms");
+//               startActivity(sendIntent);
+               }catch (Exception e){
+                   e.printStackTrace();
+                   Toast.makeText(ContactActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
+               }
                 Toast.makeText(ContactActivity.this, "Contacts Uploaded", Toast.LENGTH_SHORT).show();
-//                Intent goingHomeintent = new Intent(ContactActivity.this,UserDefinitionActivity.class);
-//                startActivity(goingHomeintent);
-                Intent contactListIntent = new Intent(ContactActivity.this, ContactListActivity.class);
-                startActivity(contactListIntent);
+                Intent goingHomeintent = new Intent(ContactActivity.this,UserDefinitionActivity.class);
+                startActivity(goingHomeintent);
+
+//                Intent contactListIntent = new Intent(ContactActivity.this, ContactListActivity.class);
+//                startActivity(contactListIntent);
             }
         });
     }

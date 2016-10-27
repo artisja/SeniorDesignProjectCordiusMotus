@@ -6,9 +6,11 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -65,7 +67,19 @@ public class ContactSimpleActivity extends AppCompatActivity {
                 dbref.child("Phone").setValue(phone);
                 dbref.child("Email").setValue(email);
 //                dbref.setValue(contact1);
+                try {
 
+                    SmsManager smsManager = SmsManager.getDefault();
+                    Toast.makeText(ContactSimpleActivity.this, phone, Toast.LENGTH_SHORT).show();
+                    smsManager.sendTextMessage(phone, null, "Your pornhub subsricption has been sent.", null, null);
+//               Intent sendIntent = new Intent(Intent.ACTION_VIEW);
+//               sendIntent.putExtra("sms_body", "You got a pretty kind of dirty face.");
+//               sendIntent.setType("vnd.android-dir/mms-sms");
+//               startActivity(sendIntent);
+                }catch (Exception e){
+                    e.printStackTrace();
+                    Toast.makeText(ContactSimpleActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
+                }
                 // Start new activity
                 Intent contactList = new Intent(ContactSimpleActivity.this, ContactListActivity.class);
                 startActivity(contactList);

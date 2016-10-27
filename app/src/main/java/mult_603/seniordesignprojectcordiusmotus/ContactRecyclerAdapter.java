@@ -24,20 +24,11 @@ public class ContactRecyclerAdapter extends RecyclerView.Adapter<ContactRecycler
             super(itemView);
             contactCustomView = (ContactCustomView) itemView.findViewById(R.id.contact_view);
         }
-
-        public TextView getNameText(){
-           return (TextView) contactCustomView.findViewById(R.id.text_name);
-        }
-
-        public TextView getNumberText(){
-            return (TextView) contactCustomView.findViewById(R.id.text_number);
-        }
     }
 
-    public ContactRecyclerAdapter(ArrayList<Contact> arrayList){
-        contactsArrayAdapter = arrayList;
+    public ContactRecyclerAdapter(ArrayList<Contact> contactArrayList){
+        contactsArrayAdapter=contactArrayList;
     }
-
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_contact,parent,false);
@@ -48,8 +39,8 @@ public class ContactRecyclerAdapter extends RecyclerView.Adapter<ContactRecycler
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         currentPositon=position;
-        contactsArrayAdapter.get(position).setName(holder.getNameText().getText().toString());
-        contactsArrayAdapter.get(position).setNumber(holder.getNumberText().getText().toString());
+        ContactActivity.contactsArray.get(position).setName(holder.contactCustomView.getName());
+        ContactActivity.contactsArray.get(position).setNumber(holder.contactCustomView.getNumber());
     }
 
     @Override

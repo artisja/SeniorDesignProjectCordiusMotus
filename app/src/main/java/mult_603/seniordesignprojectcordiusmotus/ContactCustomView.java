@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * Created by artisja on 10/12/2016.
@@ -23,7 +24,7 @@ public class ContactCustomView extends LinearLayout {
         super(context);
     }
 
-    public ContactCustomView(Context context, AttributeSet attrs) {
+    public ContactCustomView(final Context context, AttributeSet attrs) {
         super(context, attrs);
 
         TypedArray a = context.getTheme().obtainStyledAttributes(
@@ -46,14 +47,14 @@ public class ContactCustomView extends LinearLayout {
         nameEdit.setOnFocusChangeListener(new OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if(hasFocus && !nameEdit.getText().toString().equals("")){
+                if(hasFocus) {
                     nameText.setVisibility(GONE);
                     nameEdit.setVisibility(VISIBLE);
-                }else if(!hasFocus && !nameEdit.getText().toString().equals("")) {
+                    nameText.setText(nameEdit.getText().toString());
+                }else {
                     nameText.setText(nameEdit.getText().toString());
                     nameText.setVisibility(VISIBLE);
                     nameEdit.setVisibility(GONE);
-                    ContactRecyclerAdapter.contactsArrayAdapter.get(ContactRecyclerAdapter.currentPositon).setName(nameText.getText().toString());
                 }
             }
         });
@@ -64,23 +65,21 @@ public class ContactCustomView extends LinearLayout {
                     nameEdit.setText(nameText.getText().toString());
                     nameText.setVisibility(GONE);
                     nameEdit.setVisibility(VISIBLE);
-                ContactRecyclerAdapter.contactsArrayAdapter.get(ContactRecyclerAdapter.currentPositon).setNumber(nameText.getText().toString());
-
             }
         });
 
         numberEdit.setOnFocusChangeListener(new OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if(hasFocus && !nameEdit.getText().toString().equals("")){
+                if(hasFocus){
                     numberText.setVisibility(GONE);
                     numberEdit.setVisibility(VISIBLE);
-                    nameText.setText(numberEdit.getText());
-                }else if (!hasFocus && !nameEdit.getText().toString().equals("")) {
+                    number= numberEdit.getText().toString();
+                }else{
                     numberEdit.setVisibility(GONE);
                     numberText.setText(numberEdit.getText().toString());
                     numberText.setVisibility(VISIBLE);
-                    ContactRecyclerAdapter.contactsArrayAdapter.get(ContactRecyclerAdapter.currentPositon).setNumber(numberText.getText().toString());
+                    number= numberEdit.getText().toString();
                 }
             }
         });
@@ -91,8 +90,6 @@ public class ContactCustomView extends LinearLayout {
                 numberEdit.setText(numberText.getText().toString());
                 numberText.setVisibility(GONE);
                 numberEdit.setVisibility(VISIBLE);
-                ContactRecyclerAdapter.contactsArrayAdapter.get(ContactRecyclerAdapter.currentPositon).setNumber(numberText.getText().toString());
-
             }
         });
 
@@ -100,11 +97,11 @@ public class ContactCustomView extends LinearLayout {
 
 
     public String getName() {
-        return name;
+        return nameEdit.getText().toString();
     }
 
     public String getNumber() {
-        return number;
+        return numberEdit.getText().toString();
     }
 
     public String getEmail() { return email; }

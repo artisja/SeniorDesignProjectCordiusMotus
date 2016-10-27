@@ -1,11 +1,14 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
 import android.content.Intent;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+
+import static android.Manifest.permission.SEND_SMS;
 
 public class UserDefinitionActivity extends AppCompatActivity {
 
@@ -36,7 +39,7 @@ public class UserDefinitionActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Toast.makeText(UserDefinitionActivity.this, "Google Maps/medical data view screen", Toast.LENGTH_SHORT).show();
-                medicMapIntent = new Intent(getApplicationContext(), UserMapsActivity.class);
+                medicMapIntent = new Intent(getApplicationContext(), LoginDeviceLocator.class);
                 startActivity(medicMapIntent);
             }
         });
