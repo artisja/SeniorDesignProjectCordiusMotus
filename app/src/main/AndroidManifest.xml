@@ -29,11 +29,6 @@
         <activity
             android:name=".UserDefinitionActivity"
             android:screenOrientation="portrait">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
@@ -68,7 +63,14 @@
             android:label="@string/title_activity_contact_simple"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".LoginDeviceLocator" />
-        <activity android:name=".SplashEntranceScreen"></activity>
+        <activity android:name=".SplashEntranceScreen"
+            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>
