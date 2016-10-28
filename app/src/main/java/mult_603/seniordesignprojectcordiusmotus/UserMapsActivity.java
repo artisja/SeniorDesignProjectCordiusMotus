@@ -1,6 +1,7 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -241,8 +242,9 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
         else{
             Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
             if (lastLocation != null) {
-                latitude = lastLocation.getLatitude();
-                longitude = lastLocation.getLongitude();
+                Intent intent = getIntent();
+                latitude = intent.getDoubleExtra("Longitude",lastLocation.getLatitude());
+                longitude = intent.getDoubleExtra("Latitude",lastLocation.getLongitude());
                 currentPosition = new LatLng(latitude, longitude);
                 setUpMapMarkerByLocation(currentPosition);
                 Log.i(TAG, "( Latitude: " + latitude + " Longitude: " + longitude + " )");

@@ -8,9 +8,7 @@
   <mult_603.seniordesignprojectcordiusmotus.ContactCustomView
       android:id="@+id/contact_view"
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      app:nameLabel="@string/name_hint"
-      app:phoneLabel="@string/phone_number_hint">
+      android:layout_height="wrap_content">
   </mult_603.seniordesignprojectcordiusmotus.ContactCustomView>
 
     <ImageView
