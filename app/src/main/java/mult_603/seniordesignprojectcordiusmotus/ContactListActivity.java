@@ -21,9 +21,9 @@ public class ContactListActivity extends AppCompatActivity {
     private TextView contactName;
     private TextView contactPhone;
     private TextView contactEmail;
-    private Button removeButton;
+    private Button   removeButton;
     private FirebaseDatabase firebaseDatabase;
-    private FirebaseAuth firebaseAuth;
+    private FirebaseAuth     firebaseAuth;
     private ContactListAdapter contactListAdapter;
     private ArrayList<Contact> contactList;
 
@@ -37,41 +37,21 @@ public class ContactListActivity extends AppCompatActivity {
         final FirebaseUser currentUser = firebaseAuth.getCurrentUser();
         final DatabaseReference databaseReference = firebaseDatabase.getReference(currentUser.getUid());
 
-        Log.i(TAG, "Current User " + currentUser);
+        Log.i(TAG, "Current User "       + currentUser);
         Log.i(TAG, "Current User Email " + currentUser.getEmail());
-        Log.i(TAG, "Current User UUID " + currentUser.getUid());
-
-        String dbKey = databaseReference.getKey();
-        Log.i(TAG, "Database Key " + dbKey);
+        Log.i(TAG, "Current User UUID "  + currentUser.getUid());
+        Log.i(TAG, "Database Key " + databaseReference.getKey());
 
         // TODO how to update these stupid keys
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-
-
-                for(DataSnapshot children: dataSnapshot.getChildren()){
-                    String key = children.getKey();
-
-                    Log.i(TAG, "Database Snapshot get value " + children.getValue());
-                    Log.i(TAG, "Contact Key " + key);
-
-                    String name = (String) children.child("Name").getValue();
-                    String phone = (String) children.child("Phone").getValue();
-                    String email = (String) children.child("Email").getValue();
-
-                    Log.i(TAG, "Name -> " + name);
-                    Log.i(TAG, "Phone -> " + phone);
-                    Log.i(TAG, "Email -> " + email);
-
-                    if(!(name == null && phone == null && email == null)) {
-                        Contact contact = new Contact(name, phone, email);
-                        contactList.add(contact);
-                    }
-                    else{
-                        databaseReference.child(key).removeValue();
-                    }
-
+                for(DataSnapshot contact: dataSnapshot.getChildren()){
+                    // Get the key of the child
+                    String key = contact.getKey();
+                    Contact newContact = contact.getValue(Contact.class);
+                    Log.i(TAG, "Contact from Database " + newContact.toString());
+                    contactList.add(newContact);
                 }
             }
 
@@ -86,13 +66,13 @@ public class ContactListActivity extends AppCompatActivity {
     }
 
     public void findViews(){
-        contactListView = (ListView) findViewById(R.id.contact_list);
-        contactName = (TextView) findViewById(R.id.contact_list_name);
-        contactPhone = (TextView) findViewById(R.id.contact_list_phone);
-        contactEmail = (TextView) findViewById(R.id.contact_list_email);
-        removeButton = (Button) findViewById(R.id.contact_list_remove_button);
-        firebaseDatabase = FirebaseDatabase.getInstance();
-        firebaseAuth = FirebaseAuth.getInstance();
-        contactList = new ArrayList<>();
+        contactListView   = (ListView) findViewById(R.id.contact_list);
+        contactName       = (TextView) findViewById(R.id.contact_list_name);
+        contactPhone      = (TextView) findViewById(R.id.contact_list_phone);
+        contactEmail      = (TextView) findViewById(R.id.contact_list_email);
+        removeButton      = (Button) findViewById(R.id.contact_list_remove_button);
+        firebaseDatabase  = FirebaseDatabase.getInstance();
+        firebaseAuth      = FirebaseAuth.getInstance();
+        contactList       = new ArrayList<>();
     }
 }

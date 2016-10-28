@@ -10,7 +10,12 @@ import com.google.firebase.database.DatabaseReference;
 
 public class Contact implements User{
     public final String TAG = Contact.class.getSimpleName();
-    private String name,number,email,patientUuid;;
+    private String name,number,email,uuid;;
+
+    // Empty constructor for firebase
+    public Contact(){
+
+    }
 
     public Contact(String newName,String newNumber, String newEmail){
         this.name = newName;
@@ -44,12 +49,12 @@ public class Contact implements User{
 
     @Override
     public String getUuid() {
-        return patientUuid;
+        return uuid;
     }
 
     @Override
     public void setUuid(String id) {
-        patientUuid=id;
+        uuid=id;
     }
 
     @Override
@@ -76,15 +81,14 @@ public class Contact implements User{
         int result = 31 * this.name.hashCode() + this.email.hashCode() + this.number.hashCode();
         Log.i(TAG, "Contact HashCode => " + result);
         return result;
-
     }
 
     @Override
     public String toString(){
         return "Name: " + this.name
-                + "\nNumber: " + this.number
-                + "\nEmail: " + this.email
-                + "\nUUID: " + this.patientUuid;
+                + " Number: " + this.number
+                + " Email: " + this.email
+                + " UUID: " + this.uuid;
     }
 }
 

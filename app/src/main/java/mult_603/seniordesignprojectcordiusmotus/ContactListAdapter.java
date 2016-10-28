@@ -3,7 +3,6 @@ package mult_603.seniordesignprojectcordiusmotus;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,50 +18,38 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by Wes on 10/13/16.
  */
 public class ContactListAdapter extends BaseAdapter implements ListAdapter {
-    public final String TAG = ContactListAdapter.class.getSimpleName();
-    private ArrayList<Contact> contactArrayList;
-    private Map<String, Object> contactMap;
-    private Map<Contact, String> contactBackwardsMap;
-    private Context context;
-    private FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-    private DatabaseReference reference = FirebaseDatabase.getInstance().getReference(currentUser.getUid());
+    public final String          TAG = ContactListAdapter.class.getSimpleName();
+    private ArrayList<Contact>   contactArrayList;
+    private Context              context;
+    private FirebaseUser         currentUser = FirebaseAuth.getInstance().getCurrentUser();
+    private DatabaseReference    reference = FirebaseDatabase.getInstance().getReference(currentUser.getUid());
+    private ArrayList<String>    keyList;
 
     public ContactListAdapter(ArrayList<Contact> contacts, Context c){
         contactArrayList = contacts;
         context = c;
-        contactMap = new HashMap<>();
-        contactBackwardsMap = new HashMap<>();
+        keyList = new ArrayList<>();
 
         reference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for(DataSnapshot ds : dataSnapshot.getChildren()){
-                    String name = (String) ds.child("Name").getValue();
-                    String phone = (String) ds.child("Phone").getValue();
-                    String email = (String) ds.child("Email").getValue();
-                    Contact contact = new Contact(name, phone, email);
-                    String key = ds.getKey();
+                    Log.i(TAG, "Data Snapshot Key   " + ds.getKey());
+                    Log.i(TAG, "Data Snapshot Ref   "   + ds.getRef());
+                    Log.i(TAG, "Data Snapshot Value " + ds.getValue());
 
-                    Log.i(TAG, "Contact's Key in DB "  + key);
-                    Log.i(TAG, "Contact value for key " + contact.toString());
-
-                    // Put contact in the hash map
-                    if(key != null && contact != null) {
-                        contactMap.put(key, contact);
-                        contactBackwardsMap.put(contact, key);
+                    // If the item is not in the list then add it
+                    if(!(keyList.contains(ds.getKey()))) {
+                        keyList.add(ds.getKey());
                     }
-
                 }
             }
 
@@ -133,39 +120,22 @@ public class ContactListAdapter extends BaseAdapter implements ListAdapter {
                 .setNegativeButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        // Need to find the key based on the value
-                        Contact c = contactArrayList.get(currentPosition);
-                        Log.i(TAG, "Contact c " + c.toString());
+                        // Remove the contact item from the database
+                        Log.i(TAG, "Reference " + reference.getKey());
 
-                        String contactToDeleteKey = contactBackwardsMap.get(c);
-                        Log.i(TAG, "Contact to DELETE key " + contactToDeleteKey);
+                        String key = keyList.get(currentPosition);
 
-                        // Remove item from the array list and database
+                        Log.i(TAG, "Key to Delete       " + key);
+                        Log.i(TAG, "Reference to Delete " + reference.child(key));
+
+                        reference.child(key).removeValue();
+
+                        // Remove item from the array list and key list
                         contactArrayList.remove(currentPosition);
+                        keyList.remove(currentPosition);
 
+                        // Notify the data set has changed
                         notifyDataSetChanged();
-
-                        String contactKey = "Contact" + currentPosition;
-
-
-//                        reference.child(contactToDeleteKey).setValue(contactArrayList.get(currentPosition));
-
-                        // Make a map for updating the keys
-                        for(int i = 0; i < contactArrayList.size() - 1; i++){
-                            String contactStringKey = "Contact" + i;
-                            Contact contact1 = contactArrayList.get(i);
-                            Log.i(TAG, "Map ");
-                            Log.i(TAG, "Contact String Key " + contactStringKey);
-                            Log.i(TAG, "Contact at position " + i + " Contact " + contact1.toString());
-
-                            if (contact.equals(null)){
-                                contactMap.remove(contactKey);
-                            }
-                            else {
-                                contactMap.put(contactStringKey, contact1);
-                            }
-                        }
-                        reference.updateChildren(contactMap);
 
                         // Dismiss the dialog box
                         dialog.dismiss();
@@ -173,16 +143,12 @@ public class ContactListAdapter extends BaseAdapter implements ListAdapter {
                     }
                 }).create();
 
-
-
         removeContactButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 confirmationDialog.show();
             }
         });
-
-        notifyDataSetChanged();
 
         return view;
     }

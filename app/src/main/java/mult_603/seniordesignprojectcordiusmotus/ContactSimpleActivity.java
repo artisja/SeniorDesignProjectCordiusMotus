@@ -22,10 +22,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 public class ContactSimpleActivity extends AppCompatActivity {
-    public final String TAG = ContactSimpleActivity.class.getSimpleName();
-    private String contactStringKey;
-    private FirebaseDatabase firebaseDatabase;
-    private FirebaseAuth firebaseAuth;
+    public final String       TAG = ContactSimpleActivity.class.getSimpleName();
+    private String            contactStringKey;
+    private FirebaseDatabase  firebaseDatabase;
+    private FirebaseAuth      firebaseAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,45 +47,42 @@ public class ContactSimpleActivity extends AppCompatActivity {
         final FirebaseUser currentUser = firebaseAuth.getCurrentUser();
         final DatabaseReference dbref = firebaseDatabase.getReference(currentUser.getUid());
 
-        // Add value listener so we can make sure we are getting the right data in the database
-        dbref.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // Create a key for the contacs in the users database
-                if (dataSnapshot.getChildrenCount() == 0){
-                    contactStringKey = "Contact" + 0;
-                }
-                else {
-                    contactStringKey = "Contact" + dataSnapshot.getChildrenCount();
-                }
+        // For when I mess up the database and need to start over
+//        dbref.removeValue();
 
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.i(TAG, "Database operation canceled");
-            }
-        });
+        // Add value listener so we can make sure we are getting the right data in the database
+//        dbref.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                // Create a key for the contacs in the users database
+//                if (dataSnapshot.getChildrenCount() == 0){
+//                    contactStringKey = "Contact" + 0;
+//                }
+//                else {
+//                    contactStringKey = "Contact" + dataSnapshot.getChildrenCount();
+//                }
+//            }
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//                Log.i(TAG, "Database operation canceled");
+//            }
+//        });
 
         final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.add_button);
         assert fab != null;
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Intent intent = new Intent(ContactSimpleActivity.this, ContactListActivity.class);
-                String name = contactName.getText().toString();
+                // Get the text from the input fields to send to the database
+                String name  = contactName.getText().toString();
                 String phone = contactPhone.getText().toString();
                 String email = contactEmail.getText().toString();
-
-                // Get the uuid of the user then create a contact string and add the information there
-                DatabaseReference newRef = firebaseDatabase.getReference(currentUser.getUid()).child(contactStringKey);
-                Log.i(TAG, "New Database Reference " + newRef);
 
                 // Set database value if the information in the text fields is not empty
                 if( !(name.isEmpty() || phone.isEmpty() || email.isEmpty())) {
                     Log.i(TAG, "Name , Email, Phone Number is not empty");
-                    newRef.child("Name").setValue(name);
-                    newRef.child("Phone").setValue(phone);
-                    newRef.child("Email").setValue(email);
+                    Contact newContact = new Contact(name, phone, email);
+                    dbref.push().setValue(newContact);
 
                     // Present a message letting the user know that the contact was added to the database
                     Snackbar snackbar = Snackbar.make(view, "Contact Added", Snackbar.LENGTH_SHORT);

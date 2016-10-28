@@ -44,14 +44,10 @@ public class BluetoothActivity extends AppCompatActivity {
     private BluetoothDevice bluetoothDevice;
     private Intent enableBluetoothIntent;
     private Set<BluetoothDevice> bondedDevices;
-    private ProgressDialog progressDialog;
-    private boolean isPaired = false;
     private Handler h;
     private final int RECIEVE_MESSAGE = 1;
     private StringBuilder sb;
     private String address = "20:15:07:13:94:86";
-    private BluetoothSocket btSocket;
-    private final UUID CONNECTION_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     private Handler mHandler;
     private BluetoothDevice connectedDevice;
     private ConnectedThread mConnectedThread;
@@ -329,15 +325,14 @@ public class BluetoothActivity extends AppCompatActivity {
             }
 
             public void run() {
-//                byte[] buffer = new byte[20];
                 byte[] buffer = new byte[1024];
                 int begin = 0;
                 int bytes = 0;
                 while (true) {
                     try {
-                        bytes += mmInStream.read(buffer, bytes, buffer.length - bytes); // - bytes);
-                        Log.i(TAG, "Buffer Length: " + buffer.length
-                                + "\n" + "Bytes " + bytes);
+                        bytes += mmInStream.read(buffer, bytes, buffer.length - bytes);
+//                        Log.i(TAG, "Buffer Length: " + buffer.length
+//                                + "\n" + "Bytes " + bytes);
 
                         for (int i = begin; i < bytes; i++) {
                             if(buffer[i] == " H".getBytes()[0]){
@@ -350,7 +345,7 @@ public class BluetoothActivity extends AppCompatActivity {
                             }
                         }
 
-                        Log.i(TAG, "Bytes -> " + bytes);
+//                        Log.i(TAG, "Bytes -> " + bytes);
                     } catch (IOException e) {
                         Log.i(TAG, "ERROR reading information from buffer " + e.getMessage());
                         break;
