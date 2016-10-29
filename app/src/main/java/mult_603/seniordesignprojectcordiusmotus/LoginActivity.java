@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -18,7 +19,7 @@ import com.google.firebase.auth.FirebaseUser;
 import static com.google.firebase.auth.FirebaseAuth.*;
 
 public class LoginActivity extends AppCompatActivity {
-
+    public final String TAG = LoginActivity.class.getSimpleName();
     private Button signUpButton,loginButton,submitLoginButton;
     private EditText passwordEditText,emailEditText;
     private FirebaseAuth firebaseAuth;
@@ -37,8 +38,18 @@ public class LoginActivity extends AppCompatActivity {
             loginButton.performClick();
         }
 
-        if (firebaseUser != null){
+        // Get the current user
+        firebaseUser = firebaseAuth.getCurrentUser();
+
+        if (firebaseAuth != null){
+            Log.i(TAG, "Firebase Auth is not null");
             emailEditText.setText(firebaseUser.getEmail());
+        }
+
+        if(firebaseUser != null){
+            Log.i(TAG, "Firebase User is not null");
+            Log.i(TAG, "FireBase User " + firebaseUser.getEmail());
+            Log.i(TAG, "FireBase User Display Name " + firebaseUser.getDisplayName());
         }
     }
 

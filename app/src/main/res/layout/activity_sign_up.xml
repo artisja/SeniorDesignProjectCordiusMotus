@@ -24,25 +24,41 @@
         android:layout_marginBottom="5sp"/>
 
     <EditText
-        android:id="@+id/input_email_edit"
+        android:id="@+id/input_username_edit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/emailHint"
+        android:hint="@string/user_name_hint"
         android:textColorHint="@color/wordColorRed"
         android:layout_gravity="center"
         android:layout_marginBottom="5sp"
+        android:layout_marginTop="5sp"
+        android:maxLines="1"
+        android:singleLine="true"
         android:imeOptions="actionNext"/>
 
     <EditText
-        android:id="@+id/set_password_edit"
+        android:id="@+id/input_email_edit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:hint="@string/email_hint"
+        android:textColorHint="@color/wordColorRed"
+        android:layout_gravity="center"
+        android:layout_marginBottom="5sp"
+        android:maxLines="1"
         android:singleLine="true"
+        android:imeOptions="actionNext"/>
+
+    <EditText
+        android:id="@+id/input_password_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:maxLength="20"
-        android:hint="@string/password"
+        android:hint="@string/password_hint"
         android:textColorHint="@color/wordColorRed"
         android:layout_gravity="center"
         android:layout_marginBottom="15sp"
+        android:maxLines="1"
+        android:singleLine="true"
         android:imeOptions="actionDone"/>
 
     <Button

@@ -1,9 +1,11 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -27,7 +29,7 @@ public class LoginDeviceLocator extends AppCompatActivity {
 
     private TextView deviceLocatorInstructions;
     private EditText deviceLocatorPassword;
-    private Button deviceLocatorLogin;
+    private Button   deviceLocatorLogin;
     FirebaseDatabase database;
     String uuid;
 
@@ -47,10 +49,15 @@ public class LoginDeviceLocator extends AppCompatActivity {
                 uuid = userInput;
                 database = FirebaseDatabase.getInstance();
                 DatabaseReference ref = database.getReference(uuid);
+                final InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(v.getContext().INPUT_METHOD_SERVICE);
+                final View currentView = v;
+
                 ref.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.getValue()==null) {
+                            // Hide the keyboard from view and then present the toast
+                            inputMethodManager.hideSoftInputFromWindow(currentView.getWindowToken(), 0);
                             Toast.makeText(LoginDeviceLocator.this, "Incorrect Password", Toast.LENGTH_SHORT).show();
                         }else {
                             Intent intent = new Intent(LoginDeviceLocator.this,UserMapsActivity.class);

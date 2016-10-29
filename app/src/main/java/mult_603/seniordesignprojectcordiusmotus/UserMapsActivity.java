@@ -142,8 +142,8 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
                 Geocoder gc = new Geocoder(getApplicationContext(), Locale.getDefault());
                 LatLng currentLatLng = marker.getPosition();
                 Address currentAddress = new Address(Locale.getDefault());
-                String streetAddress = new String();
-                String cityAddress = new String();
+                String streetAddress =  new String();
+                String cityAddress =    new String();
                 String countryAddress = new String();
 
                 try {
@@ -275,6 +275,14 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
     @Override
     public void onConnectionSuspended(int i) {
         Log.i(TAG, "Connection suspended. Reconnect");
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle saveInstanceState){
+        super.onSaveInstanceState(saveInstanceState);
+        //Save if the map is requesting updates boolean
+        //Save the latitude and longitude
+        //Save the last time the location was updated
     }
 
     @Override

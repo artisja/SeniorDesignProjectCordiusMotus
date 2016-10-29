@@ -5,7 +5,7 @@
     <TextView
         android:layout_width="250dp"
         android:layout_height="wrap_content"
-        android:text="New Name"
+        android:text="@string/name_hint"
         android:id="@+id/contact_list_name"
         android:textSize="16sp"
         android:textColor="@color/colorPrimary"
@@ -17,7 +17,7 @@
     <TextView
         android:layout_width="250dp"
         android:layout_height="wrap_content"
-        android:text="New Phone"
+        android:text="@string/phone_number_hint"
         android:id="@+id/contact_list_phone"
         android:textSize="16sp"
         android:textColor="@color/colorPrimary"
@@ -32,7 +32,7 @@
         android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:id="@+id/contact_list_email"
-        android:text="New Email"
+        android:text="@string/email_hint"
         android:textSize="16sp"
         android:textColor="@color/colorPrimary"
         android:layout_below="@+id/contact_list_phone"

@@ -40,13 +40,13 @@ public class ContactListActivity extends AppCompatActivity {
         Log.i(TAG, "Current User "       + currentUser);
         Log.i(TAG, "Current User Email " + currentUser.getEmail());
         Log.i(TAG, "Current User UUID "  + currentUser.getUid());
+        Log.i(TAG, "Current User User Name " + currentUser.getDisplayName());
         Log.i(TAG, "Database Key " + databaseReference.getKey());
 
         // Set the contact List Adapter
         contactListAdapter = new ContactListAdapter(contactList, ContactListActivity.this);
         contactListView.setAdapter(contactListAdapter);
 
-        // TODO how to update these stupid keys
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -61,7 +61,7 @@ public class ContactListActivity extends AppCompatActivity {
                     if(!contactList.contains(newContact)) {
                         contactList.add(newContact);
                     }
-                    
+
                     // Notify the adapter that the contacl list has changed
                     contactListAdapter.notifyDataSetChanged();
                 }

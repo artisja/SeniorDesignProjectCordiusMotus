@@ -45,7 +45,7 @@
         android:layout_marginTop="15dp"
         android:id="@+id/bluetooth_Button"
         android:textColor="@color/wordColorRed"
-        android:text="Bluetooth Button"
+        android:text="@string/bluetooth_button"
         android:gravity="center" />
 
     </LinearLayout>

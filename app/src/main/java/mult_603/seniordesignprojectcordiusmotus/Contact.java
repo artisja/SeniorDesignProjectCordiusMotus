@@ -57,39 +57,39 @@ public class Contact implements User{
         uuid=id;
     }
 
-    @Override
-    public boolean equals(Object o){
-        if(this == o){
-            return true;
-        }
-        if(o == null){
-            return false;
-        }
-        if(getClass() != o.getClass()){
-            return false;
-        }
-
-        Contact c = (Contact) o;
-        if(!(this.name.equals(c.name) && this.number.equals(c.number) && this.email.equals(c.email))){
-            return false;
-        }
-        return true;
-    }
-
-    // Be Careful as this can return nul if there is no name, number or email for the contact
-    @Override
-    public int hashCode(){
-        int result = 31 * this.name.hashCode() + this.email.hashCode() + this.number.hashCode();
-        Log.i(TAG, "Contact HashCode => " + result);
-        return result;
-    }
+//    @Override
+//    public boolean equals(Object o){
+//        if(this == o){
+//            return true;
+//        }
+//        if(o == null){
+//            return false;
+//        }
+//        if(getClass() != o.getClass()){
+//            return false;
+//        }
+//
+//        Contact c = (Contact) o;
+//        if(!(this.name.equals(c.name) && this.number.equals(c.number) && this.email.equals(c.email))){
+//            return false;
+//        }
+//        return true;
+//    }
+//
+//    // Be Careful as this can return nul if there is no name, number or email for the contact
+//    @Override
+//    public int hashCode(){
+//        int result = 31 * this.name.hashCode() + this.email.hashCode() + this.number.hashCode();
+//        Log.i(TAG, "Contact HashCode => " + result);
+//        return result;
+//    }
 
     @Override
     public String toString(){
-        return "Name: " + this.name
+        return    "Name: "    + this.name
                 + " Number: " + this.number
-                + " Email: " + this.email
-                + " UUID: " + this.uuid;
+                + " Email: "  + this.email
+                + " UUID: "   + this.uuid;
     }
 }
 

@@ -16,8 +16,7 @@ import com.google.firebase.messaging.RemoteMessage;
  * Created by artisja on 10/18/2016.
  */
 
-public class AlertFirebaseMessagingService extends FirebaseMessagingService
-{
+public class AlertFirebaseMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "MyContact";
 

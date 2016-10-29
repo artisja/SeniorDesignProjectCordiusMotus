@@ -80,8 +80,6 @@
             android:layout_toRightOf="@+id/person_image"
             android:layout_toEndOf="@+id/person_image" />
 
-
-
     </RelativeLayout>
 
 </FrameLayout>
