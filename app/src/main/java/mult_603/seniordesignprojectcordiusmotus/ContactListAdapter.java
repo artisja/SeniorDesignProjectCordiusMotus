@@ -3,6 +3,8 @@ package mult_603.seniordesignprojectcordiusmotus;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +13,8 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -126,9 +130,18 @@ public class ContactListAdapter extends BaseAdapter implements ListAdapter {
                         Log.i(TAG, "Key to Delete       " + key);
                         Log.i(TAG, "Reference to Delete " + reference.child(key));
 
+                        SmsManager smsManager = SmsManager.getDefault();
+                        String message = "You have been Removed as an emergency contact for User "  + "Patient ID" + "/n This is your UUID for the device location.";
+                        smsManager.sendTextMessage(contactArrayList.get(currentPosition).getNumber().toString(), null,message, null, null);
+                        Intent sendIntent = new Intent(Intent.ACTION_VIEW);
+                        sendIntent.putExtra("sms_body", "You got a pretty kind of dirty face.");
+                        sendIntent.setType("vnd.android-dir/mms-sms");
+                        context.startActivity(sendIntent);
+
                         // Remove contact from the array list and remove the key from the list of keys
                         contactArrayList.remove(currentPosition);
                         keyList.remove(currentPosition);
+
 
                         // Notify the data set has changed
                         notifyDataSetChanged();
