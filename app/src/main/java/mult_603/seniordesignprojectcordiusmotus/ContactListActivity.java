@@ -72,9 +72,7 @@ public class ContactListActivity extends AppCompatActivity {
                 Log.i(TAG, "Database Error occurred " + databaseError.getDetails());
             }
         });
-
-
-    }
+}
 
     public void findViews(){
         contactListView   = (ListView) findViewById(R.id.contact_list);

@@ -62,21 +62,7 @@ public class ContactActivity extends AppCompatActivity {
             public void onClick(View v) {
                 contactsArray.get(0).setUuid("Pokemon");
                 addContactToDatabase(contactsArray,contactsArray.get(0).getUuid());
-                try {
 
-                   SmsManager smsManager = SmsManager.getDefault();
-                   String phoneNum = ContactRecyclerAdapter.contactsArrayAdapter.get(0).getNumber().toString();
-                   Toast.makeText(ContactActivity.this, contactsArray.get(0).getNumber().toString(), Toast.LENGTH_SHORT).show();
-                   String message = "You have been added as an emergency contact for User "  + "Patient ID" + "/n This is your UUID for the device location.";
-                   smsManager.sendTextMessage(phoneNum, null,message, null, null);
-//               Intent sendIntent = new Intent(Intent.ACTION_VIEW);
-//               sendIntent.putExtra("sms_body", "You got a pretty kind of dirty face.");
-//               sendIntent.setType("vnd.android-dir/mms-sms");
-//               startActivity(sendIntent);
-               }catch (Exception e){
-                   e.printStackTrace();
-                   Toast.makeText(ContactActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
-               }
                 Toast.makeText(ContactActivity.this, "Contacts Uploaded", Toast.LENGTH_SHORT).show();
                 Intent goingHomeintent = new Intent(ContactActivity.this,UserDefinitionActivity.class);
                 startActivity(goingHomeintent);
@@ -90,7 +76,7 @@ public class ContactActivity extends AppCompatActivity {
     private void findViews() {
         recyclerView = (RecyclerView) findViewById(R.id.contact_recycler_view);
         layoutManager = new LinearLayoutManager(this);
-        adapter = new ContactRecyclerAdapter(contactsArray);
+       // adapter = new ContactRecyclerAdapter(contactsArray);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(layoutManager);
         addButton = (Button) findViewById(R.id.add_button);
