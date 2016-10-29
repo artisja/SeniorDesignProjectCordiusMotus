@@ -22,8 +22,8 @@ public class ContactListActivity extends AppCompatActivity {
     private TextView contactPhone;
     private TextView contactEmail;
     private Button   removeButton;
-    private FirebaseDatabase firebaseDatabase;
-    private FirebaseAuth     firebaseAuth;
+    private FirebaseDatabase   firebaseDatabase;
+    private FirebaseAuth       firebaseAuth;
     private ContactListAdapter contactListAdapter;
     private ArrayList<Contact> contactList;
 
@@ -42,6 +42,10 @@ public class ContactListActivity extends AppCompatActivity {
         Log.i(TAG, "Current User UUID "  + currentUser.getUid());
         Log.i(TAG, "Database Key " + databaseReference.getKey());
 
+        // Set the contact List Adapter
+        contactListAdapter = new ContactListAdapter(contactList, ContactListActivity.this);
+        contactListView.setAdapter(contactListAdapter);
+
         // TODO how to update these stupid keys
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
@@ -49,9 +53,17 @@ public class ContactListActivity extends AppCompatActivity {
                 for(DataSnapshot contact: dataSnapshot.getChildren()){
                     // Get the key of the child
                     String key = contact.getKey();
+                    Log.i(TAG, "Contact Database Key : " + key);
                     Contact newContact = contact.getValue(Contact.class);
-                    Log.i(TAG, "Contact from Database " + newContact.toString());
-                    contactList.add(newContact);
+                    Log.i(TAG, "Contact From Database " + newContact.toString());
+
+                    // If the contact is not contained in the array list then add it
+                    if(!contactList.contains(newContact)) {
+                        contactList.add(newContact);
+                    }
+                    
+                    // Notify the adapter that the contacl list has changed
+                    contactListAdapter.notifyDataSetChanged();
                 }
             }
 
@@ -61,8 +73,7 @@ public class ContactListActivity extends AppCompatActivity {
             }
         });
 
-        contactListAdapter = new ContactListAdapter(contactList, ContactListActivity.this);
-        contactListView.setAdapter(contactListAdapter);
+
     }
 
     public void findViews(){

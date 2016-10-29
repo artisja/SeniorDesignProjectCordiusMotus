@@ -38,9 +38,8 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         if (firebaseUser != null){
-        emailEditText.setText(firebaseUser.getEmail());
+            emailEditText.setText(firebaseUser.getEmail());
         }
-
     }
 
 
@@ -76,7 +75,7 @@ public class LoginActivity extends AppCompatActivity {
                                 Toast.makeText(getApplicationContext(), "Email or Password was Incorrect", Toast.LENGTH_LONG).show();
                             } else {
 //                                Intent intent = new Intent(LoginActivity.this, ContactActivity.class);
-                                Intent intent = new Intent(LoginActivity.this, ContactActivity.class);
+                                Intent intent = new Intent(LoginActivity.this, ContactSimpleActivity.class);
                                 startActivity(intent);
                             }
                         }
@@ -89,7 +88,7 @@ public class LoginActivity extends AppCompatActivity {
         signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(LoginActivity.this,SignUpActivity.class);
+                Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
                 startActivity(intent);
             }
         });

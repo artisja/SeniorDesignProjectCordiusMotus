@@ -34,9 +34,9 @@ public class ContactListAdapter extends BaseAdapter implements ListAdapter {
     private ArrayList<String>    keyList;
 
     public ContactListAdapter(ArrayList<Contact> contacts, Context c){
+        keyList = new ArrayList<>();
         contactArrayList = contacts;
         context = c;
-        keyList = new ArrayList<>();
 
         reference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -103,7 +103,6 @@ public class ContactListAdapter extends BaseAdapter implements ListAdapter {
         removeContactButton.setText("Remove");
 
 
-
         final AlertDialog confirmationDialog = new AlertDialog.Builder(context)
                 .setTitle("Remove Contact")
                 .setMessage("Are you sure you want to delete this contact?")
@@ -120,22 +119,22 @@ public class ContactListAdapter extends BaseAdapter implements ListAdapter {
                 .setNegativeButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        // Remove the contact item from the database
-                        Log.i(TAG, "Reference " + reference.getKey());
-
+                        // Get the key for the contact from the database
                         String key = keyList.get(currentPosition);
 
+                        Log.i(TAG, "Reference " + reference.getKey());
                         Log.i(TAG, "Key to Delete       " + key);
                         Log.i(TAG, "Reference to Delete " + reference.child(key));
 
-                        reference.child(key).removeValue();
-
-                        // Remove item from the array list and key list
+                        // Remove contact from the array list and remove the key from the list of keys
                         contactArrayList.remove(currentPosition);
                         keyList.remove(currentPosition);
 
                         // Notify the data set has changed
                         notifyDataSetChanged();
+
+                        // Remove the item from the database
+                        reference.child(key).removeValue();
 
                         // Dismiss the dialog box
                         dialog.dismiss();

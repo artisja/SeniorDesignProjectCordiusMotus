@@ -35,38 +35,19 @@ public class ContactSimpleActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         // May want to add email address to contacts
-        final EditText contactName = (EditText) findViewById(R.id.contact_simple_name);
-        final EditText contactPhone = (EditText) findViewById(R.id.contact_simple_phone);
-        final EditText contactEmail = (EditText) findViewById(R.id.contact_simple_email);
-        final Button   contactListButton = (Button) findViewById(R.id.contact_simple_list_button);
+        final EditText contactName       = (EditText) findViewById(R.id.contact_simple_name);
+        final EditText contactPhone      = (EditText) findViewById(R.id.contact_simple_phone);
+        final EditText contactEmail      = (EditText) findViewById(R.id.contact_simple_email);
+        final Button   contactListButton = (Button)   findViewById(R.id.contact_simple_list_button);
 
         // Get database reference and authentication reference
         firebaseDatabase = FirebaseDatabase.getInstance();
-        firebaseAuth = FirebaseAuth.getInstance();
+        firebaseAuth     = FirebaseAuth.getInstance();
 
+        // Get the current user and their part of the database
         final FirebaseUser currentUser = firebaseAuth.getCurrentUser();
-        final DatabaseReference dbref = firebaseDatabase.getReference(currentUser.getUid());
+        final DatabaseReference dbref  = firebaseDatabase.getReference(currentUser.getUid());
 
-        // For when I mess up the database and need to start over
-//        dbref.removeValue();
-
-        // Add value listener so we can make sure we are getting the right data in the database
-//        dbref.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                // Create a key for the contacs in the users database
-//                if (dataSnapshot.getChildrenCount() == 0){
-//                    contactStringKey = "Contact" + 0;
-//                }
-//                else {
-//                    contactStringKey = "Contact" + dataSnapshot.getChildrenCount();
-//                }
-//            }
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//                Log.i(TAG, "Database operation canceled");
-//            }
-//        });
 
         final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.add_button);
         assert fab != null;

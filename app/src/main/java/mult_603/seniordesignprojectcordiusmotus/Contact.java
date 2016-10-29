@@ -76,6 +76,7 @@ public class Contact implements User{
         return true;
     }
 
+    // Be Careful as this can return nul if there is no name, number or email for the contact
     @Override
     public int hashCode(){
         int result = 31 * this.name.hashCode() + this.email.hashCode() + this.number.hashCode();
