@@ -233,10 +233,10 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
                     REQUEST_LOCATION);
 
             if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)){
-                Log.i(TAG, "Application DID show the request permission rationale");
+                Log.i(TAG, "DID show the request permission rationale");
             }
             else{
-                Log.i(TAG, "Application DID NOT show the request permission rationale");
+                Log.i(TAG, "DID NOT show the request permission rationale");
             }
         }
         else{

@@ -1,8 +1,15 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
+import android.*;
+import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,22 +17,25 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 
-public class SignUpActivity extends AppCompatActivity {
+import android.net.Uri;
+
+public class SignUpActivity extends AppCompatActivity{
     public final String TAG = SignUpActivity.class.getSimpleName();
     private EditText setPasswordEdit,setEmailEdit, setUserNameEdit;
     private Button createdPasswordButton;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener authStateListener;
+    private ImageButton userImage;
+    private Uri userImagePath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,28 +47,41 @@ public class SignUpActivity extends AppCompatActivity {
 
         // This Auth state listener might have broken some things
         // Or it was me adding too many of the same user accounts in the database
+
         authStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
+                final FirebaseUser user = firebaseAuth.getCurrentUser();
                 Log.i(TAG, "Current User " + user);
 
                 if(user != null){
                     Log.i(TAG, "Current User is not null");
                     String uName    = setUserNameEdit.getText().toString().trim();
 
+                    // Need to check that the image button is not null also
                     if(uName != null){
                         Log.i(TAG, "User Name is not null");
                         // Can use this to give them an image with their profile as well
                         // Giving the user a username
                         UserProfileChangeRequest userProfileChangeRequest = new UserProfileChangeRequest.Builder()
                                 .setDisplayName(uName)
+                                .setPhotoUri(userImagePath)
                                 .build();
 
                         user.updateProfile(userProfileChangeRequest);
                         Log.i(TAG, "User Get Display Name " + user.getDisplayName());
 
                     }
+
+                    // Send the user an email verification
+                    user.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if(task.isSuccessful()){
+                                Log.i(TAG, "Sent an email to " + user.getEmail());
+                            }
+                        }
+                    });
                 }
             }
         };
@@ -95,6 +118,7 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private void setUpClick() {
+        // Create user in firebase auth
         createdPasswordButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -115,12 +139,53 @@ public class SignUpActivity extends AppCompatActivity {
                 }
             }
         });
+
+        // User has granted permission to use the camera
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED){
+            Log.i(TAG, "The user has granted permission to use the camera ");
+//            userImage.setEnabled(true);
+        }
+        else{
+            Log.i(TAG, "User has not given us permission to use their camera ");
+//            userImage.setEnabled(false);
+            ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE }, 0);
+        }
+
+        // Set the users image for their profile
+        userImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent cameraGalleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI);
+                startActivityForResult(cameraGalleryIntent, 0);
+            }
+        });
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Check which request we're responding to
+        String path = new String();
+        if (requestCode == 1) {
+            // Make sure the request was successful
+            if (resultCode == RESULT_OK) {
+                // The user picked a photo.
+                // The Intent's data Uri identifies which photo was selected.
+                Log.i(TAG, "Get Photo from users camera");
+                // Do something with the photo here (bigger example below)
+                userImagePath = data.getData();
+                Log.i(TAG, "Selected Image Path " + userImagePath.getPath());
+                path = userImagePath.getPath();
+
+            }
+        }
+    }
+
 
     private void findViews() {
         setPasswordEdit = (EditText) findViewById(R.id.input_password_edit);
         setEmailEdit    = (EditText) findViewById(R.id.input_email_edit);
         setUserNameEdit = (EditText) findViewById(R.id.input_username_edit);
+        userImage       = (ImageButton) findViewById(R.id.user_login_image);
         createdPasswordButton = (Button) findViewById(R.id.submit_signup_button);
     }
 }
