@@ -1,52 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_user_definition"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/whitePrimary"
-    tools:context="mult_603.seniordesignprojectcordiusmotus.UserDefinitionActivity">
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="50sp"
-        android:text="@string/app_name"
-        android:textColor="@color/wordColorRed"
-        android:gravity="center"
-        />
-    <LinearLayout
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/activity_user_definition"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:gravity="center">
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="100sp"
-        android:layout_marginBottom="15dp"
-        android:text= "@string/cali_button"
-        android:textColor="@color/wordColorRed"
-        android:id="@+id/cali_Button"
-        android:gravity="center"
+        android:background="@color/whitePrimary"
+        tools:context="mult_603.seniordesignprojectcordiusmotus.UserDefinitionActivity">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="50sp"
+            android:text="@string/app_name"
+            android:textColor="@color/wordColorRed"
+            android:gravity="center"
         />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center">
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="100sp"
+            android:layout_marginBottom="15dp"
+            android:text= "@string/cali_button"
+            android:textColor="@color/wordColorRed"
+            android:id="@+id/cali_Button"
+            android:gravity="center"
+        />
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="100sp"
+            android:text="@string/medic_button"
+            android:textColor="@color/wordColorRed"
+            android:id="@+id/medic_Button"
+            android:gravity="center"/>
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="100sp"
+            android:layout_marginTop="15dp"
+            android:id="@+id/bluetooth_Button"
+            android:textColor="@color/wordColorRed"
+            android:text="@string/bluetooth_button"
+            android:gravity="center" />
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="100sp"
-        android:text="@string/medic_button"
-        android:textColor="@color/wordColorRed"
-        android:id="@+id/medic_Button"
-        android:gravity="center"/>
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="100sp"
-        android:layout_marginTop="15dp"
-        android:id="@+id/bluetooth_Button"
-        android:textColor="@color/wordColorRed"
-        android:text="@string/bluetooth_button"
-        android:gravity="center" />
-
+        </LinearLayout>
     </LinearLayout>
-</LinearLayout>

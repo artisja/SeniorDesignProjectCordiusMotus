@@ -37,5 +37,9 @@ dependencies {
     compile 'com.google.firebase:firebase-messaging:9.6.1'
     compile 'com.android.support:design:23.4.0'
     compile 'com.google.android.gms:play-services-appindexing:9.6.1'
+
+    compile('com.mikepenz:materialdrawer:5.7.0@aar') {
+        transitive = true
+    }
 }
 apply plugin: 'com.google.gms.google-services'

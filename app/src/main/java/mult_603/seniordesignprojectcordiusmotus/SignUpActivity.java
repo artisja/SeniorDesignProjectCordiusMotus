@@ -43,6 +43,7 @@ public class SignUpActivity extends AppCompatActivity{
         setContentView(R.layout.activity_sign_up);
         findViews();
         mFirebaseAuth = FirebaseAuth.getInstance();
+//        mFirebaseAuth = ApplicationController;
         setUpClick();
 
         // This Auth state listener might have broken some things
@@ -72,16 +73,6 @@ public class SignUpActivity extends AppCompatActivity{
                         Log.i(TAG, "User Get Display Name " + user.getDisplayName());
 
                     }
-
-                    // Send the user an email verification
-                    user.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if(task.isSuccessful()){
-                                Log.i(TAG, "Sent an email to " + user.getEmail());
-                            }
-                        }
-                    });
                 }
             }
         };
