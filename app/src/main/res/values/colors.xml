@@ -7,4 +7,5 @@
     <color name="colorPrimaryDark">#892e2e</color>
     <color name="ColorWhite">#FFF</color>
     <color name="wordColorWhite">#FFF</color>
+    <color name="lightGrayWithRed">#e1d7d7</color>
 </resources>
