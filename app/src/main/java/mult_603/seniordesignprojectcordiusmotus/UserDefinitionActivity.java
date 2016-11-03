@@ -44,6 +44,8 @@ public class UserDefinitionActivity extends AppCompatActivity{
     private PrimaryDrawerItem changePassword;
     private PrimaryDrawerItem changeEmail;
     private SecondaryDrawerItem secondaryDrawerItem;
+    public static Drawer navigationDrawer;
+    public static AccountHeader currentUserNavHeader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,56 +79,18 @@ public class UserDefinitionActivity extends AppCompatActivity{
             }
         }
 
-        // Create an account header for the user
-        AccountHeader accountForUser = new AccountHeaderBuilder()
-                .withActivity(this)
-                .withHeaderBackground(R.drawable.header_nav_background_adjusted)
-                .addProfiles(
-                        new ProfileDrawerItem()
-                                .withEmail(myAppController.currentUser.getEmail())
-                                .withIcon(R.drawable.ic_account)
-                                .withName(myAppController.currentUser.getDisplayName())
-                )
-                .withTextColorRes(R.color.colorPrimaryDark)
-                .build();
-
-
-        // Create the drawer items
-        primaryDrawerItem.withDescriptionTextColorRes(R.color.colorAccent)
-                    .withDescription(myAppController.currentUser.getDisplayName())
-                    .withIcon(R.drawable.ic_account)
-                    .withIdentifier(1);
-
-        // Change email
-
-        // Change password
-
-        // Log out drawer item
-        logOut.withDescriptionTextColorRes(R.color.wordColorRed)
-                .withDescription("Log Out")
-                .withSelectedColorRes(R.color.lightGrayWithRed)
-                .withSelectedTextColor(Color.WHITE)
-                .withIdentifier(2);
-
-        // Delete account drawer item
-        deleteAccount.withDescriptionTextColorRes(R.color.wordColorRed)
-                .withDescription("Delete Account")
-                .withSelectedColorRes(R.color.lightGrayWithRed)
-                .withSelectedTextColor(Color.WHITE)
-                .withIdentifier(3);
-
-        // Secondary drawer items can be sub menus
-        secondaryDrawerItem.withDescription(myAppController.currentUser.getEmail())
-                    .withIdentifier(0);
-
         // Build a navigation drawer for the users login activity
-        final Drawer drawer = new DrawerBuilder().withActivity(this)
-                    .withAccountHeader(accountForUser)
+        navigationDrawer = new DrawerBuilder().withActivity(this)
+                    .withAccountHeader(currentUserNavHeader)
                     .withDisplayBelowStatusBar(true)
                     .withActionBarDrawerToggle(true)
                     .withActionBarDrawerToggleAnimated(true)
                     .addDrawerItems(primaryDrawerItem,
                             secondaryDrawerItem,
+                            new DividerDrawerItem(),
+                            changeEmail,
+                            new DividerDrawerItem(),
+                            changePassword,
                             new DividerDrawerItem(),
                             logOut,
                             new DividerDrawerItem(),
@@ -143,38 +107,17 @@ public class UserDefinitionActivity extends AppCompatActivity{
                     })
                     .build();
 
-        // Set the toolbar as the action bar before calling anything below
-        if(getActionBar() != null){
-            Log.i(TAG, "Get Action Bar is not null");
-        }
-        else{
-            Log.i(TAG, "Get Action Bar is null");
-        }
-
-
-        try {
-//            setSupportActionBar(toolbar);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-            drawer.getActionBarDrawerToggle().setDrawerIndicatorEnabled(true);
-        }
-        catch(NullPointerException n){
-            Log.i(TAG, "Null Pointer Exception " + n.getCause());
-        }
-
+        // Set the logo on the toolbar to be able to open the navigation drawer
         toolbar.setLogo(R.drawable.ic_account);
         View v = toolbar.getChildAt(0);
         v.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.i(TAG, "Clicked the logo");
-                drawer.openDrawer();
+                navigationDrawer.openDrawer();
             }
         });
 
-
-        // Arrow instead of hamburger
-//        drawer.getActionBarDrawerToggle().setDrawerIndicatorEnabled(false);
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
     }
 
@@ -225,13 +168,68 @@ public class UserDefinitionActivity extends AppCompatActivity{
     }
 
     private void findViews() {
+        // Get the application controller to have access to the global firebase instance
+        myAppController = (ApplicationController)getApplicationContext();
         caliButton      = (Button) findViewById(R.id.cali_Button);
         medicButton     = (Button) findViewById(R.id.medic_Button);
         bluetoothButton = (Button) findViewById(R.id.bluetooth_Button);
-        primaryDrawerItem = new PrimaryDrawerItem();
+        primaryDrawerItem   = new PrimaryDrawerItem();
         secondaryDrawerItem = new SecondaryDrawerItem();
-        logOut = new PrimaryDrawerItem();
-        deleteAccount = new PrimaryDrawerItem();
+        changeEmail         = new PrimaryDrawerItem();
+        changePassword      = new PrimaryDrawerItem();
+        logOut              = new PrimaryDrawerItem();
+        deleteAccount       = new PrimaryDrawerItem();
+
+
+        // Create an account header for the user
+        currentUserNavHeader = new AccountHeaderBuilder()
+                .withActivity(this)
+                .withHeaderBackground(R.drawable.header_nav_background_adjusted)
+                .addProfiles(
+                        new ProfileDrawerItem()
+                                .withEmail(myAppController.currentUser.getEmail())
+                                .withIcon(R.drawable.ic_account)
+                                .withName(myAppController.currentUser.getDisplayName())
+                )
+                .withTextColorRes(R.color.colorPrimaryDark)
+                .build();
+
+        // Secondary drawer items can be sub menus
+        secondaryDrawerItem.withDescription(myAppController.currentUser.getEmail())
+                .withIdentifier(0);
+
+        // Create the drawer items
+        primaryDrawerItem.withDescriptionTextColorRes(R.color.colorAccent)
+                .withDescription(myAppController.currentUser.getDisplayName())
+                .withIcon(R.drawable.ic_account)
+                .withIdentifier(1);
+
+        // Change email
+        changeEmail.withDescription(R.string.change_email)
+                .withDescriptionTextColorRes(R.color.material_drawer_dark_selected)
+                .withSelectedColorRes(R.color.colorAccent)
+                .withIdentifier(2);
+
+
+        // Change password
+        changePassword.withDescription(R.string.change_password)
+                .withDescriptionTextColorRes(R.color.material_drawer_dark_selected)
+                .withSelectedColorRes(R.color.colorAccent)
+                .withIdentifier(3);
+
+        // Log out drawer item
+        logOut.withDescriptionTextColorRes(R.color.wordColorRed)
+                .withDescription("Log Out")
+                .withSelectedColorRes(R.color.lightGrayWithRed)
+                .withSelectedTextColor(Color.WHITE)
+                .withIdentifier(4);
+
+        // Delete account drawer item
+        deleteAccount.withDescriptionTextColorRes(R.color.wordColorRed)
+                .withDescription("Delete Account")
+                .withSelectedColorRes(R.color.lightGrayWithRed)
+                .withSelectedTextColor(Color.WHITE)
+                .withIdentifier(5);
     }
 
     public void getLocationManager() {
