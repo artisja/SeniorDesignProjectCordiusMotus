@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -30,7 +31,7 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
 import android.support.v7.app.AppCompatActivity;
 
-public class UserDefinitionActivity extends AppCompatActivity{
+public class UserDefinitionActivity extends AppCompatActivity implements Drawer.OnDrawerItemClickListener{
     public final String TAG = UserDefinitionActivity.class.getSimpleName();
     private Button medicButton, caliButton, bluetoothButton;
     private Intent medicMapIntent;
@@ -96,16 +97,13 @@ public class UserDefinitionActivity extends AppCompatActivity{
                             new DividerDrawerItem(),
                             deleteAccount
                     )
-                    .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
-                        @Override
-                        public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
-                            Log.i(TAG, "Drawer item clicked at position " + position);
-                            Log.i(TAG, "Drawer Item " + drawerItem);
-                            Log.i(TAG, "View " + view);
-                            return false;
-                        }
-                    })
+                    .withOnDrawerItemClickListener(this)
                     .build();
+
+        // Try to set up the tool bar as an action bar
+//        setSupportActionBar(toolbar);
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+//        navigationDrawer.getActionBarDrawerToggle().setDrawerIndicatorEnabled(true);
 
         // Set the logo on the toolbar to be able to open the navigation drawer
         toolbar.setLogo(R.drawable.ic_account);
@@ -117,24 +115,18 @@ public class UserDefinitionActivity extends AppCompatActivity{
                 navigationDrawer.openDrawer();
             }
         });
-
-
     }
 
     @Override
     public void onPostCreate(Bundle saveInstanceState){
         super.onPostCreate(saveInstanceState);
+        Log.i(TAG, "On Post Create");
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig){
         super.onConfigurationChanged(newConfig);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item){
-        super.onOptionsItemSelected(item);
-        return super.onOptionsItemSelected(item);
+        Log.i(TAG, "On Configuration Changed");
     }
 
     private void setButtonDestination() {
@@ -179,7 +171,11 @@ public class UserDefinitionActivity extends AppCompatActivity{
         changePassword      = new PrimaryDrawerItem();
         logOut              = new PrimaryDrawerItem();
         deleteAccount       = new PrimaryDrawerItem();
+        latitude     = myAppController.latitude;
+        longitude    = myAppController.longitude;
 
+        Log.i(TAG, "Longitude " + longitude);
+        Log.i(TAG, "Latitude " + latitude);
 
         // Create an account header for the user
         currentUserNavHeader = new AccountHeaderBuilder()
@@ -232,42 +228,42 @@ public class UserDefinitionActivity extends AppCompatActivity{
                 .withIdentifier(5);
     }
 
-    public void getLocationManager() {
-        LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        LocationListener locationListener = new LocationListener() {
+    // Navigation on drawer item click listener
+    @Override
+    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+        Log.i(TAG, "Drawer item clicked at position " + position);
+        Log.i(TAG, "Drawer Item " + drawerItem);
+        Log.i(TAG, "View " + view);
 
-            @Override
-            public void onLocationChanged(Location location) {
-                longitude = location.getLongitude();
-                latitude = location.getLatitude();
-            }
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-
-            }
-        };
-
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
+        switch(position){
+            case 0:
+                Log.i(TAG, "Case 0 position " + position + " Drawer Item " + drawerItem);
+                break;
+            case 1:
+                Log.i(TAG, "Case 1 position " + position + " Drawer Item " + drawerItem);
+                break;
+            case 2:
+                Log.i(TAG, "Case 2 position " + position + " Drawer Item " + drawerItem);
+                break;
+            case 3:
+                Log.i(TAG, "Case 3 position " + position + " Drawer Item " + drawerItem);
+                break;
+            case 4:
+                Log.i(TAG, "Case 4 position " + position + " Drawer Item " + drawerItem);
+                break;
+            case 5:
+                Log.i(TAG, "Case 5 position " + position + " Drawer Item " + drawerItem);
+                break;
+            case 6:
+                Log.i(TAG, "Case 6 position " + position + " Drawer Item " + drawerItem);
+                break;
+            case 7:
+                Log.i(TAG, "Case 7 position " + position + " Drawer Item " + drawerItem);
+                break;
+            case 8:
+                Log.i(TAG, "Case 8 position " + position + " Drawer Item " + drawerItem);
+                break;
         }
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+        return false;
     }
 }
