@@ -24,6 +24,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText passwordEditText,emailEditText;
     private FirebaseAuth firebaseAuth;
     private FirebaseUser firebaseUser;
+    private ApplicationController applicationController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +32,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         findViews();
         setUpClicks();
+
         firebaseAuth = getInstance();
         if (emailEditText.getText().toString().equals("") || passwordEditText.getText().toString().equals("")){
             Toast.makeText(getApplicationContext(),"Please do not leave fields unfilled.",Toast.LENGTH_LONG);
@@ -85,7 +87,8 @@ public class LoginActivity extends AppCompatActivity {
                                 inputMethodManager.hideSoftInputFromWindow(currentView.getWindowToken(), 0);
                                 Toast.makeText(getApplicationContext(), "Email or Password was Incorrect", Toast.LENGTH_LONG).show();
                             } else {
-//                                Intent intent = new Intent(LoginActivity.this, ContactActivity.class);
+                                applicationController.patient.setPatientUserName(typedEmail.toString());
+                                applicationController.addPatientToDatabase(applicationController.patient,applicationController.currentUser.getUid());
                                 Intent intent = new Intent(LoginActivity.this, ContactSimpleActivity.class);
                                 startActivity(intent);
                             }
@@ -110,5 +113,6 @@ public class LoginActivity extends AppCompatActivity {
         signUpButton = (Button) findViewById(R.id.sign_up_button);
         emailEditText = (EditText) findViewById(R.id.email_edit);
         passwordEditText = (EditText) findViewById(R.id.password_edit);
+        applicationController = new ApplicationController();
     }
 }
