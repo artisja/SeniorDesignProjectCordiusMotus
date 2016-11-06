@@ -42,26 +42,6 @@ public class Patient implements User {
     }
 
 
-    // Add a patient object to the Firebase Database using a string reference
-    public void addPatientToDatabase(Patient patient, String reference){
-        FirebaseDatabase fireDb = FirebaseDatabase.getInstance();
-        DatabaseReference ref = fireDb.getReference(reference);
-        ref.setValue(patient);
-
-        // What if we could call this whenever the users position changes?
-        ref.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String data = dataSnapshot.getValue(String.class);
-                Log.i(TAG, "Persons data has changed: " + data);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.i(TAG, "Persons data change was cancelled");
-            }
-        });
-    }
 
     public void setHeartRate(double hr){
         this.heartRate = hr;
