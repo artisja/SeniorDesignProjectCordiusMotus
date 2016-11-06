@@ -7,13 +7,11 @@
     android:orientation="vertical"
     tools:context="mult_603.seniordesignprojectcordiusmotus.LoginActivity">
 
-    <Button
-        android:id="@+id/login_button"
-        android:layout_width="match_parent"
+    <ImageView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/login_label"
-        android:layout_marginBottom="50sp"
-        android:textColor="@color/wordColorRed"/>
+        android:src="@mipmap/heart_logo_launcher"
+        android:layout_gravity="center_horizontal" />
 
     <EditText
         android:id="@+id/email_edit"
@@ -21,11 +19,12 @@
         android:layout_height="wrap_content"
         android:hint="@string/email_hint"
         android:singleLine="true"
-        android:inputType="text"
+        android:inputType="textEmailAddress"
         android:textColorHint="@color/wordColorRed"
         android:maxLength="40"
-        android:imeOptions="actionDone"
-        android:layout_marginBottom="15sp"/>
+        android:imeOptions="actionNext"
+        android:layout_marginBottom="15sp"
+        android:layout_marginTop="75dp"/>
 
     <EditText
         android:id="@+id/password_edit"
@@ -33,17 +32,36 @@
         android:layout_height="wrap_content"
         android:hint="@string/password_hint"
         android:singleLine="true"
-        android:inputType="text"
+        android:inputType="textPassword"
         android:maxLength="20"
         android:textColorHint="@color/wordColorRed"
         android:imeOptions="actionDone"
         android:layout_marginBottom="15sp"/>
 
     <Button
+        android:id="@+id/login_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/login_label"
+        android:layout_marginBottom="50sp"
+        android:textColor="@color/wordColorRed" />
+
+    <Button
+        android:id="@+id/forgot_password_button"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:text="@string/forgot_password"
+        android:textColor="@color/wordColorRed"
+        android:layout_marginBottom="15sp"
+        android:background="@color/whitePrimary"/>
+
+    <Button
         android:id="@+id/sign_up_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/sign_up_label"
-        android:textColor="@color/wordColorRed"/>
+        android:text="@string/not_a_member"
+        android:textColor="@color/wordColorRed"
+        android:background="@color/whitePrimary" />
+
 
 </LinearLayout>

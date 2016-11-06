@@ -2,6 +2,7 @@ package mult_603.seniordesignprojectcordiusmotus;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -20,10 +21,11 @@ import static com.google.firebase.auth.FirebaseAuth.*;
 
 public class LoginActivity extends AppCompatActivity {
     public final String TAG = LoginActivity.class.getSimpleName();
-    private Button signUpButton,loginButton,submitLoginButton;
+    private Button signUpButton, loginButton,submitLoginButton, forgotPasswordButton ;
     private EditText passwordEditText,emailEditText;
     private FirebaseAuth firebaseAuth;
     private FirebaseUser firebaseUser;
+    private ApplicationController appController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,35 +33,28 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         findViews();
         setUpClicks();
-        firebaseAuth = getInstance();
-        if (emailEditText.getText().toString().equals("") || passwordEditText.getText().toString().equals("")){
-            Toast.makeText(getApplicationContext(),"Please do not leave fields unfilled.",Toast.LENGTH_LONG);
-        }else{
-            loginButton.performClick();
-        }
 
-        // Get the current user
-        firebaseUser = firebaseAuth.getCurrentUser();
-
-        if (firebaseAuth != null){
-            Log.i(TAG, "Firebase Auth is not null");
-            emailEditText.setText(firebaseUser.getEmail());
-        }
+        firebaseUser = appController.currentUser;
+        firebaseAuth = appController.firebaseAuth;
 
         if(firebaseUser != null){
-            Log.i(TAG, "Firebase User is not null");
-            Log.i(TAG, "FireBase User " + firebaseUser.getEmail());
-            Log.i(TAG, "FireBase User Display Name " + firebaseUser.getDisplayName());
+            Log.i(TAG, "Current User Display Name " + firebaseUser.getDisplayName());
+            Log.i(TAG, "Current User Email " + firebaseUser.getEmail());
+            Log.i(TAG, "Current User UUID" + firebaseUser.getUid());
+
+            // If the user is already logged in the they don't need to sign in
+            signUpButton.setTextColor(Color.GRAY);
+            signUpButton.setEnabled(false);
         }
     }
 
-
+    // Set up the button on click listeners
     private void setUpClicks() {
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String   typedEmail = emailEditText.getText().toString().trim();
+                final String   typedEmail    = emailEditText.getText().toString().trim();
                 final String   typedPassword = passwordEditText.getText().toString().trim();
                 final InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 final View currentView = v;
@@ -69,11 +64,13 @@ public class LoginActivity extends AppCompatActivity {
                     inputMethodManager.hideSoftInputFromWindow(currentView.getWindowToken(), 0);
                     Toast.makeText(getApplicationContext(), "Email and Password are empty", Toast.LENGTH_SHORT).show();
                 }
+
                 // If password or email is null then don't do anything.
                 else if(typedEmail.isEmpty() || typedPassword.isEmpty()){
                     inputMethodManager.hideSoftInputFromWindow(currentView.getWindowToken(), 0);
                     Toast.makeText(getApplicationContext(), "Email or Password is empty", Toast.LENGTH_SHORT).show();
                 }
+
                 // Use Firebase to sign into the application
                 else {
                     firebaseAuth.signInWithEmailAndPassword(typedEmail, typedPassword).addOnCompleteListener(LoginActivity.this, new OnCompleteListener<com.google.firebase.auth.AuthResult>() {
@@ -96,9 +93,19 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        forgotPasswordButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i(TAG, "Forgot Password Button was clicked");
+                Intent intent = new Intent(LoginActivity.this, ForgotPasswordActivity.class);
+                startActivity(intent);
+            }
+        });
+
         signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.i(TAG, "Sign Up Button was clicked");
                 Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
                 startActivity(intent);
             }
@@ -106,9 +113,11 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void findViews() {
-        loginButton = (Button) findViewById(R.id.login_button);
-        signUpButton = (Button) findViewById(R.id.sign_up_button);
-        emailEditText = (EditText) findViewById(R.id.email_edit);
-        passwordEditText = (EditText) findViewById(R.id.password_edit);
+        loginButton          = (Button) findViewById(R.id.login_button);
+        signUpButton         = (Button) findViewById(R.id.sign_up_button);
+        forgotPasswordButton = (Button) findViewById(R.id.forgot_password_button);
+        emailEditText        = (EditText) findViewById(R.id.email_edit);
+        passwordEditText     = (EditText) findViewById(R.id.password_edit);
+        appController        = (ApplicationController) getApplicationContext();
     }
 }
