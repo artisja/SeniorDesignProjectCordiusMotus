@@ -55,11 +55,12 @@ public class LoginDeviceLocator extends AppCompatActivity {
                 ref.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.getValue()==null) {
+                        if (dataSnapshot.getValue().equals(userInput) || userInput.isEmpty()) {
                             // Hide the keyboard from view and then present the toast
                             inputMethodManager.hideSoftInputFromWindow(currentView.getWindowToken(), 0);
                             Toast.makeText(LoginDeviceLocator.this, "Incorrect Password", Toast.LENGTH_SHORT).show();
-                        }else {
+                        }else{
+
                             Intent intent = new Intent(LoginDeviceLocator.this,UserMapsActivity.class);
                             intent.putExtra("Location","Some Location");
                             startActivity(intent);

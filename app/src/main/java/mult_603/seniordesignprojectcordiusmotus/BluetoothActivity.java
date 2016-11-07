@@ -19,6 +19,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -48,9 +49,10 @@ public class BluetoothActivity extends AppCompatActivity {
     private final int RECIEVE_MESSAGE = 1;
     private StringBuilder sb;
     private String address = "20:15:07:13:94:86";
-    private Handler mHandler;
+    public static Handler mHandler;
     private BluetoothDevice connectedDevice;
     private ConnectedThread mConnectedThread;
+    private ApplicationController applicationController;
 
 
     @Override
@@ -117,6 +119,7 @@ public class BluetoothActivity extends AppCompatActivity {
         // Get bonded devices
         getBondedDevices();
 
+
         // Create a thread between the device and the application
         if (connectedDevice != null){
             //AcceptThread acceptThread = new AcceptThread();
@@ -125,9 +128,7 @@ public class BluetoothActivity extends AppCompatActivity {
             Log.i(TAG, "Connect Thread " + connectThread.getName() + "\n"
                     + "Connect Thread State " + connectThread.getState() + "\n"
                     + "Connect Thread Id " + connectThread.getId());
-
         }
-
     }
 
     // Set up the variables for this class
@@ -178,6 +179,7 @@ public class BluetoothActivity extends AppCompatActivity {
                     case 1:
                         try {
                             String read = new String(writeBuf, begin, end, "UTF-8").trim();
+                            Toast.makeText(BluetoothActivity.this, read, Toast.LENGTH_SHORT).show();
                             Log.i(TAG, "Handler Message -> " + read);
                         }catch(Exception e){
                             Log.i(TAG, "String conversion exception " + e.getMessage());
@@ -248,7 +250,7 @@ public class BluetoothActivity extends AppCompatActivity {
 
     // Unpair a previously paired bluetooth device
     public void unpairDevice(BluetoothDevice device) {
-        try {
+        try{
             Method method = device.getClass().getMethod("removeBond", (Class[]) null);
             method.invoke(device, (Object[]) null);
             Log.i(TAG, "Unpaired Device " + device.getName());
@@ -260,7 +262,7 @@ public class BluetoothActivity extends AppCompatActivity {
 
     // This thread creates a socket and a connected thread and instantiates it.
     private class ConnectThread extends Thread {
-        public final BluetoothSocket mmSocket;
+        private final BluetoothSocket mmSocket;
         private final BluetoothDevice mmDevice;
         private final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
 
@@ -307,7 +309,7 @@ public class BluetoothActivity extends AppCompatActivity {
 
     private class ConnectedThread extends Thread {
             private final BluetoothSocket mmSocket;
-            public final InputStream mmInStream;
+            private final InputStream mmInStream;
             private final OutputStream mmOutStream;
 
             public ConnectedThread(BluetoothSocket socket) {
