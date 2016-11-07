@@ -60,7 +60,6 @@ public class LoginDeviceLocator extends AppCompatActivity {
                             inputMethodManager.hideSoftInputFromWindow(currentView.getWindowToken(), 0);
                             Toast.makeText(LoginDeviceLocator.this, "Incorrect Password", Toast.LENGTH_SHORT).show();
                         }else{
-
                             Intent intent = new Intent(LoginDeviceLocator.this,UserMapsActivity.class);
                             intent.putExtra("Location","Some Location");
                             startActivity(intent);
