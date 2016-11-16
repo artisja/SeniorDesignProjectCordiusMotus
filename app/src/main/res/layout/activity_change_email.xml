@@ -13,8 +13,8 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/forgot_password"
-        android:id="@+id/forgot_password_text_view"
+        android:text="@string/change_email"
+        android:id="@+id/change_email_text_view"
         android:textSize="32dp"
         android:textColor="@color/wordColorRed"
         android:layout_marginTop="48dp"
@@ -24,8 +24,8 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/forgot_password_message"
-        android:id="@+id/forgot_password_message_text_view"
+        android:text="@string/change_email_message"
+        android:id="@+id/change_email_message_text_view"
         android:textSize="18dp"
         android:layout_marginBottom="16dp"
         android:layout_marginTop="16dp"
@@ -37,31 +37,35 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/email_hint"
-        android:id="@+id/email_forgot_password"
+        android:id="@+id/change_email_edit_text"
         android:textColorHint="@color/wordColorRed"
         android:inputType="textEmailAddress"
         android:imeOptions="actionDone"
-        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginTop="16dp"/>
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/reset_password"
-        android:id="@+id/password_reset_button"
+        android:text="@string/change_email"
+        android:id="@+id/change_email_reset_button"
         android:textColor="@color/wordColorRed"
         android:layout_marginTop="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
         android:layout_marginBottom="16dp"/>
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/back_button"
-        android:id="@+id/forgot_password_back_button"
+        android:id="@+id/change_email_back_button"
         android:textColor="@color/wordColorRed"
         android:layout_marginTop="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
         android:background="@color/whitePrimary"/>
 
 </LinearLayout>

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -26,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class LoginDeviceLocator extends AppCompatActivity {
-
+    public final String TAG = LoginDeviceLocator.class.getSimpleName();
     private TextView deviceLocatorInstructions;
     private EditText deviceLocatorPassword;
     private Button   deviceLocatorLogin;
@@ -51,16 +52,27 @@ public class LoginDeviceLocator extends AppCompatActivity {
                 DatabaseReference ref = database.getReference(uuid);
                 final InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(v.getContext().INPUT_METHOD_SERVICE);
                 final View currentView = v;
+                Log.i(TAG, "Reference Key to Database " + ref.getKey());
+                Log.i(TAG, "Reference Root " + ref.getRoot());
+                Log.i(TAG, "Reference Database " + ref.getDatabase());
 
                 ref.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
+                        Log.i(TAG, "Datasnapshot Key " + dataSnapshot.getKey());
+                        Log.i(TAG, "Datasnapshot Value " + dataSnapshot.getValue());
+                        Log.i(TAG, "Datasnapshot Children Count " + dataSnapshot.getChildrenCount());
+                        Log.i(TAG, "Datasnapshot Get Reference " + dataSnapshot.getRef());
+
+
                         if (dataSnapshot.getValue().equals(userInput) || userInput.isEmpty()) {
                             // Hide the keyboard from view and then present the toast
                             inputMethodManager.hideSoftInputFromWindow(currentView.getWindowToken(), 0);
+                            Log.i(TAG, "Incorrect Password " + userInput);
                             Toast.makeText(LoginDeviceLocator.this, "Incorrect Password", Toast.LENGTH_SHORT).show();
                         }else{
-                            Intent intent = new Intent(LoginDeviceLocator.this,UserMapsActivity.class);
+                            Log.i(TAG, "Correct Password " + userInput);
+                            Intent intent = new Intent(LoginDeviceLocator.this, UserMapsActivity.class);
                             intent.putExtra("Location","Some Location");
                             startActivity(intent);
                         }
@@ -76,8 +88,8 @@ public class LoginDeviceLocator extends AppCompatActivity {
     }
 
     private void findViews() {
-        deviceLocatorLogin = (Button) findViewById(R.id.device_login_button);
-        deviceLocatorPassword = (EditText) findViewById(R.id.device_edittext_password);
+        deviceLocatorLogin        = (Button) findViewById(R.id.device_login_button);
+        deviceLocatorPassword     = (EditText) findViewById(R.id.device_edittext_password);
         deviceLocatorInstructions = (TextView) findViewById(R.id.device_login_instructions);
     }
 }

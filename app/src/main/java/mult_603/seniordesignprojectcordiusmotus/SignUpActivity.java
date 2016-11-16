@@ -6,6 +6,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -18,6 +22,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -28,13 +33,17 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 
 import android.net.Uri;
 
+import java.io.File;
+
 public class SignUpActivity extends AppCompatActivity{
     public final String TAG = SignUpActivity.class.getSimpleName();
     private EditText setPasswordEdit,setEmailEdit, setUserNameEdit;
     private Button createdPasswordButton;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener authStateListener;
-    private ImageButton userImage;
+    private ApplicationController appController;
+//    private ImageButton userImage;
+    private ImageView profileImage;
     private Uri userImagePath;
 
     @Override
@@ -42,12 +51,11 @@ public class SignUpActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
         findViews();
-        mFirebaseAuth = FirebaseAuth.getInstance();
-//        mFirebaseAuth = ApplicationController;
+//        mFirebaseAuth = FirebaseAuth.getInstance();
+        mFirebaseAuth = appController.firebaseAuth;
         setUpClick();
 
-        // This Auth state listener might have broken some things
-        // Or it was me adding too many of the same user accounts in the database
+        // Auth state listener should it take into account multiple accounts with the same email?
 
         authStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -71,7 +79,8 @@ public class SignUpActivity extends AppCompatActivity{
 
                         user.updateProfile(userProfileChangeRequest);
                         Log.i(TAG, "User Get Display Name " + user.getDisplayName());
-
+                        Log.i(TAG, "User Get Email " + user.getEmail());
+                        Log.i(TAG, "User UUID " + user.getUid());
                     }
                 }
             }
@@ -143,10 +152,20 @@ public class SignUpActivity extends AppCompatActivity{
         }
 
         // Set the users image for their profile
-        userImage.setOnClickListener(new View.OnClickListener() {
+//        userImage.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent cameraGalleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+//                cameraGalleryIntent.setType("image/*");
+//                startActivityForResult(cameraGalleryIntent, 0);
+//            }
+//        });
+
+        profileImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent cameraGalleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI);
+                Intent cameraGalleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                cameraGalleryIntent.setType("image/*");
                 startActivityForResult(cameraGalleryIntent, 0);
             }
         });
@@ -155,8 +174,11 @@ public class SignUpActivity extends AppCompatActivity{
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Check which request we're responding to
+        Log.i(TAG, "Request Code " + requestCode + " Result Code " + resultCode + " Data " + data);
+        Log.i(TAG, "Result OK "  + RESULT_OK);
         String path = new String();
-        if (requestCode == 1) {
+
+        if (requestCode == 0) {
             // Make sure the request was successful
             if (resultCode == RESULT_OK) {
                 // The user picked a photo.
@@ -164,19 +186,48 @@ public class SignUpActivity extends AppCompatActivity{
                 Log.i(TAG, "Get Photo from users camera");
                 // Do something with the photo here (bigger example below)
                 userImagePath = data.getData();
+                Log.i(TAG, "Selected Image to String " + profileImage.toString());
                 Log.i(TAG, "Selected Image Path " + userImagePath.getPath());
-                path = userImagePath.getPath();
 
+                //Bitmap bitmap = BitmapFactory.decodeFile(userImagePath.toString().trim());
+                //Bitmap bitmap1 = Bitmap.createScaledBitmap(bitmap, 48, 48, false);
+                //userImage.setImageBitmap(bitmap);
+                //profileImage.setImageBitmap(bitmap);
+
+//                userImage.setImageURI(userImagePath);
+                profileImage.setImageURI(userImagePath);
+//                userImage.setScaleX(48);
+//                userImage.setScaleY(48);
             }
         }
     }
 
+    public static int calcSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight){
+        final int height = options.outHeight;
+        final int width  = options.outWidth;
 
+        int inSampleSize = 1;
+
+        if(height > reqHeight || width > reqWidth){
+            final int halfHeight = height/2;
+            final int halfWidth  = width/2;
+
+            while((halfHeight / inSampleSize) >= reqHeight && (halfWidth / inSampleSize) >= reqWidth){
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
+    }
+
+    // Set up the resources of the views
     private void findViews() {
-        setPasswordEdit = (EditText) findViewById(R.id.input_password_edit);
-        setEmailEdit    = (EditText) findViewById(R.id.input_email_edit);
-        setUserNameEdit = (EditText) findViewById(R.id.input_username_edit);
-        userImage       = (ImageButton) findViewById(R.id.user_login_image);
+        setPasswordEdit       = (EditText) findViewById(R.id.input_password_edit);
+        setEmailEdit          = (EditText) findViewById(R.id.input_email_edit);
+        setUserNameEdit       = (EditText) findViewById(R.id.input_username_edit);
+//        userImage             = (ImageButton) findViewById(R.id.user_login_image);
+        profileImage          = (ImageView) findViewById(R.id.profile_image);
         createdPasswordButton = (Button) findViewById(R.id.submit_signup_button);
+        appController         = (ApplicationController) getApplicationContext();
     }
 }

@@ -1,6 +1,7 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
@@ -8,6 +9,7 @@ import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -87,7 +89,7 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
         // the accuracy of a few feet
         locationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setFastestInterval(5 * 1000)  // 5 seconds
+                .setFastestInterval(5 * 1000)   // 5 seconds
                 .setInterval(10 * 1000);        // 10 second
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -134,6 +136,7 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
         markerOptions.position(location)
                 .title("My Current Location!")
                 .position(location);
+
         mMap.addMarker(markerOptions);
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
@@ -228,9 +231,7 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
         Log.i(TAG, "Connected");
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_LOCATION);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
 
             if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)){
                 Log.i(TAG, "DID show the request permission rationale");
@@ -250,14 +251,23 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
                 Log.i(TAG, "( Latitude: " + latitude + " Longitude: " + longitude + " )");
             } else {
                 Log.i(TAG, "Location was null");
+                LocationManager locationManager = (LocationManager) getApplicationContext()
+                        .getSystemService(Context.LOCATION_SERVICE);
+
+                boolean isNetworkEnabled = locationManager.isProviderEnabled(locationManager.NETWORK_PROVIDER);
+
+                boolean isGPSEnabled = locationManager.isProviderEnabled(locationManager.GPS_PROVIDER);
+
+                Log.i(TAG, "Is Network Enabled " + isNetworkEnabled);
+                Log.i(TAG, "Is GPS Enabled " + isGPSEnabled);
+
+
             }
         }
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                       String[] permissions,
-                                       int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == REQUEST_LOCATION) {
             if(grantResults.length == 1
                     && grantResults[0] == PackageManager.PERMISSION_GRANTED) {

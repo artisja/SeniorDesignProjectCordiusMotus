@@ -39,4 +39,8 @@
     <string name='forgot_password_message'>Please enter your email address and we will send you a message to reset your password</string>
     <string name="reset_password">Reset Password</string>
     <string name="back_button">Back</string>
+    <string name="unique_code">Unique Code</string>
+    <string name="change_email_message">Please enter the email you would like to switch to</string>
+    <string name="locator_message">Please enter the unique code that was sent to you in order to display the device location</string>
+    <string name="chart_button">Data Chart</string>
 </resources>

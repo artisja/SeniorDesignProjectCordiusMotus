@@ -1,9 +1,7 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
-import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -19,22 +17,39 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
-
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Set;
 import java.util.UUID;
 
 public class BluetoothActivity extends AppCompatActivity {
     public static final String TAG = BluetoothActivity.class.getSimpleName();
-    private final int REQUEST_BLUETOOTH_ENABLED = 2;
+
+    public static void setHandler(Handler handler){
+        mHandler = handler;
+    }
+
+    public static Handler getHandler(){
+        return mHandler;
+    }
+
+    public static void onDisconnect(){
+        if(connectedThread != null){
+            connectedThread.cancel();
+            connectedThread = null;
+        }
+    }
+    static Handler mHandler = new Handler();
+    static ConnectedThread connectedThread;
+    public static final UUID DEVICE_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
+    public static final int SUCCESSFUL_CONNECTION = 0;
+    public static final int READING_MESSAGE       = 1;
+    private final int REQUEST_BLUETOOTH_ENABLED   = 2;
     private BluetoothListAdapter bluetoothListAdapter;
     private BluetoothAdapter bluetoothAdapter;
     private BroadcastReceiver bluetoothReceiver;
@@ -42,23 +57,18 @@ public class BluetoothActivity extends AppCompatActivity {
     private Button refreshButton;
     private ArrayList<BluetoothDevice> deviceList;
     private IntentFilter foundFilter;
-    private BluetoothDevice bluetoothDevice;
     private Intent enableBluetoothIntent;
     private Set<BluetoothDevice> bondedDevices;
-    private Handler h;
-    private final int RECIEVE_MESSAGE = 1;
-    private StringBuilder sb;
-    private String address = "20:15:07:13:94:86";
-    public static Handler mHandler;
     private BluetoothDevice connectedDevice;
     private ConnectedThread mConnectedThread;
-    private ApplicationController applicationController;
+    private Button                chartButton;
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_temporary_bluetooth);
+        setContentView(R.layout.activity_bluetooth);
 
         // Set up the initial views and resources
         findViews();
@@ -74,15 +84,19 @@ public class BluetoothActivity extends AppCompatActivity {
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
 
-                if (bluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) {
+                if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) {
                     Log.i(TAG, "Action Bond State Changed");
                 }
 
-                if (bluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
+                if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
                     Log.i(TAG, "Action Discovery Started");
                 }
 
-                if (bluetoothDevice.ACTION_FOUND.equals(action)) {
+                if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)){
+                    Log.i(TAG, "Action Discovery Ended");
+                }
+
+                if (BluetoothDevice.ACTION_FOUND.equals(action)) {
 
                     BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                     final int state = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, BluetoothDevice.ERROR);
@@ -139,7 +153,17 @@ public class BluetoothActivity extends AppCompatActivity {
         foundFilter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         enableBluetoothIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         deviceList = new ArrayList<>();
-        sb = new StringBuilder();
+        chartButton = (Button) findViewById(R.id.bluetooth_chart_button);
+
+        // Set the Chart button on click listener
+        chartButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent chartActivity = new Intent(getApplicationContext(), BluetoothChartActivity.class);
+                startActivity(chartActivity);
+            }
+        });
+
 
         // Set the refresh button on click listener
         refreshButton.setOnClickListener(new View.OnClickListener() {
@@ -170,14 +194,16 @@ public class BluetoothActivity extends AppCompatActivity {
         mHandler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
-                byte[] writeBuf = (byte[]) msg.obj;
-                int begin = (int) msg.arg1;
-                int end = (int) msg.arg2;
 
 
                 switch (msg.what) {
-                    case 1:
+                    case READING_MESSAGE:
+
                         try {
+                            byte[] writeBuf = (byte[]) msg.obj;
+                            int begin = (int) msg.arg1;
+                            int end = (int) msg.arg2;
+
                             String read = new String(writeBuf, begin, end, "UTF-8").trim();
                             Toast.makeText(BluetoothActivity.this, read, Toast.LENGTH_SHORT).show();
                             Log.i(TAG, "Handler Message -> " + read);
@@ -186,6 +212,8 @@ public class BluetoothActivity extends AppCompatActivity {
                         }
 
                         break;
+                    case SUCCESSFUL_CONNECTION:
+                        Log.i(TAG, "HAPPY CONNECTION");
                 }
             }
         };
@@ -290,6 +318,9 @@ public class BluetoothActivity extends AppCompatActivity {
                 }
                 return;
             }
+
+            mHandler.obtainMessage(SUCCESSFUL_CONNECTION, mmSocket).sendToTarget();
+
             // Connect the socket and get information
             mConnectedThread = new ConnectedThread(mmSocket);
             mConnectedThread.start();
@@ -307,68 +338,72 @@ public class BluetoothActivity extends AppCompatActivity {
         }
     }
 
-    private class ConnectedThread extends Thread {
-            private final BluetoothSocket mmSocket;
-            private final InputStream mmInStream;
-            private final OutputStream mmOutStream;
+    static class ConnectedThread extends Thread {
+        private final BluetoothSocket mmSocket;
+        private final InputStream mmInStream;
+        private final OutputStream mmOutStream;
 
-            public ConnectedThread(BluetoothSocket socket) {
-                mmSocket = socket;
-                InputStream tmpIn = null;
-                OutputStream tmpOut = null;
-                try {
-                    tmpIn = socket.getInputStream();
-                    tmpOut = socket.getOutputStream();
-                } catch (IOException e) {
-                    Log.i(TAG, "ERROR trying to access the input stream " + e.getMessage());
-                }
-                mmInStream = tmpIn;
-                mmOutStream = tmpOut;
+        public ConnectedThread(BluetoothSocket socket) {
+            mmSocket = socket;
+            InputStream tmpIn = null;
+            OutputStream tmpOut = null;
+            try {
+                tmpIn = socket.getInputStream();
+                tmpOut = socket.getOutputStream();
+            } catch (IOException e) {
+                Log.i(TAG, "ERROR trying to access the input stream " + e.getMessage());
             }
+            mmInStream = tmpIn;
+            mmOutStream = tmpOut;
+        }
 
-            public void run() {
-                byte[] buffer = new byte[1024];
-                int begin = 0;
-                int bytes = 0;
-                while (true) {
-                    try {
-                        bytes += mmInStream.read(buffer, bytes, buffer.length - bytes);
+        public void run() {
+            byte[] buffer = new byte[1024];
+            int begin = 0;
+            int bytes = 0;
+            while (true) {
+                try {
+                    //bytes += mmInStream.read(buffer, bytes, buffer.length - bytes);
 //                        Log.i(TAG, "Buffer Length: " + buffer.length
 //                                + "\n" + "Bytes " + bytes);
+                    bytes = mmInStream.read(buffer);
+                    mHandler.obtainMessage(READING_MESSAGE, bytes, -1, buffer).sendToTarget();
 
-                        for (int i = begin; i < bytes; i++) {
-                            if(buffer[i] == " H".getBytes()[0]){
-                                // Send the heart rate data to the handler.
-                                mHandler.obtainMessage(1, begin, bytes, buffer).sendToTarget();
-                                if(i == bytes - 1){
-                                    bytes = 0;
-                                    begin = 0;
-                                }
+                    /*
+                    for (int i = begin; i < bytes; i++) {
+                        if(buffer[i] == " P".getBytes()[0]){
+                            // Send the heart rate data to the handler.
+                            mHandler.obtainMessage(1, begin, bytes, buffer).sendToTarget();
+                            if(i == bytes - 1){
+                                bytes = 0;
+                                begin = 0;
                             }
                         }
+                    }
+                    */
 
 //                        Log.i(TAG, "Bytes -> " + bytes);
-                    } catch (IOException e) {
-                        Log.i(TAG, "ERROR reading information from buffer " + e.getMessage());
-                        break;
-                    }
-                }
-            }
-
-            public void write(byte[] bytes) {
-                try {
-                    mmOutStream.write(bytes);
                 } catch (IOException e) {
-                    Log.i(TAG, "ERROR writing to device " + e.getMessage());
+                    Log.i(TAG, "ERROR reading information from buffer " + e.getMessage());
+                    break;
                 }
             }
+        }
 
-            public void cancel() {
-                try {
-                    mmSocket.close();
-                } catch (IOException e) {
-                    Log.i(TAG, "ERROR trying to cancel socket " + e.getMessage());
-                }
+        public void write(byte[] bytes) {
+            try {
+                mmOutStream.write(bytes);
+            } catch (IOException e) {
+                Log.i(TAG, "ERROR writing to device " + e.getMessage());
             }
+        }
+
+        public void cancel() {
+            try {
+                mmSocket.close();
+            } catch (IOException e) {
+                Log.i(TAG, "ERROR trying to cancel socket " + e.getMessage());
+            }
+        }
     }
 }
