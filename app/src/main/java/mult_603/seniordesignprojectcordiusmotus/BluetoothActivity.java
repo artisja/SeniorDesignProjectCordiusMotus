@@ -191,32 +191,32 @@ public class BluetoothActivity extends AppCompatActivity {
             }
         });
 
-        mHandler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-
-
-                switch (msg.what) {
-                    case READING_MESSAGE:
-
-                        try {
-                            byte[] writeBuf = (byte[]) msg.obj;
-                            int begin = (int) msg.arg1;
-                            int end = (int) msg.arg2;
-
-                            String read = new String(writeBuf, begin, end, "UTF-8").trim();
-                            Toast.makeText(BluetoothActivity.this, read, Toast.LENGTH_SHORT).show();
-                            Log.i(TAG, "Handler Message -> " + read);
-                        }catch(Exception e){
-                            Log.i(TAG, "String conversion exception " + e.getMessage());
-                        }
-
-                        break;
-                    case SUCCESSFUL_CONNECTION:
-                        Log.i(TAG, "HAPPY CONNECTION");
-                }
-            }
-        };
+//        mHandler = new Handler() {
+//            @Override
+//            public void handleMessage(Message msg) {
+//
+//
+//                switch (msg.what) {
+//                    case READING_MESSAGE:
+//
+//                        try {
+//                            byte[] writeBuf = (byte[]) msg.obj;
+//                            int begin = (int) msg.arg1;
+//                            int end = (int) msg.arg2;
+//
+//                            String read = new String(writeBuf, begin, end, "UTF-8").trim();
+//                            Toast.makeText(BluetoothActivity.this, read, Toast.LENGTH_SHORT).show();
+//                            Log.i(TAG, "Handler Message -> " + read);
+//                        }catch(Exception e){
+//                            Log.i(TAG, "String conversion exception " + e.getMessage());
+//                        }
+//
+//                        break;
+//                    case SUCCESSFUL_CONNECTION:
+//                        Log.i(TAG, "HAPPY CONNECTION");
+//                }
+//            }
+//        };
     }
 
 
@@ -292,13 +292,12 @@ public class BluetoothActivity extends AppCompatActivity {
     private class ConnectThread extends Thread {
         private final BluetoothSocket mmSocket;
         private final BluetoothDevice mmDevice;
-        private final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
 
         public ConnectThread(BluetoothDevice device) {
             BluetoothSocket tmp = null;
             mmDevice = device;
             try {
-                tmp = device.createRfcommSocketToServiceRecord(MY_UUID);
+                tmp = device.createRfcommSocketToServiceRecord(DEVICE_UUID);
             } catch (IOException e) {
                 Log.i(TAG, "ERROR trying to create socket to service record " + e.getMessage());
             }
@@ -319,11 +318,12 @@ public class BluetoothActivity extends AppCompatActivity {
                 return;
             }
 
-            mHandler.obtainMessage(SUCCESSFUL_CONNECTION, mmSocket).sendToTarget();
+            //mHandler.obtainMessage(SUCCESSFUL_CONNECTION, mmSocket).sendToTarget();
 
             // Connect the socket and get information
             mConnectedThread = new ConnectedThread(mmSocket);
             mConnectedThread.start();
+
             Log.i(TAG, "Connected Thread " + mConnectedThread.getName() + "\n"
                     + "Connected Thread State " + mConnectedThread.getState() + "\n"
                     + "Connected Thread Id " + mConnectedThread.getId());
@@ -363,27 +363,17 @@ public class BluetoothActivity extends AppCompatActivity {
             int bytes = 0;
             while (true) {
                 try {
-                    //bytes += mmInStream.read(buffer, bytes, buffer.length - bytes);
-//                        Log.i(TAG, "Buffer Length: " + buffer.length
-//                                + "\n" + "Bytes " + bytes);
                     bytes = mmInStream.read(buffer);
-                    mHandler.obtainMessage(READING_MESSAGE, bytes, -1, buffer).sendToTarget();
 
-                    /*
-                    for (int i = begin; i < bytes; i++) {
-                        if(buffer[i] == " P".getBytes()[0]){
-                            // Send the heart rate data to the handler.
-                            mHandler.obtainMessage(1, begin, bytes, buffer).sendToTarget();
-                            if(i == bytes - 1){
-                                bytes = 0;
-                                begin = 0;
-                            }
+                    for(int i = begin; i < bytes; i++){
+                        Log.i(TAG, "Buffer[i] = " + (char)(buffer[i]));
+
+                        if(buffer[i] == "\n".getBytes()[0]){
+                            mHandler.obtainMessage(READING_MESSAGE, bytes, -1, buffer).sendToTarget();
                         }
                     }
-                    */
-
-//                        Log.i(TAG, "Bytes -> " + bytes);
-                } catch (IOException e) {
+                }
+                catch (IOException e) {
                     Log.i(TAG, "ERROR reading information from buffer " + e.getMessage());
                     break;
                 }
