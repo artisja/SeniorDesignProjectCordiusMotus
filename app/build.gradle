@@ -49,5 +49,8 @@ dependencies {
     // Android Graphing Library
     compile 'com.github.PhilJay:MPAndroidChart:v3.0.0'
 
+    // Android Graph View Library
+    compile 'com.jjoe64:graphview:4.2.1'
+
 }
 apply plugin: 'com.google.gms.google-services'

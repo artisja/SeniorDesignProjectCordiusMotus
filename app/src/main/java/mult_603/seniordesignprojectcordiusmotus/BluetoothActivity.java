@@ -18,7 +18,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -50,18 +49,18 @@ public class BluetoothActivity extends AppCompatActivity {
     public static final int SUCCESSFUL_CONNECTION = 0;
     public static final int READING_MESSAGE       = 1;
     private final int REQUEST_BLUETOOTH_ENABLED   = 2;
-    private BluetoothListAdapter bluetoothListAdapter;
-    private BluetoothAdapter bluetoothAdapter;
-    private BroadcastReceiver bluetoothReceiver;
-    private ListView listView;
-    private Button refreshButton;
-    private ArrayList<BluetoothDevice> deviceList;
-    private IntentFilter foundFilter;
-    private Intent enableBluetoothIntent;
-    private Set<BluetoothDevice> bondedDevices;
-    private BluetoothDevice connectedDevice;
-    private ConnectedThread mConnectedThread;
-    private Button                chartButton;
+    private BluetoothListAdapter        bluetoothListAdapter;
+    private BluetoothAdapter            bluetoothAdapter;
+    private BroadcastReceiver           bluetoothReceiver;
+    private ListView                    listView;
+    private Button                      refreshButton;
+    private ArrayList<BluetoothDevice>  deviceList;
+    private IntentFilter                foundFilter;
+    private Intent                      enableBluetoothIntent;
+    private Set<BluetoothDevice>        bondedDevices;
+    private BluetoothDevice             connectedDevice;
+//    private ConnectedThread             mConnectedThread;
+    private Button                      chartButton;
 
 
 
@@ -321,12 +320,12 @@ public class BluetoothActivity extends AppCompatActivity {
             //mHandler.obtainMessage(SUCCESSFUL_CONNECTION, mmSocket).sendToTarget();
 
             // Connect the socket and get information
-            mConnectedThread = new ConnectedThread(mmSocket);
-            mConnectedThread.start();
+            connectedThread = new ConnectedThread(mmSocket);
+            connectedThread.start();
 
-            Log.i(TAG, "Connected Thread " + mConnectedThread.getName() + "\n"
-                    + "Connected Thread State " + mConnectedThread.getState() + "\n"
-                    + "Connected Thread Id " + mConnectedThread.getId());
+            Log.i(TAG, "Connected Thread "      + connectedThread.getName() + "\n"
+                    + "Connected Thread State " + connectedThread.getState() + "\n"
+                    + "Connected Thread Id "    + connectedThread.getId());
         }
 
         public void cancel() {
@@ -358,7 +357,7 @@ public class BluetoothActivity extends AppCompatActivity {
         }
 
         public void run() {
-            byte[] buffer = new byte[1024];
+            byte[] buffer = new byte[64];
             int begin = 0;
             int bytes = 0;
             while (true) {
@@ -368,6 +367,7 @@ public class BluetoothActivity extends AppCompatActivity {
                     for(int i = begin; i < bytes; i++){
                         Log.i(TAG, "Buffer[i] = " + (char)(buffer[i]));
 
+                        // TODO Need a stop bit to send to the handler
                         if(buffer[i] == "\n".getBytes()[0]){
                             mHandler.obtainMessage(READING_MESSAGE, bytes, -1, buffer).sendToTarget();
                         }
