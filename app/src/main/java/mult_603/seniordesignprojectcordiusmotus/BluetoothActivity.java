@@ -34,23 +34,22 @@ import java.util.UUID;
 
 public class BluetoothActivity extends AppCompatActivity {
     public static final String TAG = BluetoothActivity.class.getSimpleName();
-
     public static void setHandler(Handler handler){
         mHandler = handler;
     }
-
     public static Handler getHandler(){
         return mHandler;
     }
-
     public static void onDisconnect(){
         if(connectedThread != null){
             connectedThread.cancel();
             connectedThread = null;
         }
     }
+
     static Handler mHandler = new Handler();
     static ConnectedThread connectedThread;
+    static ConnectedThread mConnectedThread;
     public static final UUID DEVICE_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
     public static final int SUCCESSFUL_CONNECTION = 0;
     public static final int READING_MESSAGE       = 1;
@@ -193,7 +192,7 @@ public class BluetoothActivity extends AppCompatActivity {
             }
         });
     }
-
+/*
     // Unregister reciever in on pause
     @Override
     protected void onPause(){
@@ -217,7 +216,6 @@ public class BluetoothActivity extends AppCompatActivity {
 
     }
 
-/*
     @Override
     protected void onStop(){
         super.onStop();
@@ -336,9 +334,10 @@ public class BluetoothActivity extends AppCompatActivity {
             connectedThread = new ConnectedThread(mmSocket);
             connectedThread.start();
 
-            Log.i(TAG, "Connected Thread "      + connectedThread.getName() + "\n"
-                    + "Connected Thread State " + connectedThread.getState() + "\n"
-                    + "Connected Thread Id "    + connectedThread.getId());
+            Log.i(TAG, "Connected Thread       " + connectedThread.getName() + "\n"
+                    +  "Connected Thread State " + connectedThread.getState() + "\n"
+                    +  "Connected Thread Id    " + connectedThread.getId());
+
 
         }
 
@@ -376,10 +375,10 @@ public class BluetoothActivity extends AppCompatActivity {
 
             while (true) {
                 try {
-                    // Read the stream line by line
+                    // Read the stream line by line and send the info to the target.
                     String line = bufferedInputStream.readLine();
-                    Log.i(TAG, "Line -> " + line);
-                    mHandler.obtainMessage(READING_MESSAGE, line);
+                    Log.i(TAG, "Bluetooth Info -> " + line);
+                    mHandler.obtainMessage(READING_MESSAGE, line).sendToTarget();
 
                 }
                 catch (IOException e) {

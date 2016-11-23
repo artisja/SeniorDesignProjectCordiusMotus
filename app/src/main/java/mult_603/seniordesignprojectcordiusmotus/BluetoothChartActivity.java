@@ -40,24 +40,18 @@ public class BluetoothChartActivity extends AppCompatActivity {
             switch(msg.what){
                 case BluetoothActivity.SUCCESSFUL_CONNECTION:
                     BluetoothActivity.connectedThread = new BluetoothActivity.ConnectedThread((BluetoothSocket) msg.obj);
-                    Log.i(TAG, "Connected Successfully Starting thread ");
+                    Log.i(TAG, "Connected Successfully Starting thread... ");
                     BluetoothActivity.connectedThread.start();
+                    Log.i(TAG, "Bluetooth Activity Connected Thread " + BluetoothActivity.connectedThread.getName()
+                    +   " Bluetooth Activity Connected Thread State " + BluetoothActivity.connectedThread.getState()
+                    +   " Bluetooth Activity Connected Thread Id    " + BluetoothActivity.connectedThread.getId());
+
                     break;
 
                 case BluetoothActivity.READING_MESSAGE:
-                    Log.i(TAG, "Reading Message ");
+                    Log.i(TAG, "Reading Message... ");
                     String readLine = (String) msg.obj;
                     Log.i(TAG, "Read Line in Chart " + readLine);
-
-                    String pUPattern = "Pu = \\d+";
-                    String pDPattern = "PD = \\d+";
-                    String tPattern  = "T = \\d+";
-                    String vPattern  = "V = \\d+";
-
-                    Pattern pu = Pattern.compile(pUPattern);
-                    Pattern pd = Pattern.compile(pDPattern);
-                    Pattern t  = Pattern.compile(tPattern);
-                    Pattern v  = Pattern.compile(vPattern);
 
                     double puDouble = 0.0;
                     double pdDouble = 0.0;
@@ -72,13 +66,16 @@ public class BluetoothChartActivity extends AppCompatActivity {
 
                     // If there is a number then add it to the graph
                     try{
-                        Log.i(TAG, "PU String --> " + puString);
-                        Log.i(TAG, "PD String --> " + pdString);
-                        Log.i(TAG, "T  String --> " + tString);
+                        Log.i(TAG, "PU String -->  " + puString);
+                        Log.i(TAG, "PD String -->  " + pdString);
+                        Log.i(TAG, "T  String -->  " + tString);
                         Log.i(TAG, "V  String -- > " + vString);
-                        vString = vString.replace("V = ", "")
-                                    .replace("#", "");
 
+                        // Replace the things we don't need in the V String.
+                        vString = vString.replace("V = ", "")
+                                         .replace("#", "");
+
+                        // Parse it to a double
                         vDouble = Double.parseDouble(vString);
                         Log.i(TAG, "Iteration --> " + iteration);
                         Log.i(TAG, "V Double --> " + vDouble);
@@ -139,7 +136,7 @@ public class BluetoothChartActivity extends AppCompatActivity {
         lineChart.setDrawMarkers(true);
         lineChart.setPinchZoom(true);
         lineChart.setDrawBorders(true);
-//        lineChart.setMaxVisibleValueCount(100);
+        lineChart.setMaxVisibleValueCount(100);
 
         Legend legend = lineChart.getLegend();
         legend.setForm(Legend.LegendForm.LINE);
