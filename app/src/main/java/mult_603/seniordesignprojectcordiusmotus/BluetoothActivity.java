@@ -20,10 +20,12 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -330,7 +332,6 @@ public class BluetoothActivity extends AppCompatActivity {
 
             //mHandler.obtainMessage(SUCCESSFUL_CONNECTION, mmSocket).sendToTarget();
 
-
             // Connect the socket and get information
             connectedThread = new ConnectedThread(mmSocket);
             connectedThread.start();
@@ -370,43 +371,15 @@ public class BluetoothActivity extends AppCompatActivity {
         }
 
         public void run() {
-            DataInputStream dataInputStream = new DataInputStream(mmInStream);
-            byte[] buffer = new byte[68];
-            int begin = 0;
-            int bytes = 0;
+            Log.i(TAG, "Running the Connected Thread ");
+            BufferedReader bufferedInputStream = new BufferedReader(new InputStreamReader(mmInStream));
 
-            // TODO Need to fix so that the byte stream stops at the pound symbol.
             while (true) {
                 try {
-                    bytes += mmInStream.read(buffer, begin, buffer.length - bytes);
-                    //bytes = mmInStream.read(buffer);
-                    Log.i(TAG, "Char " + dataInputStream.readChar());
-
-                    // Read the buffer stream
-                    for (int i = begin; i < bytes; i++) {
-                        Log.i(TAG, "Read UTF " + dataInputStream.readUTF());
-                        Log.i(TAG, "Begin == " + begin);
-                        Log.i(TAG, "Bytes == " + bytes);
-                        int diff = buffer.length - bytes;
-                        Log.i(TAG, "Buffer.length - bytes " + diff);
-                        Log.i(TAG, "Buffer " + new String(buffer));
-
-                        // If we find the terminating character
-                        if (buffer[i] == "#".getBytes()[0]) {
-                            Log.i(TAG, "Found the pound symbol ");
-                            mHandler.obtainMessage(READING_MESSAGE, bytes, i, buffer);
-
-                            Log.i(TAG, "Begin == " + begin);
-                            begin = i + 1;
-
-                            // Reset the buffer?
-                            if (i == bytes - 1) {
-                                bytes = 0;
-                                begin = 0;
-                                break;
-                            }
-                        }
-                    }
+                    // Read the stream line by line
+                    String line = bufferedInputStream.readLine();
+                    Log.i(TAG, "Line -> " + line);
+                    mHandler.obtainMessage(READING_MESSAGE, line);
 
                 }
                 catch (IOException e) {

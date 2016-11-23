@@ -46,12 +46,8 @@ public class BluetoothChartActivity extends AppCompatActivity {
 
                 case BluetoothActivity.READING_MESSAGE:
                     Log.i(TAG, "Reading Message ");
-                    byte[] read = (byte[]) msg.obj;
-                    int begin = (int) msg.arg1;
-                    int end   = (int) msg.arg2;
-
-                    String reading = new String(read, begin, end).trim();
-                    Log.i(TAG, "Reading  " + reading);
+                    String readLine = (String) msg.obj;
+                    Log.i(TAG, "Read Line in Chart " + readLine);
 
                     String pUPattern = "Pu = \\d+";
                     String pDPattern = "PD = \\d+";
@@ -63,47 +59,12 @@ public class BluetoothChartActivity extends AppCompatActivity {
                     Pattern t  = Pattern.compile(tPattern);
                     Pattern v  = Pattern.compile(vPattern);
 
-                    String strings = new String(read);
-
-//                    Matcher puMatch = pu.matcher(strings);
-//                    Matcher pdMatch = pd.matcher(strings);
-//                    Matcher tMatch  = t.matcher(strings);
-//                    Matcher vMatch  = v.matcher(strings);
-//
-//                    String puString = new String();
-//                    String pdString = new String();
-//                    String tString  = new String();
-//                    String vString  = new String();
-//
-//
-//                    // Split up the String
-//                    if(puMatch.find()){
-//                        puString = puMatch.group(0);
-//                        Log.i(TAG, "PU Match " + puString);
-//                    }
-//
-//                    if(pdMatch.find()){
-//                        pdString = pdMatch.group(0);
-//                        Log.i(TAG, "PD Match " + pdString);
-//                    }
-//
-//                    if(tMatch.find()){
-//                        tString = tMatch.group(0);
-//                        Log.i(TAG, "T  Match " + tString);
-//                    }
-//
-//                    if(vMatch.find()){
-//                        vString = vMatch.group(0);
-//                        Log.i(TAG, "V  Match " + vString );
-//                    }
-
-
                     double puDouble = 0.0;
                     double pdDouble = 0.0;
                     double tDouble  = 0.0;
                     double vDouble  = 0.0;
 
-                    String[] newStrings = strings.split(",");
+                    String[] newStrings = readLine.split(",");
                     String puString = newStrings[0];
                     String pdString = newStrings[1];
                     String tString  = newStrings[2];
