@@ -18,6 +18,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -59,9 +63,7 @@ public class BluetoothActivity extends AppCompatActivity {
     private Intent                      enableBluetoothIntent;
     private Set<BluetoothDevice>        bondedDevices;
     private BluetoothDevice             connectedDevice;
-//    private ConnectedThread             mConnectedThread;
     private Button                      chartButton;
-
 
 
     @Override
@@ -83,42 +85,41 @@ public class BluetoothActivity extends AppCompatActivity {
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
 
-                if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) {
-                    Log.i(TAG, "Action Bond State Changed");
-                }
+                switch(action){
+                    case BluetoothDevice.ACTION_BOND_STATE_CHANGED:
+                        Log.i(TAG, "Action Bond State Changed ");
+                        break;
+                    case BluetoothDevice.ACTION_FOUND:
+                        Log.i(TAG, "Action Found ");
+                        BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                        final int state = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, BluetoothDevice.ERROR);
+                        final int previousState = intent.getIntExtra(BluetoothDevice.EXTRA_PREVIOUS_BOND_STATE, BluetoothDevice.ERROR);
 
-                if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
-                    Log.i(TAG, "Action Discovery Started");
-                }
+                        // If the device is not in the list then add it
+                        if (!deviceList.contains(device)) {
+                            deviceList.add(device);
+                            Log.i(TAG, "Device Found: " + device.getName() + " , " + device.getAddress());
+                        }
 
-                if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)){
-                    Log.i(TAG, "Action Discovery Ended");
-                }
+                        // Is the state of the device bonded or bonding?
+                        if (state == BluetoothDevice.BOND_BONDED && previousState == BluetoothDevice.BOND_BONDING) {
+                            Log.i(TAG, "Paired in bluetooth receiver");
+                        }
 
-                if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-
-                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                    final int state = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, BluetoothDevice.ERROR);
-                    final int previousState = intent.getIntExtra(BluetoothDevice.EXTRA_PREVIOUS_BOND_STATE, BluetoothDevice.ERROR);
-
-                    // If the device is not in the list then add it
-                    if (!deviceList.contains(device)) {
-                        deviceList.add(device);
-                        Log.i(TAG, "Device Found: " + device.getName() + " , " + device.getAddress());
-                    }
-
-                    // Is the state of the device bonded or bonding?
-                    if (state == BluetoothDevice.BOND_BONDED && previousState == BluetoothDevice.BOND_BONDING) {
-                        Log.i(TAG, "Paired in bluetooth receiver");
-                    }
-
-                    // Device is unpairing
-                    else if (state == BluetoothDevice.BOND_NONE && previousState == BluetoothDevice.BOND_BONDED) {
-                        Log.i(TAG, "Unpaired in bluetooth receiver");
-                    }
-
-                } else {
-                    Log.i(TAG, "Something went wrong with bluetooth action found");
+                        // Device is unpairing
+                        else if (state == BluetoothDevice.BOND_NONE && previousState == BluetoothDevice.BOND_BONDED) {
+                            Log.i(TAG, "Unpaired in bluetooth receiver");
+                        }
+                        break;
+                    case BluetoothAdapter.ACTION_DISCOVERY_STARTED:
+                        Log.i(TAG, "Action Discovery Started ");
+                        break;
+                    case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:
+                        Log.i(TAG, "Action Discovery Finished ");
+                        break;
+                    case BluetoothAdapter.ACTION_STATE_CHANGED:
+                        Log.i(TAG, "Action State Changed ");
+                        break;
                 }
             }
         };
@@ -189,35 +190,45 @@ public class BluetoothActivity extends AppCompatActivity {
                 }
             }
         });
-
-//        mHandler = new Handler() {
-//            @Override
-//            public void handleMessage(Message msg) {
-//
-//
-//                switch (msg.what) {
-//                    case READING_MESSAGE:
-//
-//                        try {
-//                            byte[] writeBuf = (byte[]) msg.obj;
-//                            int begin = (int) msg.arg1;
-//                            int end = (int) msg.arg2;
-//
-//                            String read = new String(writeBuf, begin, end, "UTF-8").trim();
-//                            Toast.makeText(BluetoothActivity.this, read, Toast.LENGTH_SHORT).show();
-//                            Log.i(TAG, "Handler Message -> " + read);
-//                        }catch(Exception e){
-//                            Log.i(TAG, "String conversion exception " + e.getMessage());
-//                        }
-//
-//                        break;
-//                    case SUCCESSFUL_CONNECTION:
-//                        Log.i(TAG, "HAPPY CONNECTION");
-//                }
-//            }
-//        };
     }
 
+    // Unregister reciever in on pause
+    @Override
+    protected void onPause(){
+        super.onPause();
+        Log.i(TAG, "On Pause Called ");
+        synchronized (this){
+            if(bluetoothReceiver != null){
+                unregisterReceiver(bluetoothReceiver);
+            }
+        }
+    }
+
+    // Register reciever in on resume
+    @Override
+    protected void onResume(){
+        super.onResume();
+        Log.i(TAG, "On Resume Called ");
+        synchronized(this){
+            registerReceiver(bluetoothReceiver, foundFilter);
+        }
+
+    }
+
+/*
+    @Override
+    protected void onStop(){
+        super.onStop();
+        Log.i(TAG, "On Stop Called ");
+
+    }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        Log.i(TAG, "On Destroy Called ");
+    }
+*/
 
     private void enableBluetooth() {
         // Check to see if bluetooth is enabled
@@ -319,6 +330,7 @@ public class BluetoothActivity extends AppCompatActivity {
 
             //mHandler.obtainMessage(SUCCESSFUL_CONNECTION, mmSocket).sendToTarget();
 
+
             // Connect the socket and get information
             connectedThread = new ConnectedThread(mmSocket);
             connectedThread.start();
@@ -326,6 +338,7 @@ public class BluetoothActivity extends AppCompatActivity {
             Log.i(TAG, "Connected Thread "      + connectedThread.getName() + "\n"
                     + "Connected Thread State " + connectedThread.getState() + "\n"
                     + "Connected Thread Id "    + connectedThread.getId());
+
         }
 
         public void cancel() {
@@ -357,21 +370,44 @@ public class BluetoothActivity extends AppCompatActivity {
         }
 
         public void run() {
-            byte[] buffer = new byte[64];
+            DataInputStream dataInputStream = new DataInputStream(mmInStream);
+            byte[] buffer = new byte[68];
             int begin = 0;
             int bytes = 0;
+
+            // TODO Need to fix so that the byte stream stops at the pound symbol.
             while (true) {
                 try {
-                    bytes = mmInStream.read(buffer);
+                    bytes += mmInStream.read(buffer, begin, buffer.length - bytes);
+                    //bytes = mmInStream.read(buffer);
+                    Log.i(TAG, "Char " + dataInputStream.readChar());
 
-                    for(int i = begin; i < bytes; i++){
-                        Log.i(TAG, "Buffer[i] = " + (char)(buffer[i]));
+                    // Read the buffer stream
+                    for (int i = begin; i < bytes; i++) {
+                        Log.i(TAG, "Read UTF " + dataInputStream.readUTF());
+                        Log.i(TAG, "Begin == " + begin);
+                        Log.i(TAG, "Bytes == " + bytes);
+                        int diff = buffer.length - bytes;
+                        Log.i(TAG, "Buffer.length - bytes " + diff);
+                        Log.i(TAG, "Buffer " + new String(buffer));
 
-                        // TODO Need a stop bit to send to the handler
-                        if(buffer[i] == "\n".getBytes()[0]){
-                            mHandler.obtainMessage(READING_MESSAGE, bytes, -1, buffer).sendToTarget();
+                        // If we find the terminating character
+                        if (buffer[i] == "#".getBytes()[0]) {
+                            Log.i(TAG, "Found the pound symbol ");
+                            mHandler.obtainMessage(READING_MESSAGE, bytes, i, buffer);
+
+                            Log.i(TAG, "Begin == " + begin);
+                            begin = i + 1;
+
+                            // Reset the buffer?
+                            if (i == bytes - 1) {
+                                bytes = 0;
+                                begin = 0;
+                                break;
+                            }
                         }
                     }
+
                 }
                 catch (IOException e) {
                     Log.i(TAG, "ERROR reading information from buffer " + e.getMessage());

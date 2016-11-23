@@ -47,6 +47,11 @@ public class BluetoothChartActivity extends AppCompatActivity {
                 case BluetoothActivity.READING_MESSAGE:
                     Log.i(TAG, "Reading Message ");
                     byte[] read = (byte[]) msg.obj;
+                    int begin = (int) msg.arg1;
+                    int end   = (int) msg.arg2;
+
+                    String reading = new String(read, begin, end).trim();
+                    Log.i(TAG, "Reading  " + reading);
 
                     String pUPattern = "Pu = \\d+";
                     String pDPattern = "PD = \\d+";
@@ -59,48 +64,60 @@ public class BluetoothChartActivity extends AppCompatActivity {
                     Pattern v  = Pattern.compile(vPattern);
 
                     String strings = new String(read);
-                    Matcher puMatch = pu.matcher(strings);
-                    Matcher pdMatch = pd.matcher(strings);
-                    Matcher tMatch  = t.matcher(strings);
-                    Matcher vMatch  = v.matcher(strings);
 
-                    String puString = new String();
-                    String pdString = new String();
-                    String tString  = new String();
-                    String vString  = new String();
+//                    Matcher puMatch = pu.matcher(strings);
+//                    Matcher pdMatch = pd.matcher(strings);
+//                    Matcher tMatch  = t.matcher(strings);
+//                    Matcher vMatch  = v.matcher(strings);
+//
+//                    String puString = new String();
+//                    String pdString = new String();
+//                    String tString  = new String();
+//                    String vString  = new String();
+//
+//
+//                    // Split up the String
+//                    if(puMatch.find()){
+//                        puString = puMatch.group(0);
+//                        Log.i(TAG, "PU Match " + puString);
+//                    }
+//
+//                    if(pdMatch.find()){
+//                        pdString = pdMatch.group(0);
+//                        Log.i(TAG, "PD Match " + pdString);
+//                    }
+//
+//                    if(tMatch.find()){
+//                        tString = tMatch.group(0);
+//                        Log.i(TAG, "T  Match " + tString);
+//                    }
+//
+//                    if(vMatch.find()){
+//                        vString = vMatch.group(0);
+//                        Log.i(TAG, "V  Match " + vString );
+//                    }
+
 
                     double puDouble = 0.0;
                     double pdDouble = 0.0;
                     double tDouble  = 0.0;
                     double vDouble  = 0.0;
 
-                    // Split up the String
-                    if(puMatch.find()){
-                        puString = puMatch.group(0);
-                        Log.i(TAG, "PU Match " + puString);
-                    }
-
-                    if(pdMatch.find()){
-                        pdString = pdMatch.group(0);
-                        Log.i(TAG, "PD Match " + pdString);
-                    }
-
-                    if(tMatch.find()){
-                        tString = tMatch.group(0);
-                        Log.i(TAG, "T  Match " + tString);
-                    }
-
-                    if(vMatch.find()){
-                        vString = vMatch.group(0);
-                        Log.i(TAG, "V  Match " + vString );
-                    }
-
-                    //Log.i(TAG, "Strings " + strings);
+                    String[] newStrings = strings.split(",");
+                    String puString = newStrings[0];
+                    String pdString = newStrings[1];
+                    String tString  = newStrings[2];
+                    String vString  = newStrings[3];
 
                     // If there is a number then add it to the graph
                     try{
-                        Log.i(TAG, "VString -- > " + vString);
-                        vString = vString.replace("V = ", "");
+                        Log.i(TAG, "PU String --> " + puString);
+                        Log.i(TAG, "PD String --> " + pdString);
+                        Log.i(TAG, "T  String --> " + tString);
+                        Log.i(TAG, "V  String -- > " + vString);
+                        vString = vString.replace("V = ", "")
+                                    .replace("#", "");
+
                         vDouble = Double.parseDouble(vString);
                         Log.i(TAG, "Iteration --> " + iteration);
                         Log.i(TAG, "V Double --> " + vDouble);
@@ -115,8 +132,6 @@ public class BluetoothChartActivity extends AppCompatActivity {
                         if(iteration >= xView){
                             Log.i(TAG, "Set the iterations back to zero");
                             iteration = 0;
-//                            lineChart.notifyDataSetChanged();
-//                            lineChart.invalidate();
                         }
                         else{
                             Log.i(TAG, "Update the number of iterations");
@@ -294,8 +309,6 @@ public class BluetoothChartActivity extends AppCompatActivity {
         lineDataSet.setFillAlpha(65);
         lineDataSet.setFillColor(Color.WHITE);
         lineDataSet.setHighLightColor(Color.LTGRAY);
-//        lineDataSet.setValueTextColor(Color.YELLOW);
-//        lineDataSet.setValueTextSize(10f);
         return lineDataSet;
     }
 }
