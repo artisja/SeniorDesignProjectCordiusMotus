@@ -12,7 +12,7 @@ public class Contact implements User{
     public final String TAG = Contact.class.getSimpleName();
     private String name,number,email,uuid;;
 
-    // Empty constructor for firebase
+    // Empty constructor for Firebase
     public Contact(){
 
     }

@@ -38,8 +38,19 @@ dependencies {
     compile 'com.android.support:design:23.4.0'
     compile 'com.google.android.gms:play-services:9.6.1'
 
+    // Navigation Drawer
     compile('com.mikepenz:materialdrawer:5.7.0@aar') {
         transitive = true
     }
+
+    // Circular image view
+    compile 'de.hdodenhof:circleimageview:2.1.0'
+
+    // Android Graphing Library
+    compile 'com.github.PhilJay:MPAndroidChart:v3.0.0'
+
+    // Android Graph View Library
+    compile 'com.jjoe64:graphview:4.2.1'
+
 }
 apply plugin: 'com.google.gms.google-services'

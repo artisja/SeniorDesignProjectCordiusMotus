@@ -23,8 +23,12 @@
         android:textColorHint="@color/wordColorRed"
         android:maxLength="40"
         android:imeOptions="actionNext"
+        android:layout_marginTop="75dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
         android:layout_marginBottom="15sp"
-        android:layout_marginTop="75dp"/>
+
+        />
 
     <EditText
         android:id="@+id/password_edit"
@@ -36,6 +40,8 @@
         android:maxLength="20"
         android:textColorHint="@color/wordColorRed"
         android:imeOptions="actionDone"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
         android:layout_marginBottom="15sp"/>
 
     <Button
@@ -43,6 +49,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/login_label"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
         android:layout_marginBottom="50sp"
         android:textColor="@color/wordColorRed" />
 
@@ -52,6 +60,8 @@
         android:layout_width="match_parent"
         android:text="@string/forgot_password"
         android:textColor="@color/wordColorRed"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
         android:layout_marginBottom="15sp"
         android:background="@color/whitePrimary"/>
 
@@ -61,5 +71,9 @@
         android:layout_height="wrap_content"
         android:text="@string/not_a_member"
         android:textColor="@color/wordColorRed"
-        android:background="@color/whitePrimary"/>
+        android:background="@color/whitePrimary"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"/>
+
+
 </LinearLayout>

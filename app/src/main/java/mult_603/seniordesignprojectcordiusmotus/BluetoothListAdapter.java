@@ -51,7 +51,6 @@ public class BluetoothListAdapter extends BaseAdapter implements ListAdapter {
         if (view == null){
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             view = inflater.inflate(R.layout.bluetooth_row_item, null);
-            Log.i(TAG, "Set up a view that was initially null");
         }
 
         // Device name text view
@@ -87,12 +86,12 @@ public class BluetoothListAdapter extends BaseAdapter implements ListAdapter {
 
                 // Attempt to pair or unpair device
                 if (devicePairButton.getText() == "Unpair"){
-                    Log.i(TAG, "Attempt to unpair device " + bluetoothDevice.getAddress());
+                    Log.i(TAG, "Attempt to unpair device from list " + bluetoothDevice.getAddress());
                     tmp.unpairDevice(bluetoothDevice);
                     devicePairButton.setText("Pair Device");
                 }
                 else{
-                    Log.i(TAG, "Attempt to pair device " + bluetoothDevice.getAddress());
+                    Log.i(TAG, "Attempt to pair device from list " + bluetoothDevice.getAddress());
                     tmp.pairDevice(bluetoothDevice);
                     devicePairButton.setText("Unpair");
                 }

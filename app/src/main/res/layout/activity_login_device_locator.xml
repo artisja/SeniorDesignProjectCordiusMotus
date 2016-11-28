@@ -8,21 +8,43 @@
     tools:context="mult_603.seniordesignprojectcordiusmotus.LoginDeviceLocator">
 
     <TextView android:id="@+id/device_login_instructions"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/device_locator_instructions"
-        android:textSize="15sp"/>
+        android:textSize="20sp"
+        android:layout_marginTop="16dp"
+        android:layout_gravity="center"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/locator_message"
+        android:text="@string/locator_message"
+        android:textSize="20sp"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="24dp"
+        android:layout_marginRight="24dp"
+        android:layout_marginBottom="16dp"
+        android:layout_gravity="center"/>
 
     <EditText android:id="@+id/device_edittext_password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:hint="@string/unique_code"
+        android:textColorHint="@color/wordColorRed"
         android:singleLine="true"
-        android:maxLength="50"/>
+        android:maxLength="50"
+        android:layout_marginTop="48dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"/>
 
     <Button android:id="@+id/device_login_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/login_label"/>
-
+        android:text="@string/login_label"
+        android:textColor="@color/wordColorRed"
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"/>
 
 </LinearLayout>
