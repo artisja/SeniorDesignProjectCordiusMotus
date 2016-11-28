@@ -241,16 +241,12 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
         }
         else{
             Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-            if (lastLocation != null) {
                 Intent intent = getIntent();
-                latitude = intent.getDoubleExtra("Longitude",lastLocation.getLatitude());
-                longitude = intent.getDoubleExtra("Latitude",lastLocation.getLongitude());
+                latitude = intent.getDoubleExtra("Location Longitude",lastLocation.getLatitude());
+                longitude = intent.getDoubleExtra("Location Latitude",lastLocation.getLongitude());
                 currentPosition = new LatLng(latitude, longitude);
                 setUpMapMarkerByLocation(currentPosition);
                 Log.i(TAG, "( Latitude: " + latitude + " Longitude: " + longitude + " )");
-            } else {
-                Log.i(TAG, "Location was null");
-            }
         }
     }
 

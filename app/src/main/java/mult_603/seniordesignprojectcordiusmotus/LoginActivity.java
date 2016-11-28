@@ -16,6 +16,11 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import static com.google.firebase.auth.FirebaseAuth.*;
 
@@ -26,6 +31,7 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth firebaseAuth;
     private FirebaseUser firebaseUser;
     private ApplicationController appController;
+    private LocationHolder locationHolder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +42,7 @@ public class LoginActivity extends AppCompatActivity {
 
         firebaseUser = appController.currentUser;
         firebaseAuth = appController.firebaseAuth;
+        locationHolder = new LocationHolder();
 
         if(firebaseUser != null){
             Log.i(TAG, "Current User Display Name " + firebaseUser.getDisplayName());
@@ -44,7 +51,7 @@ public class LoginActivity extends AppCompatActivity {
 
             // If the user is already logged in the they don't need to sign in
             signUpButton.setTextColor(Color.GRAY);
-            signUpButton.setEnabled(false);
+            signUpButton.setEnabled(true);
         }
     }
 
@@ -82,6 +89,10 @@ public class LoginActivity extends AppCompatActivity {
                                 inputMethodManager.hideSoftInputFromWindow(currentView.getWindowToken(), 0);
                                 Toast.makeText(getApplicationContext(), "Email or Password was Incorrect", Toast.LENGTH_LONG).show();
                             } else {
+                                appController.getLocationManager();
+                                locationHolder.setLatitude(String.valueOf(appController.latitude));
+                                locationHolder.setLongitude(String.valueOf(appController.longitude));
+                                addLocationToDatabase(locationHolder);
 //                                Intent intent = new Intent(LoginActivity.this, ContactActivity.class);
                                 Intent intent = new Intent(LoginActivity.this, ContactSimpleActivity.class);
                                 startActivity(intent);
@@ -108,6 +119,25 @@ public class LoginActivity extends AppCompatActivity {
                 Log.i(TAG, "Sign Up Button was clicked");
                 Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
                 startActivity(intent);
+            }
+        });
+    }
+
+    public void addLocationToDatabase(LocationHolder locationHolder){
+        FirebaseDatabase fireDb = FirebaseDatabase.getInstance();
+        DatabaseReference ref = fireDb.getReference(appController.firebaseAuth.getCurrentUser().getUid());
+        ref.setValue(locationHolder);
+        // What if we could call this whenever the users position changes?
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                LocationHolder data = dataSnapshot.getValue(LocationHolder.class);
+                Log.i(TAG, "Persons data has changed: " + data);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.i(TAG, "Persons data change was cancelled");
             }
         });
     }

@@ -61,7 +61,5 @@
         android:layout_height="wrap_content"
         android:text="@string/not_a_member"
         android:textColor="@color/wordColorRed"
-        android:background="@color/whitePrimary" />
-
-
+        android:background="@color/whitePrimary"/>
 </LinearLayout>

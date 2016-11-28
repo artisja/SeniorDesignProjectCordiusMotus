@@ -48,8 +48,8 @@ public class ApplicationController extends android.app.Application {
     public UserProfileChangeRequest userProfileChangeRequest;
     private DrawerLayout userDrawerLayout;
     private ActionBarDrawerToggle actionBarToggle;
+
     public double longitude, latitude;
-    private ConnectedThread connectedThread;
     public Patient patient;
 
     private static ApplicationController singleton;
@@ -68,12 +68,14 @@ public class ApplicationController extends android.app.Application {
         firebaseAuth = FirebaseAuth.getInstance();
         currentUser = firebaseAuth.getCurrentUser();
         patient = new Patient();
+
         if(currentUser != null) {
             Log.i(TAG, "Current User " + currentUser);
             Log.i(TAG, "Current User Display Name "  + currentUser.getDisplayName());
             Log.i(TAG, "Current User Email " + currentUser.getEmail());
             Log.i(TAG, "Current User UUID  " + currentUser.getUid());
 
+            patient.setPatientUserName(currentUser.getDisplayName());
             // Send the user an email verification
             // This will send them an email every time do I want to do that???
 //            currentUser.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -99,6 +101,7 @@ public class ApplicationController extends android.app.Application {
             // Add auth state listener
             firebaseAuth.addAuthStateListener(authStateListener);
         }
+
         mHandler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
@@ -200,11 +203,10 @@ public class ApplicationController extends android.app.Application {
         Log.i(TAG, "On Loe Memory called");
     }
 
-
     private class ConnectedThread extends Thread {
         public final BluetoothSocket mmSocket;
         public final InputStream mmInStream;
-        private final OutputStream mmOutStream;
+        public final OutputStream mmOutStream;
 
         public ConnectedThread(BluetoothSocket socket) {
             mmSocket = socket;
@@ -248,31 +250,39 @@ public class ApplicationController extends android.app.Application {
                 }
             }
         }
+    }
 
-        public void write(byte[] bytes) {
-            try {
-                mmOutStream.write(bytes);
-            } catch (IOException e) {
-                Log.i(TAG, "ERROR writing to device " + e.getMessage());
+    public void lookForData(){
+    final byte delimiter = 10;
+    final boolean stopSearcher = false;
+    int readPosition =0;
+    Thread searchThread = new Thread(new Runnable() {
+
+        @Override
+        public void run() {
+            while(!Thread.currentThread().isInterrupted() && !stopSearcher){
+                try {
+             //      int availableData = ConnectedThread.
+                }catch (Exception e){
+
+                }
             }
         }
-
-        public void cancel() {
-            try {
-                mmSocket.close();
-            } catch (IOException e) {
-                Log.i(TAG, "ERROR trying to cancel socket " + e.getMessage());
-            }
-        }
+    });
     }
 
     @Override
     public void onTerminate() {
         super.onTerminate();
         Log.i(TAG, "On Terminate Called");
+
+        lookForData();
+
         // If the auth state listener is not null then remove it from the firebase auth
         if(authStateListener != null){
             firebaseAuth.removeAuthStateListener(authStateListener);
         }
     }
 }
+
+

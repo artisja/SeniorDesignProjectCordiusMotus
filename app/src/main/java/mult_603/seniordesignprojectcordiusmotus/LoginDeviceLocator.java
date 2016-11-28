@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -16,6 +17,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import org.w3c.dom.Text;
@@ -32,6 +34,8 @@ public class LoginDeviceLocator extends AppCompatActivity {
     private Button   deviceLocatorLogin;
     FirebaseDatabase database;
     String uuid;
+    ApplicationController applicationController;
+    public final String TAG = ContactListAdapter.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +43,8 @@ public class LoginDeviceLocator extends AppCompatActivity {
         setContentView(R.layout.activity_login_device_locator);
         findViews();
         setClickHappenings();
+        applicationController = new ApplicationController();
+
     }
 
     private void setClickHappenings() {
@@ -48,7 +54,7 @@ public class LoginDeviceLocator extends AppCompatActivity {
                 final String userInput = deviceLocatorPassword.getText().toString();
                 uuid = userInput;
                 database = FirebaseDatabase.getInstance();
-                DatabaseReference ref = database.getReference(uuid);
+                final DatabaseReference ref = database.getReference(uuid);
                 final InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(v.getContext().INPUT_METHOD_SERVICE);
                 final View currentView = v;
 
@@ -59,9 +65,10 @@ public class LoginDeviceLocator extends AppCompatActivity {
                             // Hide the keyboard from view and then present the toast
                             inputMethodManager.hideSoftInputFromWindow(currentView.getWindowToken(), 0);
                             Toast.makeText(LoginDeviceLocator.this, "Incorrect Password", Toast.LENGTH_SHORT).show();
-                        }else{
-                            Intent intent = new Intent(LoginDeviceLocator.this,UserMapsActivity.class);
-                            intent.putExtra("Location","Some Location");
+                        } else {
+                            Intent intent = new Intent(LoginDeviceLocator.this, UserMapsActivity.class);
+                            intent.putExtra("Location Latitude", getCurrentUserLocation(userInput).getLatitude());
+                            intent.putExtra("Location Longitude",getCurrentUserLocation(userInput).getLongitude());
                             startActivity(intent);
                         }
                     }
@@ -73,6 +80,30 @@ public class LoginDeviceLocator extends AppCompatActivity {
                 });
             }
         });
+    }
+
+    private LocationHolder getCurrentUserLocation(String userID) {
+        DatabaseReference reference = database.getReference(userID);
+        LocationHolder locationholder = new LocationHolder();
+        reference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(DataSnapshot ds : dataSnapshot.getChildren()){
+                    Log.i(TAG, "Data Snapshot Key   " + ds.getKey());
+                    Log.i(TAG, "Data Snapshot Ref   "   + ds.getRef());
+                    Log.i(TAG, "Data Snapshot Value " + ds.getValue());
+                    if (ds.getValue() instanceof LocationHolder){
+                        LocationHolder locationholder = ((LocationHolder) ds.getValue());
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        return locationholder;
     }
 
     private void findViews() {

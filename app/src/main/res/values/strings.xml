@@ -39,4 +39,5 @@
     <string name='forgot_password_message'>Please enter your email address and we will send you a message to reset your password</string>
     <string name="reset_password">Reset Password</string>
     <string name="back_button">Back</string>
+    <string name="email_subject">Cordis Motus Emergency Contact</string>
 </resources>
