@@ -193,7 +193,7 @@ public class BluetoothActivity extends AppCompatActivity {
         });
     }
 /*
-    // Unregister reciever in on pause
+    // Unregister receiver in on pause
     @Override
     protected void onPause(){
         super.onPause();
@@ -377,7 +377,7 @@ public class BluetoothActivity extends AppCompatActivity {
                 try {
                     // Read the stream line by line and send the info to the target.
                     String line = bufferedInputStream.readLine();
-                    Log.i(TAG, "Bluetooth Info -> " + line);
+//                    Log.i(TAG, "Bluetooth Info -> " + line);
                     mHandler.obtainMessage(READING_MESSAGE, line).sendToTarget();
 
                 }
