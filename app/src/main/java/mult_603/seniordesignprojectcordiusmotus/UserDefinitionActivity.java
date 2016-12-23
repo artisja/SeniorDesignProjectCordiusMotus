@@ -170,11 +170,12 @@ public class UserDefinitionActivity extends AppCompatActivity implements Drawer.
                 imageClicked.setAnimationListener(animationListener);
                 v.startAnimation(imageClicked);
                 break;
-
+            /* Do We Need a home button?
             case R.id.home_toolbar_icon:
                 Log.i(TAG, "Clicked the home button in the toolbar");
                 v.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.image_clicked));
                 break;
+                */
         }
     }
 
@@ -284,13 +285,13 @@ public class UserDefinitionActivity extends AppCompatActivity implements Drawer.
         caliButton      = (Button) findViewById(R.id.cali_Button);
         medicButton     = (Button) findViewById(R.id.medic_Button);
         bluetoothButton = (Button) findViewById(R.id.bluetooth_Button);
-        homeButton      = (ImageButton) findViewById(R.id.home_toolbar_icon);
+//        homeButton      = (ImageButton) findViewById(R.id.home_toolbar_icon);
         accountButton   = (ImageButton) findViewById(R.id.user_login_toolbar);
 
         caliButton.setOnClickListener(this);
         medicButton.setOnClickListener(this);
         bluetoothButton.setOnClickListener(this);
-        homeButton.setOnClickListener(this);
+//        homeButton.setOnClickListener(this);
         accountButton.setOnClickListener(this);
 
         latitude = myAppController.latitude;

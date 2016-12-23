@@ -2,7 +2,6 @@ package mult_603.seniordesignprojectcordiusmotus;
 
 import android.bluetooth.BluetoothSocket;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
@@ -18,19 +17,17 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 public class BluetoothChartActivity extends AppCompatActivity {
 
     public static final String TAG = BluetoothChartActivity.class.getSimpleName();
-    private LinearLayout    background;
-    private LineChart       lineChart;
-    private LineData        lineData;
-    private static int      xView = 100;
-    static double           iteration = 1.0;
-    ArrayList<Entry>        entries = new ArrayList<>();
+    private LinearLayout  background;
+    private LineChart     lineChart;
+    private LineData      lineData;
+    private static int    xMax = 100;
+    static double         iteration = 1.0;
+    ArrayList<Entry>      entries = new ArrayList<>();
 
     Handler mHandler = new Handler(){
         @Override
@@ -49,9 +46,9 @@ public class BluetoothChartActivity extends AppCompatActivity {
                     break;
 
                 case BluetoothActivity.READING_MESSAGE:
-                    Log.i(TAG, "Reading Message... ");
+//                    Log.i(TAG, "Reading Message... ");
                     String readLine = (String) msg.obj;
-                    Log.i(TAG, "Read Line in Chart " + readLine);
+//                    Log.i(TAG, "Read Line in Chart " + readLine);
 
                     double puDouble = 0.0;
                     double pdDouble = 0.0;
@@ -66,10 +63,10 @@ public class BluetoothChartActivity extends AppCompatActivity {
 
                     // If there is a number then add it to the graph
                     try{
-                        Log.i(TAG, "PU String -->  " + puString);
-                        Log.i(TAG, "PD String -->  " + pdString);
-                        Log.i(TAG, "T  String -->  " + tString);
-                        Log.i(TAG, "V  String -- > " + vString);
+//                        Log.i(TAG, "PU String -->  " + puString);
+//                        Log.i(TAG, "PD String -->  " + pdString);
+//                        Log.i(TAG, "T  String -->  " + tString);
+//                        Log.i(TAG, "V  String -->  " + vString);
 
                         // Replace the things we don't need in the V String.
                         vString = vString.replace("V = ", "")
@@ -77,27 +74,20 @@ public class BluetoothChartActivity extends AppCompatActivity {
 
                         // Parse it to a double
                         vDouble = Double.parseDouble(vString);
-                        Log.i(TAG, "Iteration --> " + iteration);
-                        Log.i(TAG, "V Double --> " + vDouble);
+//                        Log.i(TAG, "Iteration --> " + iteration);
+//                        Log.i(TAG, "V Double  --> " + vDouble);
 
                         // Create an entry
                         Entry a = new Entry((float) iteration, (float) vDouble);
 
+                        // Try to sleep
+                        BluetoothActivity.connectedThread.sleep(10);
+
                         // Add entry to the chart
                         addEntryToChart((float) iteration, (float) vDouble);
-                        Log.i(TAG, "Entries Contains a " + entries.contains(a));
-
-                        if(iteration >= xView){
-                            Log.i(TAG, "Set the iterations back to zero");
-                            iteration = 0;
-                        }
-                        else{
-                            Log.i(TAG, "Update the number of iterations");
-                            iteration += 1;
-                        }
 
                     }catch(Exception e){
-                        Log.i(TAG, "Exception occured while trying to parse double " + e.getMessage());
+                        Log.i(TAG, "Exception occured " + e.getMessage());
                         e.printStackTrace();
                     }
 
@@ -117,27 +107,36 @@ public class BluetoothChartActivity extends AppCompatActivity {
 
         // Set the background color
         background = (LinearLayout) findViewById(R.id.chart_bg);
-        background.setBackgroundColor(Color.BLACK);
+        background.setBackgroundColor(Color.LTGRAY);
 
         // Create the line chart
         lineChart = (LineChart) findViewById(R.id.bluetooth_chart);
         Description description = new Description();
         description.setText("Heart Rate Data For User");
-        description.setTextColor(Color.WHITE);
+        description.setTextColor(Color.RED);
         lineChart.setBackgroundColor(Color.LTGRAY);
         lineChart.setDescription(description);
         lineChart.setNoDataText("No Bluetooth Heart Rate Data to Display");
-        lineChart.setNoDataTextColor(Color.WHITE);
+        lineChart.setNoDataTextColor(Color.RED);
         lineChart.setTouchEnabled(true);
         lineChart.setDragEnabled(true);
         lineChart.setScaleEnabled(true);
-        lineChart.setDrawGridBackground(false);
-        lineChart.setGridBackgroundColor(Color.MAGENTA);
+        lineChart.setDrawGridBackground(true);
+        lineChart.setGridBackgroundColor(Color.WHITE);
+        lineChart.setDrawGridBackground(true);
         lineChart.setDrawMarkers(true);
         lineChart.setPinchZoom(true);
         lineChart.setDrawBorders(true);
-        lineChart.setMaxVisibleValueCount(100);
+        lineChart.setMaxVisibleValueCount(xMax);
 
+        try{
+            lineChart.setHardwareAccelerationEnabled(true);
+        }catch(Exception e){
+            Log.i(TAG, "Setting hardware acceleration failed");
+            e.printStackTrace();
+        }
+
+        // Set up the charts legend
         Legend legend = lineChart.getLegend();
         legend.setForm(Legend.LegendForm.LINE);
         legend.setFormLineWidth(5f);
@@ -149,19 +148,21 @@ public class BluetoothChartActivity extends AppCompatActivity {
         legend.setOrientation(Legend.LegendOrientation.VERTICAL);
         legend.setPosition(Legend.LegendPosition.ABOVE_CHART_RIGHT);
 
+        // Set up the charts x and y axis
         XAxis xAxis = lineChart.getXAxis();
         xAxis.setAxisLineWidth(3f);
         xAxis.setTextColor(Color.WHITE);
         xAxis.setAxisLineColor(Color.WHITE);
-        xAxis.setDrawGridLines(false);
+        xAxis.setGridColor(Color.RED);
+        xAxis.setDrawGridLines(true);
         xAxis.setAvoidFirstLastClipping(true);
 
         YAxis yAxis = lineChart.getAxisLeft();
-        yAxis.setDrawGridLines(false);
         yAxis.setTextColor(Color.WHITE);
         yAxis.setAxisLineColor(Color.WHITE);
+        yAxis.setGridColor(Color.RED);
+        yAxis.setDrawGridLines(true);
         yAxis.setAxisLineWidth(3f);
-        yAxis.setAxisMaximum(50f);
 
         YAxis yAxis2 = lineChart.getAxisRight();
         yAxis2.setEnabled(false);
@@ -173,8 +174,7 @@ public class BluetoothChartActivity extends AppCompatActivity {
         lineChart.invalidate();
 
         // Logcat output bad for the processing but may be necessary
-        //lineChart.setLogEnabled(true);
-
+        lineChart.setLogEnabled(true);
     }
 
 
@@ -193,8 +193,9 @@ public class BluetoothChartActivity extends AppCompatActivity {
                 data.addDataSet(set);
             }
 
-            // Add a value
-            Entry e = new Entry(x , y);
+            // Add a value to the data set
+            int dataSetIndex = data.getEntryCount();
+            Entry e = new Entry(dataSetIndex, y);
             data.addEntry(e, 0);
 
             // Notify the data set that is has changed
@@ -204,53 +205,11 @@ public class BluetoothChartActivity extends AppCompatActivity {
             lineChart.notifyDataSetChanged();
 
             // Limit the number of visible entries
-            lineChart.setVisibleXRangeMaximum(xView);
+            lineChart.setVisibleXRangeMaximum(xMax);
 
-            lineChart.setVisibleXRange((float) 0.0, (float) 100.0);
-            lineChart.setVisibleYRange((float) 0.0, (float) 1000.0, YAxis.AxisDependency.LEFT);
+            lineChart.moveViewToX(data.getXMax() - (xMax + 1));
 
-            // Move to the last x value
-            //lineChart.moveViewToX(data.getEntryCount());
-
-            // Refresh chart
-            lineChart.invalidate();
-
-            // If the data values are greater than the maximum x value clear the list
-            if(data.getEntryCount() >= xView){
-                data.clearValues();
-            }
-            data.notifyDataChanged();
-            lineChart.notifyDataSetChanged();
-            lineChart.invalidate();
         }
-    }
-
-    @Override
-    protected void onResume(){
-        super.onResume();
-        Log.i(TAG, "On Resume Called");
-        // Real time data
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run(){
-                // Add data
-                Log.i(TAG, "Running Thread");
-
-
-                    try {
-                        // Pause between adds
-                        Thread.sleep(600);
-                    }
-                    catch(InterruptedException e){
-                        Log.i(TAG, "Interrupted Exception " + e.getMessage());
-                        e.printStackTrace();
-                    }
-                }
-           // }
-        });
-
-        thread.start();
-
     }
 
     // Create Set
@@ -266,7 +225,10 @@ public class BluetoothChartActivity extends AppCompatActivity {
         lineDataSet.setCircleHoleRadius(8f);
         lineDataSet.setFillAlpha(65);
         lineDataSet.setFillColor(Color.WHITE);
-        lineDataSet.setHighLightColor(Color.LTGRAY);
+        lineDataSet.setValueTextColor(Color.BLUE);
+
+        // Set the data text value size to zero because it gets in the way
+        lineDataSet.setValueTextSize(0f);
         return lineDataSet;
     }
 }
