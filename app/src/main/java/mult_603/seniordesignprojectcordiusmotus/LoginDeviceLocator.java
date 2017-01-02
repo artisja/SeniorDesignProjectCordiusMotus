@@ -50,12 +50,13 @@ public class LoginDeviceLocator extends AppCompatActivity {
                 uuid = userInput;
                 database = FirebaseDatabase.getInstance();
                 DatabaseReference ref = database.getReference(uuid);
+
                 final InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(v.getContext().INPUT_METHOD_SERVICE);
                 final View currentView = v;
                 Log.i(TAG, "Reference Key to Database " + ref.getKey());
                 Log.i(TAG, "Reference Root " + ref.getRoot());
                 Log.i(TAG, "Reference Database " + ref.getDatabase());
-
+                Toast.makeText(LoginDeviceLocator.this,ref.child(userInput).child("Location").child("Longitude").getKey() , Toast.LENGTH_SHORT).show();
                 ref.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -73,7 +74,12 @@ public class LoginDeviceLocator extends AppCompatActivity {
                         }else{
                             Log.i(TAG, "Correct Password " + userInput);
                             Intent intent = new Intent(LoginDeviceLocator.this, UserMapsActivity.class);
-                            intent.putExtra("Location","Some Location");
+                            for (DataSnapshot data:dataSnapshot.getChildren()) {
+                                if(data.getValue().toString().equalsIgnoreCase("Longitude")){
+
+                                }
+                            }
+                            intent.putExtra("Longitutde","Some Location");
                             startActivity(intent);
                         }
                     }

@@ -23,12 +23,17 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
@@ -81,7 +86,7 @@ public class ApplicationController extends android.app.Application implements Ac
     private ConnectedThread connectedThread;
     public Patient patient;
     public AccountHeader.OnAccountHeaderListener accountHeaderListener;
-
+    public GoogleApiClient googleApiClient;
     private static ApplicationController singleton;
 
     public ApplicationController getInstance(){
@@ -97,7 +102,6 @@ public class ApplicationController extends android.app.Application implements Ac
         firebaseAuth = FirebaseAuth.getInstance();
         currentUser = firebaseAuth.getCurrentUser();
         patient = new Patient();
-
         firebaseAuth.addAuthStateListener(this);
 
         changeEmail         = new PrimaryDrawerItem();

@@ -27,6 +27,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
@@ -51,7 +52,6 @@ public class SignUpActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
         findViews();
-//        mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseAuth = appController.firebaseAuth;
         setUpClick();
 
@@ -122,9 +122,9 @@ public class SignUpActivity extends AppCompatActivity{
         createdPasswordButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String password = setPasswordEdit.getText().toString().trim();
-                String email    = setEmailEdit.getText().toString().trim();
-                String uName    = setUserNameEdit.getText().toString().trim();
+               final String password = setPasswordEdit.getText().toString().trim();
+               final String email    = setEmailEdit.getText().toString().trim();
+               final String uName    = setUserNameEdit.getText().toString().trim();
                 final InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
                 if(email.isEmpty() || password.isEmpty() || uName.isEmpty()){
@@ -133,8 +133,19 @@ public class SignUpActivity extends AppCompatActivity{
                     Toast.makeText(SignUpActivity.this, "No Password or Email was entered", Toast.LENGTH_SHORT).show();
                 }else{
                     // If all the fields have input then create a new user
-                    mFirebaseAuth.createUserWithEmailAndPassword(email,password);
+                    mFirebaseAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                           if (!task.isSuccessful()){
+                               Toast.makeText(appController, "M.O.N.E.Y.", Toast.LENGTH_SHORT).show();
+                           }else {
+                               Boolean truth = mFirebaseAuth.signInWithEmailAndPassword(email, password).isSuccessful();
+                               Toast.makeText(appController, truth.toString(), Toast.LENGTH_SHORT).show();
+                           }
+                           }
+                    });
                     Boolean truth = mFirebaseAuth.signInWithEmailAndPassword(email,password).isSuccessful();
+                    Toast.makeText(appController, truth.toString(), Toast.LENGTH_SHORT).show();
                     onBackPressed();
                 }
             }

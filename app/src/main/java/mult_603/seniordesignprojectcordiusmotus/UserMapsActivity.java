@@ -33,11 +33,18 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import org.w3c.dom.Text;
 
 import java.io.IOException;
@@ -71,12 +78,18 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
     public LatLng currentPosition;
     public double latitude;
     public double longitude;
+    Integer heartRate =0;
+    public DatabaseReference databaseReference;
+    public FirebaseDatabase firebaseDatabase;
+    public ApplicationController applicationController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_maps);
-
+//        applicationController = new ApplicationController();
+//        firebaseDatabase = FirebaseDatabase.getInstance();
+//        databaseReference = firebaseDatabase.getReference(applicationController.currentUser.getUid());
         // Set up the api client
         googleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -120,6 +133,10 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        mMap.setBuildingsEnabled(true);
+        CameraUpdateFactory.zoomIn();
+        CameraUpdateFactory.zoomTo(20f);
+        mMap.setMinZoomPreference(2.0f);
         // Set Map Click Listener
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
@@ -169,9 +186,9 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
                         + countryAddress;
 
                 personFrameLayout.setBackgroundColor(Color.BLACK);
-                personText.setText("Person: This is me");
+                personText.setText("Pancakes");
                 personText.setTextColor(Color.WHITE);
-                personHeartRate.setText("Heart Rate: Excellent");
+                personHeartRate.setText(heartRate.toString());
                 personHeartRate.setTextColor(Color.WHITE);
                 personLocation.setText(locationString);
                 personLocation.setTextColor(Color.WHITE);

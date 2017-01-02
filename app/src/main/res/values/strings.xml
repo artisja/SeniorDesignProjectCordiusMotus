@@ -43,4 +43,5 @@
     <string name="change_email_message">Please enter the email you would like to switch to</string>
     <string name="locator_message">Please enter the unique code that was sent to you in order to display the device location</string>
     <string name="chart_button">Data Chart</string>
+    <string name="email_subject">CordisMotus Emergency Contact</string>
 </resources>

@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -70,20 +71,19 @@ public class ContactSimpleActivity extends AppCompatActivity {
 
                     // Try to send a message to the current users emergency contact
                     try {
-//                        SmsManager smsManager = SmsManager.getDefault();
-//                        Toast.makeText(ContactSimpleActivity.this, phone, Toast.LENGTH_SHORT).show();
-//                        String message = "You have been added as an emergency contact for User "  + firebaseAuth.getCurrentUser().getUid().toString() + "/n This is your UUID for the device location.";
-//                        smsManager.sendTextMessage(phone, null,message, null, null);
-//                        Intent sendMessageIntent = new Intent(Intent.ACTION_VIEW);
-//                        sendMessageIntent.setType("vnd.android-dir/mms-sms");
-;
-                        Intent sendEmailIntent = new Intent(Intent.ACTION_SEND);
-                        sendEmailIntent.setType("text/plain");
-                        sendEmailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{"to: " + contactEmail.toString()});
-                        sendEmailIntent.putExtra(Intent.EXTRA_SUBJECT,new String[]{String.valueOf(R.string.email_subject)});
-                        sendEmailIntent.putExtra(Intent.EXTRA_TEXT,"You have been added as an emergency contact for User "  + firebaseAuth.getCurrentUser().getUid().toString() + " .This is your UUID Password for the device location.");
-                        startActivity(sendEmailIntent);
-//                        startActivity(sendMessageIntent);
+                        SmsManager smsManager = SmsManager.getDefault();
+                        Toast.makeText(ContactSimpleActivity.this, phone, Toast.LENGTH_SHORT).show();
+                        String message = "You have been added as an emergency contact for User "  + firebaseAuth.getCurrentUser().getUid().toString() + "/n This is your UUID for the device location.";
+                        smsManager.sendTextMessage(phone, null,message, null, null);
+                        Intent sendMessageIntent = new Intent(Intent.ACTION_VIEW);
+                        sendMessageIntent.setType("vnd.android-dir/mms-sms");
+
+                        Intent intent = new Intent(Intent.ACTION_SEND);
+                        intent.setType("text/html");
+                        intent.putExtra(Intent.EXTRA_EMAIL,"artisja@vcu.edu");
+                        intent.putExtra(Intent.EXTRA_SUBJECT,"Cordis Motus Emergency Contact");
+                        intent.putExtra(Intent.EXTRA_TEXT,message);
+                        startActivity(Intent.createChooser(intent,"Send Email"));
                     }catch (Exception e){
                         e.printStackTrace();
                         Toast.makeText(ContactSimpleActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
@@ -116,4 +116,5 @@ public class ContactSimpleActivity extends AppCompatActivity {
             }
         });
     }
+
 }
