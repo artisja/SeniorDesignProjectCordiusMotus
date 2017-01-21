@@ -32,7 +32,7 @@ public class LoginDeviceLocator extends AppCompatActivity {
     private EditText deviceLocatorPassword;
     private Button   deviceLocatorLogin;
     FirebaseDatabase database;
-    String uuid;
+    String uuid,child;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,32 +56,10 @@ public class LoginDeviceLocator extends AppCompatActivity {
                 Log.i(TAG, "Reference Key to Database " + ref.getKey());
                 Log.i(TAG, "Reference Root " + ref.getRoot());
                 Log.i(TAG, "Reference Database " + ref.getDatabase());
-                Toast.makeText(LoginDeviceLocator.this,ref.child(userInput).child("Location").child("Longitude").getKey() , Toast.LENGTH_SHORT).show();
-                ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                ref.child("Location").addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        Log.i(TAG, "Datasnapshot Key " + dataSnapshot.getKey());
-                        Log.i(TAG, "Datasnapshot Value " + dataSnapshot.getValue());
-                        Log.i(TAG, "Datasnapshot Children Count " + dataSnapshot.getChildrenCount());
-                        Log.i(TAG, "Datasnapshot Get Reference " + dataSnapshot.getRef());
-
-
-                        if (dataSnapshot.getValue().equals(userInput) || userInput.isEmpty()) {
-                            // Hide the keyboard from view and then present the toast
-                            inputMethodManager.hideSoftInputFromWindow(currentView.getWindowToken(), 0);
-                            Log.i(TAG, "Incorrect Password " + userInput);
-                            Toast.makeText(LoginDeviceLocator.this, "Incorrect Password", Toast.LENGTH_SHORT).show();
-                        }else{
-                            Log.i(TAG, "Correct Password " + userInput);
-                            Intent intent = new Intent(LoginDeviceLocator.this, UserMapsActivity.class);
-                            for (DataSnapshot data:dataSnapshot.getChildren()) {
-                                if(data.getValue().toString().equalsIgnoreCase("Longitude")){
-
-                                }
-                            }
-                            intent.putExtra("Longitutde","Some Location");
-                            startActivity(intent);
-                        }
+                        child = dataSnapshot.getKey().toString();
                     }
 
                     @Override
@@ -89,6 +67,39 @@ public class LoginDeviceLocator extends AppCompatActivity {
 
                     }
                 });
+                Toast.makeText(LoginDeviceLocator.this,child, Toast.LENGTH_SHORT).show();
+//                ref.addListenerForSingleValueEvent(new ValueEventListener() {
+//                    @Override
+//                    public void onDataChange(DataSnapshot dataSnapshot) {
+//                        Log.i(TAG, "Datasnapshot Key " + dataSnapshot.getKey());
+//                        Log.i(TAG, "Datasnapshot Value " + dataSnapshot.getValue());
+//                        Log.i(TAG, "Datasnapshot Children Count " + dataSnapshot.getChildrenCount());
+//                        Log.i(TAG, "Datasnapshot Get Reference " + dataSnapshot.getRef());
+//
+//
+//                        if (dataSnapshot.getValue().equals(userInput) || userInput.isEmpty()) {
+//                            // Hide the keyboard from view and then present the toast
+//                            inputMethodManager.hideSoftInputFromWindow(currentView.getWindowToken(), 0);
+//                            Log.i(TAG, "Incorrect Password " + userInput);
+//                            Toast.makeText(LoginDeviceLocator.this, "Incorrect Password", Toast.LENGTH_SHORT).show();
+//                        }else{
+//                            Log.i(TAG, "Correct Password " + userInput);
+//                            Intent intent = new Intent(LoginDeviceLocator.this, UserMapsActivity.class);
+//                            for (DataSnapshot data:dataSnapshot.getChildren()) {
+//                                if(data.getValue().toString().equalsIgnoreCase("Longitude")){
+//                                   String [] newStrings = data.getValue().toString().split(":");
+//                                }
+//                            }
+//                            intent.putExtra("Longitutde","Some Location");
+//                            startActivity(intent);
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onCancelled(DatabaseError databaseError) {
+//
+//                    }
+//                });
             }
         });
     }

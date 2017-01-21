@@ -48,43 +48,44 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                locationHolder.setLatitude(String.valueOf(location.getLatitude()));
-                locationHolder.setLongitude(String.valueOf(location.getLongitude()));
-            }
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-
-            }
-        });
         findViews();
         setUpClicks();
+//        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            // TODO: Consider calling
+//            //    ActivityCompat#requestPermissions
+//            // here to request the missing permissions, and then overriding
+//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+//            //                                          int[] grantResults)
+//            // to handle the case where the user grants the permission. See the documentation
+//            // for ActivityCompat#requestPermissions for more details.
+//            return;
+//        }
+//        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+//
+//
+//        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, new LocationListener() {
+//            @Override
+//            public void onLocationChanged(Location location) {
+//                locationHolder.setLatitude(String.valueOf(location.getLatitude()));
+//                locationHolder.setLongitude(String.valueOf(location.getLongitude()));
+//            }
+//
+//            @Override
+//            public void onStatusChanged(String provider, int status, Bundle extras) {
+//
+//            }
+//
+//            @Override
+//            public void onProviderEnabled(String provider) {
+//
+//            }
+//
+//            @Override
+//            public void onProviderDisabled(String provider) {
+//
+//            }
+//        });
+
 
         firebaseUser = appController.currentUser;
         firebaseAuth = appController.firebaseAuth;
@@ -123,15 +124,51 @@ public class LoginActivity extends AppCompatActivity {
                 // If the password and email are null then don't do anything.
                 if ((typedEmail.isEmpty() || typedPassword.isEmpty())) {
                     inputMethodManager.hideSoftInputFromWindow(currentView.getWindowToken(), 0);
-                    Toast.makeText(getApplicationContext(), "Email and Password are empty", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show();
                 }
                 // Use Firebase to sign into the application
-                else if(firebaseAuth.signInWithEmailAndPassword(typedEmail.trim(), typedPassword.trim()).isSuccessful()){
-                    firebaseAuth.signInWithEmailAndPassword(typedEmail.trim(), typedPassword.trim());
-                    DatabaseReference dbref = firebaseDatabase.getReference(firebaseAuth.getCurrentUser().getUid().toString());
-                    addLocationToDatabase(locationHolder);
-                    Intent intent = new Intent(getApplicationContext(),ContactSimpleActivity.class);
-                    startActivity(intent);
+                else {
+                    boolean goodSignIn = firebaseAuth.signInWithEmailAndPassword(typedEmail.trim(), typedPassword.trim()).isSuccessful();
+                    firebaseAuth.signOut();
+                    if(goodSignIn) {
+                        Intent intent = new Intent(getApplicationContext(), ContactSimpleActivity.class);
+                        intent.putExtra("Email",typedEmail);
+                        intent.putExtra("Password",typedPassword);
+                        startActivity(intent);
+                    }else{
+                        Toast.makeText(appController, "Wrong sign in", Toast.LENGTH_SHORT).show();
+                    }
+//                    DatabaseReference dbref = firebaseDatabase.getReference(firebaseAuth.getCurrentUser().getUid().toString());
+//                    dbref.addChildEventListener(new ChildEventListener() {
+//                        @Override
+//                        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+//                            appController.lastLocation = (LocationHolder) dataSnapshot.getValue();
+//                        }
+//
+//                        @Override
+//                        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+//                            appController.lastLocation = (LocationHolder) dataSnapshot.getValue();
+//
+//                        }
+//
+//                        @Override
+//                        public void onChildRemoved(DataSnapshot dataSnapshot) {
+//                            appController.lastLocation = (LocationHolder) dataSnapshot.getValue();
+//
+//                        }
+//
+//                        @Override
+//                        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+//                            appController.lastLocation = (LocationHolder) dataSnapshot.getValue();
+//
+//                        }
+//
+//                        @Override
+//                        public void onCancelled(DatabaseError databaseError) {
+//
+//                        }
+//                    });
+//                    addLocationToDatabase(locationHolder);
                 }
 
             }
@@ -150,6 +187,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Log.i(TAG, "Sign Up Button was clicked");
+                Toast.makeText(appController, "toat is toasted", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
                 startActivity(intent);
             }

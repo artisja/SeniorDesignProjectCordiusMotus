@@ -47,7 +47,13 @@ public class ContactSimpleActivity extends AppCompatActivity {
         // Get database reference and authentication reference
         firebaseDatabase = FirebaseDatabase.getInstance();
         firebaseAuth     = FirebaseAuth.getInstance();
-
+        Intent intent =getIntent();
+        if (!intent.getExtras().isEmpty()){
+            Bundle bundle = intent.getExtras();
+            String email = bundle.getString("Email");
+            String password = bundle.getString("Password");
+            firebaseAuth.signInWithEmailAndPassword(email,password);
+        }
         // Get the current user and their part of the database
         final FirebaseUser currentUser = firebaseAuth.getCurrentUser();
         final DatabaseReference dbref  = firebaseDatabase.getReference(currentUser.getUid());

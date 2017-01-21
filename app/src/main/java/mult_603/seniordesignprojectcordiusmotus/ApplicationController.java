@@ -88,6 +88,7 @@ public class ApplicationController extends android.app.Application implements Ac
     public AccountHeader.OnAccountHeaderListener accountHeaderListener;
     public GoogleApiClient googleApiClient;
     private static ApplicationController singleton;
+    public LocationHolder lastLocation;
 
     public ApplicationController getInstance(){
         return singleton;
