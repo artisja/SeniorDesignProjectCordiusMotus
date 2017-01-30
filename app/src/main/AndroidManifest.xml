@@ -17,6 +17,7 @@
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
 
     <application
         android:name=".ApplicationController"
@@ -44,8 +45,7 @@
         -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_maps_key" />
-
+            android:value= "AIzaSyA0-defSQVVeLTd9LtCZoT4mNor79AHWTg" />
         <activity
             android:name=".UserMapsActivity"
             android:label="@string/title_activity_user_maps" />
