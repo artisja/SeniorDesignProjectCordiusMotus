@@ -5,82 +5,90 @@
     android:layout_height="match_parent"
     tools:context=".UserMapsActivity" >
 
-
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:map="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/map"
-    android:name="com.google.android.gms.maps.SupportMapFragment"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="mult_603.seniordesignprojectcordiusmotus.UserMapsActivity"/>
-
-
-    <RelativeLayout
-        android:id="@+id/person_fragment"
+    <SearchView
         android:layout_width="match_parent"
-        android:layout_height="170dp"
-        android:orientation="horizontal"
-        android:background="#80000000"
-        android:padding="5dp"
-        android:layout_gravity="right|bottom">
+        android:layout_height="50dp"
+        android:id="@+id/searchView"
+        android:layout_gravity="top" />
 
-        <ImageView
-            android:id="@+id/person_image"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:background="@drawable/people"/>
 
-        <TextView
-            android:id="@+id/person_text"
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:map="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="565dp"
+        tools:context="mult_603.seniordesignprojectcordiusmotus.UserMapsActivity"
+        android:layout_gravity="left|bottom" />
+
+    <!--
+        <RelativeLayout
+            android:id="@+id/person_fragment"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
+            android:layout_height="170dp"
+            android:orientation="horizontal"
+            android:background="#80000000"
             android:padding="5dp"
-            android:textSize="16sp"
-            android:layout_toRightOf="@+id/person_image"
-            android:layout_toEndOf="@+id/person_image" />
+            android:layout_gravity="right|bottom">
 
-        <ImageView
-            android:id="@+id/person_heart_image"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_alignTop="@+id/person_heart_rate"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:background="@drawable/favorite"/>
+            <ImageView
+                android:id="@+id/person_image"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:background="@drawable/people"/>
 
-        <TextView
-            android:id = "@+id/person_heart_rate"
-            android:layout_below="@id/person_text"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_gravity="center"
-            android:padding="5dp"
-            android:textSize="16sp"
-            android:layout_toRightOf="@+id/person_image"
-            android:layout_toEndOf="@+id/person_image" />
+            <TextView
+                android:id="@+id/person_text"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:padding="5dp"
+                android:textSize="16sp"
+                android:layout_toRightOf="@+id/person_image"
+                android:layout_toEndOf="@+id/person_image" />
 
-        <ImageView
-            android:id="@+id/person_location_image"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_below="@+id/person_heart_rate"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:background="@drawable/location"/>
+            <ImageView
+                android:id="@+id/person_heart_image"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_alignTop="@+id/person_heart_rate"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:background="@drawable/favorite"/>
 
-        <TextView
-            android:id="@+id/person_location"
-            android:layout_below="@id/person_heart_rate"
-            android:layout_width="match_parent"
-            android:layout_height="78dp"
-            android:layout_gravity="center_horizontal|bottom"
-            android:padding="5dp"
-            android:textSize="16sp"
-            android:layout_toRightOf="@+id/person_image"
-            android:layout_toEndOf="@+id/person_image" />
+            <TextView
+                android:id = "@+id/person_heart_rate"
+                android:layout_below="@id/person_text"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:padding="5dp"
+                android:textSize="16sp"
+                android:layout_toRightOf="@+id/person_image"
+                android:layout_toEndOf="@+id/person_image" />
 
-    </RelativeLayout>
+            <ImageView
+                android:id="@+id/person_location_image"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_below="@+id/person_heart_rate"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:background="@drawable/location"/>
+
+            <TextView
+                android:id="@+id/person_location"
+                android:layout_below="@id/person_heart_rate"
+                android:layout_width="match_parent"
+                android:layout_height="78dp"
+                android:layout_gravity="center_horizontal|bottom"
+                android:padding="5dp"
+                android:textSize="16sp"
+                android:layout_toRightOf="@+id/person_image"
+                android:layout_toEndOf="@+id/person_image" />
+
+        </RelativeLayout>
+        -->
 
 </FrameLayout>
 

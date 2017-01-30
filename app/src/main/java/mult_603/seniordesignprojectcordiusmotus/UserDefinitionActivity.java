@@ -85,6 +85,11 @@ public class UserDefinitionActivity extends AppCompatActivity implements Drawer.
             //navigationDrawer = myAppController.getUserDrawer(this);
         }
 
+
+
+        Intent locationIntent = new Intent(getApplicationContext(), LocationService.class);
+        this.startService(locationIntent);
+
     }
 
     @Override
@@ -134,9 +139,9 @@ public class UserDefinitionActivity extends AppCompatActivity implements Drawer.
                 break;
 
             case R.id.medic_Button:
-                medicMapIntent = new Intent(getApplicationContext(), LoginDeviceLocator.class);
-                medicMapIntent.putExtra("Longitude", longitude);
-                medicMapIntent.putExtra("Latitude", latitude);
+                medicMapIntent = new Intent(getApplicationContext(), UserMapsActivity.class);
+//                medicMapIntent.putExtra("Longitude", longitude);
+//                medicMapIntent.putExtra("Latitude", latitude);
                 startActivity(medicMapIntent);
                 break;
 
@@ -285,16 +290,14 @@ public class UserDefinitionActivity extends AppCompatActivity implements Drawer.
         caliButton      = (Button) findViewById(R.id.cali_Button);
         medicButton     = (Button) findViewById(R.id.medic_Button);
         bluetoothButton = (Button) findViewById(R.id.bluetooth_Button);
-//        homeButton      = (ImageButton) findViewById(R.id.home_toolbar_icon);
         accountButton   = (ImageButton) findViewById(R.id.user_login_toolbar);
 
         caliButton.setOnClickListener(this);
         medicButton.setOnClickListener(this);
         bluetoothButton.setOnClickListener(this);
-//        homeButton.setOnClickListener(this);
         accountButton.setOnClickListener(this);
 
-        latitude = myAppController.latitude;
+        latitude =  myAppController.latitude;
         longitude = myAppController.longitude;
 
         Log.i(TAG, "Longitude " + longitude);

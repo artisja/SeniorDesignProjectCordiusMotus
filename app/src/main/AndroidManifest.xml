@@ -79,6 +79,10 @@
         <activity android:name=".ForgotPasswordActivity" />
         <activity android:name=".ChangeEmailActivity" />
         <activity android:name=".BluetoothChartActivity"></activity>
+
+        <service android:name="mult_603.seniordesignprojectcordiusmotus.LocationService"
+                 android:exported="false" />
+
     </application>
 
 </manifest>

@@ -1,5 +1,7 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
+import android.*;
+import android.Manifest;
 import android.accounts.AccountManager;
 import android.app.Activity;
 import android.bluetooth.BluetoothSocket;
@@ -12,6 +14,7 @@ import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -26,6 +29,7 @@ import android.view.View;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
@@ -53,21 +57,19 @@ public class ApplicationController extends android.app.Application implements Ac
         FirebaseAuth.AuthStateListener {
 
     public final String TAG = ApplicationController.class.getSimpleName();
-    public static ConnectedThread bluetoothConnectedThread;
     public FirebaseAuth.AuthStateListener authStateListener;
     public FirebaseAuth firebaseAuth;
     public FirebaseUser currentUser;
-    public Handler bluetoothHandler;
     public ProfileDrawerItem profileDrawerItem;
     public Drawer userDrawer;
     private Context context;
+
     private PrimaryDrawerItem signOut;
     private PrimaryDrawerItem deleteAccount;
     private PrimaryDrawerItem forgotPassword;
     private PrimaryDrawerItem changePassword;
     private PrimaryDrawerItem changeEmail;
     private PrimaryDrawerItem login;
-
 
     private final String LOGIN_TAG = "Login";
     private final String CHANGE_EMAIL_TAG = "ChangeEmail";
@@ -78,20 +80,20 @@ public class ApplicationController extends android.app.Application implements Ac
     public ProfileSettingDrawerItem profileSettingDrawerItem;
     public AccountHeaderBuilder profileAccountHeader;
     public double longitude, latitude;
-    private ConnectedThread connectedThread;
     public Patient patient;
     public AccountHeader.OnAccountHeaderListener accountHeaderListener;
 
     private static ApplicationController singleton;
 
-    public ApplicationController getInstance(){
+    public ApplicationController getInstance() {
         return singleton;
     }
 
     @Override
-    public void onCreate(){
+    public void onCreate() {
         super.onCreate();
         singleton = this;
+        FirebaseApp.initializeApp(this);
 
         Log.i(TAG, "On Create was called");
         firebaseAuth = FirebaseAuth.getInstance();
@@ -100,78 +102,65 @@ public class ApplicationController extends android.app.Application implements Ac
 
         firebaseAuth.addAuthStateListener(this);
 
-        changeEmail         = new PrimaryDrawerItem();
-        changePassword      = new PrimaryDrawerItem();
-        signOut             = new PrimaryDrawerItem();
-        deleteAccount       = new PrimaryDrawerItem();
-        login               = new PrimaryDrawerItem();
-
-
-        bluetoothHandler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                byte[] writeBuf = (byte[]) msg.obj;
-                int begin = (int) msg.arg1;
-                int end = (int) msg.arg2;
-
-
-                switch (msg.what) {
-                    case 1:
-                        try {
-                            String read = new String(writeBuf, begin, end, "UTF-8").trim();
-                            Log.i(TAG, "Handler Message -> " + read);
-                        }catch(Exception e){
-                            Log.i(TAG, "String conversion exception " + e.getMessage());
-                        }
-
-                        break;
-                }
-            }
-        };
-        // get the location manager so we can call use latitude and longitude coordinates
-        getLocationManager();
+        changeEmail = new PrimaryDrawerItem();
+        changePassword = new PrimaryDrawerItem();
+        signOut = new PrimaryDrawerItem();
+        deleteAccount = new PrimaryDrawerItem();
+        login = new PrimaryDrawerItem();
 
     }
 
-
-    public void getLocationManager() {
-        LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        LocationListener locationListener = new LocationListener() {
-
-            @Override
-            public void onLocationChanged(Location location) {
-                longitude = location.getLongitude();
-                latitude = location.getLatitude();
-            }
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-
-            }
-        };
-
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
-    }
+//
+//
+//    public void getLocationManager() {
+//        LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+//        LocationListener locationListener = new LocationListener() {
+//
+//            @Override
+//            public void onLocationChanged(Location location) {
+//                longitude = location.getLongitude();
+//                latitude = location.getLatitude();
+//                Log.i(TAG, "Longitude " + longitude + " , " + latitude);
+//            }
+//
+//            @Override
+//            public void onStatusChanged(String provider, int status, Bundle extras) {
+//                Log.i(TAG, "On Status Changed");
+//            }
+//
+//            @Override
+//            public void onProviderEnabled(String provider) {
+//                Log.i(TAG, "On Provider Enabled -> " + provider);
+//            }
+//
+//            @Override
+//            public void onProviderDisabled(String provider) {
+//                Log.i(TAG, "On Provider Disabled " + provider);
+//            }
+//        };
+//
+//        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+//                && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            // TODO: Consider calling
+//            //    ActivityCompat#requestPermissions
+//            // here to request the missing permissions, and then overriding
+//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+//            //                                          int[] grantResults)
+//            // to handle the case where the user grants the permission. See the documentation
+//            // for ActivityCompat#requestPermissions for more details.
+////            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 2);
+////
+////            if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)){
+////                Log.i(TAG, "DID show the request permission rationale");
+////            }
+////            else{
+////                Log.i(TAG, "DID NOT show the request permission rationale");
+////            }
+//
+//            return;
+//        }
+//        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+//    }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -200,7 +189,7 @@ public class ApplicationController extends android.app.Application implements Ac
         Log.i(TAG, "On Auth State Changed ");
         currentUser = firebaseAuth.getCurrentUser();
 
-        if(currentUser != null) {
+        if (currentUser != null) {
             Log.i(TAG, "Firebase Auth State Listener signed in " + currentUser);
             Log.i(TAG, "Display Name " + currentUser.getDisplayName());
             Log.i(TAG, "Email " + currentUser.getEmail());
@@ -242,9 +231,7 @@ public class ApplicationController extends android.app.Application implements Ac
                     .withIdentifier(5)
                     .withTag("DeleteAccount");
 
-        }
-
-        else{
+        } else {
             Log.i(TAG, "Firebase Auth State Listener signed out ");
 
             profileDrawerItem = new ProfileDrawerItem()
@@ -260,6 +247,7 @@ public class ApplicationController extends android.app.Application implements Ac
                     .withTag(LOGIN_TAG);
         }
     }
+}
 
 //    public void setContext(Context c){
 //        context = c;
@@ -380,86 +368,3 @@ public class ApplicationController extends android.app.Application implements Ac
 //
 //        return true;
 //    }
-
-
-
-    /*
-
-    Not sure we need this here we may just need the handler???
-
-     */
-    private class ConnectedThread extends Thread {
-        public final BluetoothSocket mmSocket;
-        public final InputStream mmInStream;
-        private final OutputStream mmOutStream;
-
-        public ConnectedThread(BluetoothSocket socket) {
-            mmSocket = socket;
-            InputStream tmpIn = null;
-            OutputStream tmpOut = null;
-            try {
-                tmpIn = socket.getInputStream();
-                tmpOut = socket.getOutputStream();
-            } catch (IOException e) {
-                Log.i(TAG, "ERROR trying to access the input stream " + e.getMessage());
-            }
-            mmInStream = tmpIn;
-            mmOutStream = tmpOut;
-        }
-
-        public void run() {
-            byte[] buffer = new byte[1024];
-            int begin = 0;
-            int bytes = 0;
-            while (true) {
-                try {
-                    bytes += mmInStream.read(buffer, bytes, buffer.length - bytes);
-//                        Log.i(TAG, "Buffer Length: " + buffer.length
-//                                + "\n" + "Bytes " + bytes);
-
-                    for (int i = begin; i < bytes; i++) {
-                        if (buffer[i] == " H".getBytes()[0]) {
-                            // Send the heart rate data to the handler.
-                            bluetoothHandler.obtainMessage(1, begin, bytes, buffer).sendToTarget();
-                            if (i == bytes - 1) {
-                                bytes = 0;
-                                begin = 0;
-                            }
-                        }
-                    }
-
-//                        Log.i(TAG, "Bytes -> " + bytes);
-                } catch (IOException e) {
-                    Log.i(TAG, "ERROR reading information from buffer " + e.getMessage());
-                    break;
-                }
-            }
-        }
-
-        public void write(byte[] bytes) {
-            try {
-                mmOutStream.write(bytes);
-            } catch (IOException e) {
-                Log.i(TAG, "ERROR writing to device " + e.getMessage());
-            }
-        }
-
-        public void cancel() {
-            try {
-                mmSocket.close();
-            } catch (IOException e) {
-                Log.i(TAG, "ERROR trying to cancel socket " + e.getMessage());
-            }
-        }
-    }
-
-    @Override
-    public void onTerminate() {
-        super.onTerminate();
-        Log.i(TAG, "On Terminate Called");
-        // If the auth state listener is not null then remove it from the firebase auth
-        if(authStateListener != null){
-            firebaseAuth.removeAuthStateListener(authStateListener);
-        }
-    }
-}

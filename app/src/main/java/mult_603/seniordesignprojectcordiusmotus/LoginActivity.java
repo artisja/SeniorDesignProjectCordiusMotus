@@ -3,7 +3,10 @@ package mult_603.seniordesignprojectcordiusmotus;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -26,6 +29,7 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth firebaseAuth;
     private FirebaseUser firebaseUser;
     private ApplicationController appController;
+    private HandlerThread locationHandlerThread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +50,12 @@ public class LoginActivity extends AppCompatActivity {
             signUpButton.setTextColor(Color.GRAY);
             signUpButton.setEnabled(false);
         }
+
+        // Set up a location handler thread
+        locationHandlerThread = new HandlerThread("locationHandlerThread");
+        locationHandlerThread.start();
+        Looper looper = locationHandlerThread.getLooper();
+
     }
 
     // Set up the button on click listeners

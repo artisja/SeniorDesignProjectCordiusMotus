@@ -42,7 +42,6 @@ public class SignUpActivity extends AppCompatActivity{
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener authStateListener;
     private ApplicationController appController;
-//    private ImageButton userImage;
     private ImageView profileImage;
     private Uri userImagePath;
 
@@ -51,7 +50,6 @@ public class SignUpActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
         findViews();
-//        mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseAuth = appController.firebaseAuth;
         setUpClick();
 

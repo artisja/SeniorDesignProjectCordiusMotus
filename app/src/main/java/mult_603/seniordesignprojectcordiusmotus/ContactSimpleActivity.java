@@ -3,6 +3,7 @@ package mult_603.seniordesignprojectcordiusmotus;
 import android.content.Intent;
 import android.nfc.Tag;
 import android.os.Bundle;
+import android.os.HandlerThread;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -73,7 +74,7 @@ public class ContactSimpleActivity extends AppCompatActivity {
                         String message = "You have been added as an emergency contact for User "  + "Patient ID" + "/n This is your UUID for the device location.";
                         smsManager.sendTextMessage(phone, null,message, null, null);
                         Intent sendIntent = new Intent(Intent.ACTION_VIEW);
-                        sendIntent.putExtra("sms_body", "You got a pretty kind of dirty face.");
+                        sendIntent.putExtra("sms_body", "You have been added as my emergency contact here is your unique code to find me in the case of an Emergency: " + currentUser.getUid());
                         sendIntent.setType("vnd.android-dir/mms-sms");
                         startActivity(sendIntent);
                     }catch (Exception e){
@@ -88,7 +89,7 @@ public class ContactSimpleActivity extends AppCompatActivity {
                 // Name, Email or Phone number is empty
                 else{
                     Log.i(TAG, "Name , Email, Phone Number is empty");
-                    Snackbar snackbar = Snackbar.make(view, "Name, Phone, or Emal is Empty", Snackbar.LENGTH_SHORT);
+                    Snackbar snackbar = Snackbar.make(view, "Name, Phone, or Email is Empty", Snackbar.LENGTH_SHORT);
                     snackbar.show();
                 }
 
