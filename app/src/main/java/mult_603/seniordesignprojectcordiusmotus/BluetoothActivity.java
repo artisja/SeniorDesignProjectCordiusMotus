@@ -13,11 +13,15 @@ import android.os.Message;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+
+import com.mikepenz.materialdrawer.AccountHeader;
+import com.mikepenz.materialdrawer.Drawer;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -65,12 +69,19 @@ public class BluetoothActivity extends AppCompatActivity {
     private Set<BluetoothDevice>        bondedDevices;
     private BluetoothDevice             connectedDevice;
     private Button                      chartButton;
+    private Drawer drawerResult;
+    private AccountHeader headerResult;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluetooth);
+
+        // Set up the toolbar
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        headerResult = NavigationDrawerHandler.getAccountHeader(this, savedInstanceState, getApplicationContext());
+        drawerResult = NavigationDrawerHandler.getUserDrawer(this, headerResult, toolbar);
 
         // Set up the initial views and resources
         findViews();

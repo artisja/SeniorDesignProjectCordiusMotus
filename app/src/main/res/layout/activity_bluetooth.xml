@@ -3,11 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".BluetoothActivity">
+
+    <include android:id="@+id/toolbar" layout="@layout/toolbar"/>
 
     <ListView
         android:layout_width="match_parent"
@@ -15,7 +13,11 @@
         android:id="@+id/bluetooth_list"
         android:layout_above="@+id/refresh_button"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
+        android:layout_alignParentStart="true"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin">
     </ListView>
 
     <Button
@@ -37,14 +39,6 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
-
-    <ProgressBar
-        android:layout_width="match_parent"
-        android:layout_height="20dp"
-        android:id="@+id/bluetooth_search_progress"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        style="?android:attr/progressBarStyleHorizontal"/>
 
     <Spinner
         android:layout_width="wrap_content"

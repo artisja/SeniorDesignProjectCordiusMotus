@@ -4,9 +4,14 @@ import android.Manifest;
 import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.LocationManager;
+import android.media.audiofx.BassBoost;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.location.Location;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -15,6 +20,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.FusedLocationProviderApi;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
@@ -25,6 +31,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
 
 /**
@@ -41,6 +51,7 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     private LocationRequest locationRequest;
     private GoogleApiClient googleApiClient;
     private FirebaseDatabase database;
+    private LocationManager locationManager;
 
     @Override
     public void onCreate(){
@@ -69,6 +80,18 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
                 Log.i(TAG, "Location Lat: " + location.getLatitude());
                 Log.i(TAG, "Location Lng: " + location.getLongitude());
             }
+
+            locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+
+            // Is GPS enabled
+            if(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+                Log.i(TAG, "GPS is enabled");
+            }
+            // Is Network enabled
+            if(locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)){
+                Log.i(TAG, "Network Provider is enabled");
+            }
+
         }
         catch(SecurityException e){
             Log.i(TAG, "Security Exception was thrown");
@@ -104,24 +127,11 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
 
     }
 
-    public static Thread locationServiceThread(final Runnable runnable){
-        final Thread locationThread = new Thread(){
-            @Override
-            public void run(){
-                try {
-                    runnable.run();
-                }
-                catch(Exception e){
-                    Log.i(TAG, "Error running thread " + e.getMessage());
-                }
-            }
-        };
-        locationThread.start();
-        return locationThread;
 
-    }
+    // TODO - Add a way to get the user to enable location
 
     public void startLocationUpdates(){
+        // High accuracy should use GPS to get the location
         locationRequest = new LocationRequest();
         locationRequest.setInterval(5000);
         locationRequest.setFastestInterval(1000);
@@ -131,6 +141,17 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
             // The user has not given us access to get their location
             // May want to request those premissions here
+            try {
+                int gpsOff = Settings.Secure.getInt(getContentResolver(), Settings.Secure.LOCATION_MODE);
+                // If this returns zero then GPS is off
+                if(gpsOff == 0){
+                    Intent turnOnGPS = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    startActivity(turnOnGPS);
+                }
+            }catch (Settings.SettingNotFoundException e){
+                e.printStackTrace();
+            }
+
             return;
         }
 
@@ -149,47 +170,89 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
                 .build();
     }
 
+    // A lot of this seems to fail
+    // TODO Fix this
+
+    public void reverseGeocode(Location location){
+        if(Geocoder.isPresent()){
+            try {
+                Geocoder gc = new Geocoder(LocationService.this, Locale.getDefault());
+                List<Address> addressList = gc.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+
+                // Try to get the location in street address style
+                if (addressList != null && addressList.size() > 0) {
+                    Address a = addressList.get(0);
+                    Address b = addressList.get(1);
+                    Address c = addressList.get(2);
+                    Log.i(TAG, "a: " + a + " b: " + b + " c: " + c);
+                }
+            }
+            catch(IOException e){
+                Log.i(TAG, "IOException ");
+                e.printStackTrace();
+            }
+
+        }
+    }
+
     @Override
     public void onLocationChanged(Location location) {
         Log.i(TAG, "Location Has Changed");
+        try {
+            Location l = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+            Log.i(TAG, "New Location Lat: " + l.getLatitude() + " Lng: " + l.getLongitude());
+        }
+        catch (SecurityException e){
+            Log.i(TAG, "Security Exception Thrown");
+            e.printStackTrace();
+        }
+
+        // Reverse Geocode
+        //reverseGeocode(location);
+
         Double lat = location.getLatitude();
         Double lng = location.getLongitude();
-        Log.i(TAG, "Latitude: " + lat + " , " + "Longitude: " + lng);
-        Toast.makeText(getApplicationContext(), "From Service: \nLatitude: " + lat + " \nLongitude: " + lng, Toast.LENGTH_SHORT).show();
+        LocationHolder locationHolder = new LocationHolder(lat,lng);
+        String locationString = locationHolder.toString();
+        Log.i(TAG, locationString);
+        Toast.makeText(getApplicationContext(), "From Service: \n" + locationString, Toast.LENGTH_SHORT).show();
 
         // Should do this only if the user is not null
 
         // TODO Want to tell non patients not to sign up for the service
         // Update the database
         FirebaseUser currentUser =  FirebaseAuth.getInstance().getCurrentUser();
-        database = FirebaseDatabase.getInstance();
-        DatabaseReference reference = database.getReference(currentUser.getUid());
 
-        // Checking that the location gets added. We could make the location an object and store it that way
-        reference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.i(TAG, "Data Changed in Database ");
-                Log.i(TAG, "Reference " + dataSnapshot.getRef());
-                Log.i(TAG, "Key " + dataSnapshot.getKey());
-                Log.i(TAG, "Value " + dataSnapshot.getValue());
-                Log.i(TAG, "Children Count " + dataSnapshot.getChildrenCount());
-                Log.i(TAG, "Children " + dataSnapshot.getChildren());
+        if (currentUser != null) {
+            database = FirebaseDatabase.getInstance();
+            DatabaseReference reference = database.getReference(currentUser.getUid());
 
-                for(DataSnapshot child: dataSnapshot.getChildren()){
-                    Log.i(TAG, "Child " + child);
+            // Checking that the location gets added. We could make the location an object and store it that way
+            reference.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Log.i(TAG, "Data Changed in Database ");
+                    Log.i(TAG, "Reference " + dataSnapshot.getRef());
+                    Log.i(TAG, "Key " + dataSnapshot.getKey());
+                    Log.i(TAG, "Value " + dataSnapshot.getValue());
+                    Log.i(TAG, "Children Count " + dataSnapshot.getChildrenCount());
+                    Log.i(TAG, "Children " + dataSnapshot.getChildren());
+
+                    for (DataSnapshot child : dataSnapshot.getChildren()) {
+                        Log.i(TAG, "Child " + child);
+                    }
                 }
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
 
-            }
-        });
+                }
+            });
 
-        String key = reference.getKey();
-        Log.i(TAG, "Key " + key);
-        reference.child("Location").setValue("Lat: " + lat + " , " + "Lng: " + lng);
+            String key = reference.getKey();
+            Log.i(TAG, "Key " + key);
+            reference.child("Location").setValue("Lat: " + lat + " , " + "Lng: " + lng);
+        }
     }
 }
 

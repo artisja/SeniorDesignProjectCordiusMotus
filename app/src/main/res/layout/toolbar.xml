@@ -9,7 +9,7 @@
     android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
     app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
     xmlns:android="http://schemas.android.com/apk/res/android" >
-
+<!--
     <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -17,7 +17,7 @@
         android:src="@drawable/account_white_48"
         android:background="@color/primary_dark"
         android:layout_marginLeft="16dp" />
-    <!--
+
     <ImageButton
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"

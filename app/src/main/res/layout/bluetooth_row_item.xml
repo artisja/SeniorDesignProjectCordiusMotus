@@ -36,8 +36,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/bluetooth_device_pair_button"
         android:text="@string/pair_bluetooth_device"
-        android:layout_alignTop="@+id/bluetooth_device_name"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"/>
 
 </RelativeLayout>

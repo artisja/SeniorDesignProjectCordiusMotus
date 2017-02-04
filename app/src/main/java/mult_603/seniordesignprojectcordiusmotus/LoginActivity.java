@@ -3,33 +3,34 @@ package mult_603.seniordesignprojectcordiusmotus;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.HandlerThread;
-import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-
-import static com.google.firebase.auth.FirebaseAuth.*;
+import com.mikepenz.materialdrawer.AccountHeader;
+import com.mikepenz.materialdrawer.Drawer;
 
 public class LoginActivity extends AppCompatActivity {
     public final String TAG = LoginActivity.class.getSimpleName();
-    private Button signUpButton, loginButton,submitLoginButton, forgotPasswordButton ;
+    private Button signUpButton, loginButton, forgotPasswordButton;
     private EditText passwordEditText,emailEditText;
     private FirebaseAuth firebaseAuth;
     private FirebaseUser firebaseUser;
     private ApplicationController appController;
-    private HandlerThread locationHandlerThread;
+    private AccountHeader headerResult;
+    private Drawer drawerResult;
+    private TextView warningMsg;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +38,11 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         findViews();
         setUpClicks();
+
+        // Set up the toolbar
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        headerResult = NavigationDrawerHandler.getAccountHeader(this, savedInstanceState, getApplicationContext());
+        drawerResult = NavigationDrawerHandler.getUserDrawer(this, headerResult, toolbar);
 
         firebaseUser = appController.currentUser;
         firebaseAuth = appController.firebaseAuth;
@@ -50,12 +56,6 @@ public class LoginActivity extends AppCompatActivity {
             signUpButton.setTextColor(Color.GRAY);
             signUpButton.setEnabled(false);
         }
-
-        // Set up a location handler thread
-        locationHandlerThread = new HandlerThread("locationHandlerThread");
-        locationHandlerThread.start();
-        Looper looper = locationHandlerThread.getLooper();
-
     }
 
     // Set up the button on click listeners
@@ -92,7 +92,6 @@ public class LoginActivity extends AppCompatActivity {
                                 inputMethodManager.hideSoftInputFromWindow(currentView.getWindowToken(), 0);
                                 Toast.makeText(getApplicationContext(), "Email or Password was Incorrect", Toast.LENGTH_LONG).show();
                             } else {
-//                                Intent intent = new Intent(LoginActivity.this, ContactActivity.class);
                                 Intent intent = new Intent(LoginActivity.this, ContactSimpleActivity.class);
                                 startActivity(intent);
                             }
@@ -129,5 +128,9 @@ public class LoginActivity extends AppCompatActivity {
         emailEditText        = (EditText) findViewById(R.id.email_edit);
         passwordEditText     = (EditText) findViewById(R.id.password_edit);
         appController        = (ApplicationController) getApplicationContext();
+        warningMsg           = (TextView) findViewById(R.id.warning_message);
+
+        // Warn the user to only use the login if they are wearing a device
+        warningMsg.setText("Please only create a login if you are currently using our heart rate monitor device");
     }
 }

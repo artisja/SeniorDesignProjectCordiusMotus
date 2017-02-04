@@ -16,6 +16,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -31,6 +32,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.mikepenz.materialdrawer.AccountHeader;
+import com.mikepenz.materialdrawer.Drawer;
 
 import android.net.Uri;
 
@@ -45,11 +48,19 @@ public class SignUpActivity extends AppCompatActivity{
     private ApplicationController appController;
     private ImageView profileImage;
     private Uri userImagePath;
+    private AccountHeader headerResult;
+    private Drawer drawerResult;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
+
+        // Set up the toolbar
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        headerResult = NavigationDrawerHandler.getAccountHeader(this, savedInstanceState, getApplicationContext());
+        drawerResult = NavigationDrawerHandler.getUserDrawer(this, headerResult, toolbar);
+
         findViews();
         mFirebaseAuth = appController.firebaseAuth;
         setUpClick();
@@ -136,10 +147,10 @@ public class SignUpActivity extends AppCompatActivity{
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                            if (!task.isSuccessful()){
-                               Toast.makeText(appController, "M.O.N.E.Y.", Toast.LENGTH_SHORT).show();
+                               Toast.makeText(appController, "Successfully created an account", Toast.LENGTH_SHORT).show();
                            }else {
                                Boolean truth = mFirebaseAuth.signInWithEmailAndPassword(email, password).isSuccessful();
-                               Toast.makeText(appController, truth.toString(), Toast.LENGTH_SHORT).show();
+                               Toast.makeText(appController, "Was unable to create an account", Toast.LENGTH_SHORT).show();
                            }
                            }
                     });
@@ -153,23 +164,11 @@ public class SignUpActivity extends AppCompatActivity{
         // User has granted permission to use the camera
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED){
             Log.i(TAG, "The user has granted permission to use the camera ");
-//            userImage.setEnabled(true);
         }
         else{
             Log.i(TAG, "User has not given us permission to use their camera ");
-//            userImage.setEnabled(false);
             ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE }, 0);
         }
-
-        // Set the users image for their profile
-//        userImage.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent cameraGalleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-//                cameraGalleryIntent.setType("image/*");
-//                startActivityForResult(cameraGalleryIntent, 0);
-//            }
-//        });
 
         profileImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -199,35 +198,9 @@ public class SignUpActivity extends AppCompatActivity{
                 Log.i(TAG, "Selected Image to String " + profileImage.toString());
                 Log.i(TAG, "Selected Image Path " + userImagePath.getPath());
 
-                //Bitmap bitmap = BitmapFactory.decodeFile(userImagePath.toString().trim());
-                //Bitmap bitmap1 = Bitmap.createScaledBitmap(bitmap, 48, 48, false);
-                //userImage.setImageBitmap(bitmap);
-                //profileImage.setImageBitmap(bitmap);
-
-//                userImage.setImageURI(userImagePath);
                 profileImage.setImageURI(userImagePath);
-//                userImage.setScaleX(48);
-//                userImage.setScaleY(48);
             }
         }
-    }
-
-    public static int calcSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight){
-        final int height = options.outHeight;
-        final int width  = options.outWidth;
-
-        int inSampleSize = 1;
-
-        if(height > reqHeight || width > reqWidth){
-            final int halfHeight = height/2;
-            final int halfWidth  = width/2;
-
-            while((halfHeight / inSampleSize) >= reqHeight && (halfWidth / inSampleSize) >= reqWidth){
-                inSampleSize *= 2;
-            }
-        }
-
-        return inSampleSize;
     }
 
     // Set up the resources of the views
@@ -235,7 +208,6 @@ public class SignUpActivity extends AppCompatActivity{
         setPasswordEdit       = (EditText) findViewById(R.id.input_password_edit);
         setEmailEdit          = (EditText) findViewById(R.id.input_email_edit);
         setUserNameEdit       = (EditText) findViewById(R.id.input_username_edit);
-//        userImage             = (ImageButton) findViewById(R.id.user_login_image);
         profileImage          = (ImageView) findViewById(R.id.profile_image);
         createdPasswordButton = (Button) findViewById(R.id.submit_signup_button);
         appController         = (ApplicationController) getApplicationContext();

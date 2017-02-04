@@ -2,6 +2,7 @@ package mult_603.seniordesignprojectcordiusmotus;
 
 import android.bluetooth.BluetoothSocket;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
@@ -117,6 +118,7 @@ public class BluetoothChartActivity extends AppCompatActivity {
         lineChart.setBackgroundColor(Color.LTGRAY);
         lineChart.setDescription(description);
         lineChart.setNoDataText("No Bluetooth Heart Rate Data to Display");
+        lineChart.setNoDataTextColor(R.color.colorPrimaryDark);
         lineChart.setNoDataTextColor(Color.RED);
         lineChart.setTouchEnabled(true);
         lineChart.setDragEnabled(true);

@@ -45,11 +45,9 @@ import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListe
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import android.widget.SearchView;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
-
 import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
@@ -87,11 +85,16 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
     public double latitude;
     public double longitude;
     private FirebaseUser currentUser;
+    private SearchView mapSearchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_maps);
+
+        // Set up the search view and its listeners
+        mapSearchView = (SearchView) findViewById(R.id.searchView);
+        mapSearchView.setOnQueryTextListener(this);
 
         FirebaseAuth auth = FirebaseAuth.getInstance();
         currentUser = auth.getCurrentUser();

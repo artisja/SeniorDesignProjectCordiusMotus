@@ -1,36 +1,42 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
-import android.support.v7.widget.LinearLayoutManager;
 
 /**
  * Created by artisja on 11/10/2016.
  */
 
+// Had to change these all to doubles. We are using the service to create this object and we can send it to the db.
 public class LocationHolder {
-    private String longitude,latitude;
+    private Double longitude,latitude;
 
+    // Empty constructor because firebase requires it
     public LocationHolder(){
 
     }
 
-    public LocationHolder(String longit , String lat){
-        longitude=longit;
-        latitude = lat;
+    public LocationHolder(Double lat , Double lng){
+        this.longitude= lng;
+        this.latitude = lat;
     }
 
-    public void setLatitude(String latitude) {
+    public void setLatitude(Double latitude) {
         this.latitude = latitude;
     }
 
-    public void setLongitude(String longitude) {
+    public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
 
-    public String getLatitude() {
+    public Double getLatitude() {
         return latitude;
     }
 
-    public String getLongitude() {
+    public Double getLongitude() {
         return longitude;
+    }
+
+    @Override
+    public String toString(){
+        return "Latitude: " + this.latitude + "\n" + "Longitude: " + this.longitude;
     }
 }

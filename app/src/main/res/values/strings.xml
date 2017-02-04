@@ -44,4 +44,9 @@
     <string name="locator_message">Please enter the unique code that was sent to you in order to display the device location</string>
     <string name="chart_button">Data Chart</string>
     <string name="email_subject">CordisMotus Emergency Contact</string>
+    <string name="home_activity">Home</string>
+    <string name="contact_activity">Contact List</string>
+    <string name="map_activity">Map</string>
+    <string name="bluetooth_activity">Bluetooth Connections</string>
+    <string name="bluetooth_chart_activity">Bluetooth Chart</string>
 </resources>

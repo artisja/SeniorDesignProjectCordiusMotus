@@ -1,6 +1,5 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
-import android.*;
 import android.Manifest;
 import android.accounts.AccountManager;
 import android.app.Activity;
@@ -55,8 +54,7 @@ import java.io.OutputStream;
 
 /**
  * Created by Wes on 10/31/16.
- * This class can be used to give our application global access to the users location
- * Whether or not the user is logged in, Bluetooth etc
+ *
  */
 public class ApplicationController extends android.app.Application implements AccountHeader.OnAccountHeaderListener,
         FirebaseAuth.AuthStateListener {
@@ -113,59 +111,11 @@ public class ApplicationController extends android.app.Application implements Ac
         deleteAccount = new PrimaryDrawerItem();
         login = new PrimaryDrawerItem();
 
-    }
+        // Can Start the location service when the application starts???
+        Intent locationIntent = new Intent(getApplicationContext(), LocationService.class);
+        this.startService(locationIntent);
 
-//
-//
-//    public void getLocationManager() {
-//        LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-//        LocationListener locationListener = new LocationListener() {
-//
-//            @Override
-//            public void onLocationChanged(Location location) {
-//                longitude = location.getLongitude();
-//                latitude = location.getLatitude();
-//                Log.i(TAG, "Longitude " + longitude + " , " + latitude);
-//            }
-//
-//            @Override
-//            public void onStatusChanged(String provider, int status, Bundle extras) {
-//                Log.i(TAG, "On Status Changed");
-//            }
-//
-//            @Override
-//            public void onProviderEnabled(String provider) {
-//                Log.i(TAG, "On Provider Enabled -> " + provider);
-//            }
-//
-//            @Override
-//            public void onProviderDisabled(String provider) {
-//                Log.i(TAG, "On Provider Disabled " + provider);
-//            }
-//        };
-//
-//        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-//                && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//            // TODO: Consider calling
-//            //    ActivityCompat#requestPermissions
-//            // here to request the missing permissions, and then overriding
-//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-//            //                                          int[] grantResults)
-//            // to handle the case where the user grants the permission. See the documentation
-//            // for ActivityCompat#requestPermissions for more details.
-////            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 2);
-////
-////            if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)){
-////                Log.i(TAG, "DID show the request permission rationale");
-////            }
-////            else{
-////                Log.i(TAG, "DID NOT show the request permission rationale");
-////            }
-//
-//            return;
-//        }
-//        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
-//    }
+    }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -178,6 +128,8 @@ public class ApplicationController extends android.app.Application implements Ac
         super.onLowMemory();
         Log.i(TAG, "On Low Memory called");
     }
+
+    // Do we need the below methods? Can we abstract this into a base class???
 
     // Profile Changed Listener
     @Override
@@ -253,123 +205,3 @@ public class ApplicationController extends android.app.Application implements Ac
         }
     }
 }
-
-//    public void setContext(Context c){
-//        context = c;
-//    }
-
-//    public AccountHeader getAccountHeader(Activity activity){
-//        return accountHeader = new AccountHeaderBuilder()
-//                .withActivity(activity)
-//                .withHeaderBackground(R.drawable.header_nav_background_adjusted)
-//                .addProfiles(profileDrawerItem)
-//                .withTextColorRes(R.color.colorPrimaryDark)
-//                .build();
-//    }
-
-//    public Drawer getUserDrawer(Activity activity){
-//        if(currentUser != null) {
-//            return userDrawer = new DrawerBuilder()
-//                    .withActivity(activity)
-//                    .withAccountHeader(getAccountHeader(activity))
-//                    .addDrawerItems(
-//                                    changeEmail,
-//                                    changePassword,
-//                                    signOut,
-//                                    deleteAccount)
-//                    .withOnDrawerItemClickListener(this)
-//                    .build();
-//        }
-//        else{
-//            return userDrawer = new DrawerBuilder()
-//                    .withActivity(activity)
-//                    .withAccountHeader(getAccountHeader(activity))
-//                    .addDrawerItems(
-//                                    login)
-//                    .withOnDrawerItemClickListener(this)
-//                    .build();
-//        }
-//    }
-
-    // Drawer Item Click Listener
-//    @Override
-//    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
-//        Log.i(TAG, "Drawer item clicked at position " + position);
-//        Log.i(TAG, "Drawer Item " + drawerItem);
-//        Log.i(TAG, "View " + view);
-//        Log.i(TAG, "Drawer Item Tag " + drawerItem.getTag());
-//        Log.i(TAG, "Drawer Item Identifier " + drawerItem.getIdentifier());
-//        final String str = drawerItem.getTag().toString();
-//
-//        switch (str) {
-//            case LOGIN_TAG:
-//                Log.i(TAG, "Login Tag Pressed");
-//                userDrawer.closeDrawer();
-//                Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
-//                loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                context.startActivity(loginIntent);
-//                break;
-//
-//            case CHANGE_EMAIL_TAG:
-//                Log.i(TAG, "Change Email Tag Pressed");
-//                userDrawer.closeDrawer();
-//                Intent changeEmail = new Intent(getApplicationContext(), ChangeEmailActivity.class);
-//                changeEmail.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                context.startActivity(changeEmail);
-//                break;
-//
-//            case CHANGE_PASSWORD_TAG:
-//                Log.i(TAG, "Change Password Tag Pressed");
-//                //Intent changePassword = new Intent(getApplicationContext(), )
-//
-//                break;
-//
-//            case SIGN_OUT_TAG:
-//                Log.i(TAG, "Sign Out Tag Pressed");
-//                if (currentUser != null) {
-//                    FirebaseAuth.getInstance().signOut();
-//                }
-//                break;
-//
-//            case DELETE_ACCOUNT_TAG:
-//                Log.i(TAG, "Delete Account Tag Pressed");
-//                de.hdodenhof.circleimageview.CircleImageView img = new de.hdodenhof.circleimageview.CircleImageView(this);
-//                img.setImageURI(currentUser.getPhotoUrl());
-//
-//                new AlertDialog.Builder(this)
-//                        .setMessage("Are you sure you want to delete your account with the following Info : " + "\n\nEmail : " + currentUser.getEmail() +
-//                                "\nUser Name: " + currentUser.getDisplayName())
-//                        .setCustomTitle(img)
-//                        .setNegativeButton("Yes", new DialogInterface.OnClickListener() {
-//                            @Override
-//                            public void onClick(DialogInterface dialog, int which) {
-//                                if (currentUser != null) {
-//                                    Log.i(TAG, "Deleting the user with display name " + currentUser.getDisplayName());
-//                                    Log.i(TAG, "Deleting the user with email address " + currentUser.getEmail());
-//
-//                                    currentUser.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-//                                        @Override
-//                                        public void onComplete(@NonNull Task<Void> task) {
-//                                            if (task.isSuccessful()) {
-//                                                Log.i(TAG, "User has been Deleted");
-//                                            } else {
-//                                                Log.i(TAG, "Something went wrong deleting the user");
-//                                            }
-//                                        }
-//                                    });
-//                                }
-//                            }
-//                        })
-//                        .setPositiveButton("No", new DialogInterface.OnClickListener() {
-//                            @Override
-//                            public void onClick(DialogInterface dialog, int which) {
-//                                dialog.dismiss();
-//                            }
-//                        })
-//                        .create()
-//                        .show();
-//                break;
-//        }
-//
-//        return true;
-//    }
