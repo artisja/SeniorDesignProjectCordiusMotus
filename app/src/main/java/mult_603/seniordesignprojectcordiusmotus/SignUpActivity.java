@@ -1,15 +1,9 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
-import android.*;
 import android.Manifest;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -22,27 +16,24 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
-
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.Drawer;
-
 import android.net.Uri;
-
-import java.io.File;
 
 public class SignUpActivity extends AppCompatActivity{
     public final String TAG = SignUpActivity.class.getSimpleName();
-    private EditText setPasswordEdit,setEmailEdit, setUserNameEdit;
-    private Button createdPasswordButton;
+    private EditText setPasswordEdit,setEmailEdit, setUserNameEdit, confirmPassword;
+    private Button submitButton;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener authStateListener;
     private ApplicationController appController;
@@ -50,6 +41,7 @@ public class SignUpActivity extends AppCompatActivity{
     private Uri userImagePath;
     private AccountHeader headerResult;
     private Drawer drawerResult;
+    private DeviceUser newUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,10 +54,11 @@ public class SignUpActivity extends AppCompatActivity{
         drawerResult = NavigationDrawerHandler.getUserDrawer(this, headerResult, toolbar);
 
         findViews();
-        mFirebaseAuth = appController.firebaseAuth;
+        mFirebaseAuth = FirebaseAuth.getInstance();
         setUpClick();
 
         // Auth state listener should it take into account multiple accounts with the same email?
+        // TODO - Issues with the sign up now
 
         authStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -77,20 +70,26 @@ public class SignUpActivity extends AppCompatActivity{
                     Log.i(TAG, "Current User is not null");
                     String uName    = setUserNameEdit.getText().toString().trim();
 
-                    // Need to check that the image button is not null also
-                    if(uName != null){
-                        Log.i(TAG, "User Name is not null");
+                    // Check that the user name is not null
+                    if(!uName.isEmpty()){
                         // Can use this to give them an image with their profile as well
                         // Giving the user a username
+                        Log.i(TAG, "User Image Path -> " + userImagePath);
+
+
                         UserProfileChangeRequest userProfileChangeRequest = new UserProfileChangeRequest.Builder()
                                 .setDisplayName(uName)
                                 .setPhotoUri(userImagePath)
                                 .build();
 
                         user.updateProfile(userProfileChangeRequest);
+
                         Log.i(TAG, "User Get Display Name " + user.getDisplayName());
                         Log.i(TAG, "User Get Email " + user.getEmail());
                         Log.i(TAG, "User UUID " + user.getUid());
+                    }
+                    else{
+                        Log.i(TAG, "User Name: " + user.getDisplayName() + "User Photo Url" + user.getPhotoUrl());
                     }
                 }
             }
@@ -98,7 +97,6 @@ public class SignUpActivity extends AppCompatActivity{
 
         // Add the auth state listener
         mFirebaseAuth.addAuthStateListener(authStateListener);
-
 
     }
 
@@ -128,35 +126,65 @@ public class SignUpActivity extends AppCompatActivity{
     }
 
     private void setUpClick() {
+
         // Create user in firebase auth
-        createdPasswordButton.setOnClickListener(new View.OnClickListener() {
+        submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               final String password = setPasswordEdit.getText().toString().trim();
-               final String email    = setEmailEdit.getText().toString().trim();
-               final String uName    = setUserNameEdit.getText().toString().trim();
+                final String password = setPasswordEdit.getText().toString().trim();
+                final String email    = setEmailEdit.getText().toString().trim();
+                final String uName    = setUserNameEdit.getText().toString().trim();
+                final String cPassword= confirmPassword.getText().toString().trim();
+
                 final InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
-                if(email.isEmpty() || password.isEmpty() || uName.isEmpty()){
+                if(email.isEmpty() || password.isEmpty() || uName.isEmpty() || cPassword.isEmpty()){
                     // Close the keyboard and notify the user that one of the fields was empty
                     inputMethodManager.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                    Toast.makeText(SignUpActivity.this, "No Password or Email was entered", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SignUpActivity.this, "One of the following is blank Password, Email, UserName or Confirmed Password", Toast.LENGTH_SHORT).show();
                 }else{
-                    // If all the fields have input then create a new user
-                    mFirebaseAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                           if (!task.isSuccessful()){
-                               Toast.makeText(appController, "Successfully created an account", Toast.LENGTH_SHORT).show();
-                           }else {
-                               Boolean truth = mFirebaseAuth.signInWithEmailAndPassword(email, password).isSuccessful();
-                               Toast.makeText(appController, "Was unable to create an account", Toast.LENGTH_SHORT).show();
-                           }
-                           }
-                    });
-                    Boolean truth = mFirebaseAuth.signInWithEmailAndPassword(email,password).isSuccessful();
-                    Toast.makeText(appController, truth.toString(), Toast.LENGTH_SHORT).show();
-                    onBackPressed();
+                    // Check to see that the passwords match
+                    if(password == cPassword) {
+                        // If all the fields have input then create a new user
+                        mFirebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                if (task.isSuccessful()) {
+                                    Toast.makeText(appController, "Successfully created an account", Toast.LENGTH_SHORT).show();
+                                    newUser = new DeviceUser(email, uName);
+                                    Log.i(TAG, "Created a Device User: " + newUser.toString());
+
+                                    try {
+                                        // Try to push some initial info about the user to the database
+                                        String uuid = mFirebaseAuth.getCurrentUser().getUid();
+                                        newUser.setUuid(uuid);
+                                        Log.i(TAG, "UUID -> " + uuid);
+                                        DatabaseReference dRef = FirebaseDatabase.getInstance().getReference(uuid);
+                                        dRef.push().setValue(newUser);
+                                    } catch (NullPointerException n) {
+                                        Log.i(TAG, "Null Pointer Thrown while trying to get user's UUID");
+                                    }
+
+                                    // Clear the edit text fields
+                                    setPasswordEdit.setText("");
+                                    setEmailEdit.setText("");
+                                    setUserNameEdit.setText("");
+
+                                    // Press the back button to return to the login screen
+                                    onBackPressed();
+                                } else {
+                                    Toast.makeText(appController, "Was unable to create an account. Please try again", Toast.LENGTH_SHORT).show();
+                                    // Reset the text fields
+                                    setPasswordEdit.setText("");
+                                    setEmailEdit.setText("");
+                                    setUserNameEdit.setText("");
+                                }
+                            }
+                        });
+                    }
+                    else{
+                        Toast.makeText(getApplicationContext(), "The Passwords do not match", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
@@ -185,7 +213,6 @@ public class SignUpActivity extends AppCompatActivity{
         // Check which request we're responding to
         Log.i(TAG, "Request Code " + requestCode + " Result Code " + resultCode + " Data " + data);
         Log.i(TAG, "Result OK "  + RESULT_OK);
-        String path = new String();
 
         if (requestCode == 0) {
             // Make sure the request was successful
@@ -196,7 +223,7 @@ public class SignUpActivity extends AppCompatActivity{
                 // Do something with the photo here (bigger example below)
                 userImagePath = data.getData();
                 Log.i(TAG, "Selected Image to String " + profileImage.toString());
-                Log.i(TAG, "Selected Image Path " + userImagePath.getPath());
+                Log.i(TAG, "Selected Image Path "      + userImagePath.getPath());
 
                 profileImage.setImageURI(userImagePath);
             }
@@ -205,11 +232,12 @@ public class SignUpActivity extends AppCompatActivity{
 
     // Set up the resources of the views
     private void findViews() {
+        confirmPassword       = (EditText) findViewById(R.id.input_password_confirmation);
         setPasswordEdit       = (EditText) findViewById(R.id.input_password_edit);
         setEmailEdit          = (EditText) findViewById(R.id.input_email_edit);
         setUserNameEdit       = (EditText) findViewById(R.id.input_username_edit);
         profileImage          = (ImageView) findViewById(R.id.profile_image);
-        createdPasswordButton = (Button) findViewById(R.id.submit_signup_button);
+        submitButton          = (Button) findViewById(R.id.submit_signup_button);
         appController         = (ApplicationController) getApplicationContext();
     }
 }

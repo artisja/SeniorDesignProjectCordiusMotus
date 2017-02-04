@@ -40,7 +40,9 @@
         android:layout_marginTop="5sp"
         android:inputType="text"
         android:singleLine="true"
-        android:imeOptions="actionNext"/>
+        android:imeOptions="actionNext"
+        android:layout_marginLeft="15sp"
+        android:layout_marginRight="15sp"/>
 
     <EditText
         android:id="@+id/input_email_edit"
@@ -50,9 +52,11 @@
         android:textColorHint="@color/wordColorRed"
         android:layout_gravity="center"
         android:layout_marginBottom="5sp"
-        android:inputType="text"
+        android:inputType="textEmailAddress"
         android:singleLine="true"
-        android:imeOptions="actionNext"/>
+        android:imeOptions="actionNext"
+        android:layout_marginLeft="15sp"
+        android:layout_marginRight="15sp"/>
 
     <EditText
         android:id="@+id/input_password_edit"
@@ -63,15 +67,33 @@
         android:textColorHint="@color/wordColorRed"
         android:layout_gravity="center"
         android:layout_marginBottom="15sp"
-        android:inputType="text"
+        android:inputType="textPassword"
         android:singleLine="true"
-        android:imeOptions="actionDone"/>
+        android:imeOptions="actionNext"
+        android:layout_marginLeft="15sp"
+        android:layout_marginRight="15sp"/>
+
+    <EditText
+        android:id="@+id/input_password_confirmation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/confirm_password"
+        android:textColorHint="@color/wordColorRed"
+        android:layout_gravity="center"
+        android:layout_marginBottom="15sp"
+        android:inputType="textPassword"
+        android:singleLine="true"
+        android:imeOptions="actionDone"
+        android:layout_marginLeft="15sp"
+        android:layout_marginRight="15sp"/>
 
     <Button
         android:id="@+id/submit_signup_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/submit_button"
-        android:textColor="@color/wordColorRed"/>
+        android:textColor="@color/wordColorRed"
+        android:layout_marginLeft="15sp"
+        android:layout_marginRight="15sp"/>
 
 </LinearLayout>

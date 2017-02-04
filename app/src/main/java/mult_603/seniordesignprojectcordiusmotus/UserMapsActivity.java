@@ -44,6 +44,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import android.widget.SearchView;
 import java.io.IOException;
 import java.util.List;
@@ -111,22 +114,13 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
         // the accuracy of a few feet
         locationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setFastestInterval(1 * 1000)   // 5 seconds
-                .setInterval(5 * 1000);        // 10 second
+                .setFastestInterval(1 * 1000)   // 1 seconds
+                .setInterval(5 * 1000);        // 5 second
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-        // Set up the parts of the relative layout on the map
-//        personFrameLayout = (RelativeLayout) findViewById(R.id.person_fragment);
-//        personText = (TextView) findViewById(R.id.person_text);
-//        personHeartRate = (TextView) findViewById(R.id.person_heart_rate);
-//        personLocation = (TextView) findViewById(R.id.person_location);
-//
-//        // Make the relative layout invisible
-//        personFrameLayout.setVisibility(View.GONE);
     }
 
     /**
@@ -146,9 +140,7 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
-//                if(personFrameLayout.getVisibility() == View.VISIBLE){
-//                    personFrameLayout.setVisibility(View.GONE);
-//                }
+
             }
         });
         mMap.setInfoWindowAdapter(this);
@@ -314,42 +306,6 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
     // If the user clicks the marker icon
     @Override
     public boolean onMarkerClick(Marker marker) {
-//        Geocoder gc = new Geocoder(getApplicationContext(), Locale.getDefault());
-//        LatLng currentLatLng = marker.getPosition();
-//        Address currentAddress = new Address(Locale.getDefault());
-//        String streetAddress  = new String();
-//        String cityAddress    = new String();
-//        String countryAddress = new String();
-//
-//        try {
-//            List<Address> addressList = gc.getFromLocation(currentLatLng.latitude, currentLatLng.longitude, 1);
-//            for(int i = 0; i < addressList.size(); i++){
-//                currentAddress = addressList.get(i);
-//                streetAddress = currentAddress.getAddressLine(0);
-//                cityAddress = currentAddress.getAddressLine(1);
-//                countryAddress = currentAddress.getAddressLine(2);
-//                Log.i(TAG, i + ". " + streetAddress + " " + cityAddress + " " + countryAddress);
-//            }
-//        }catch(IOException e){
-//            e.printStackTrace();
-//        }
-//         marker.showInfoWindow();
-//        String locationString = "Location (" + currentLatLng.latitude + " , "
-//                + currentLatLng.longitude + ")\n"
-//                + "Street: " + streetAddress + "\n"
-//                + "City: " + cityAddress + " , "
-//                + countryAddress;
-//        personFrameLayout.setBackgroundColor(Color.BLACK);
-//        personText.setText("Person: This is me");
-//        personText.setTextColor(Color.WHITE);
-//        personHeartRate.setText("Heart Rate: Excellent");
-//        personHeartRate.setTextColor(Color.WHITE);
-//        personLocation.setText(locationString);
-//        personLocation.setTextColor(Color.WHITE);
-//         // Make the relative layout visible
-//        personFrameLayout.setVisibility(View.VISIBLE);
-
-
         // Show the custom info window instead of the black frame layout from before
         marker.showInfoWindow();
         return true;
@@ -450,6 +406,62 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
             linearLayout.addView(subLayout);
         }
 
+        // The current user is null we want to find a path from them to a registered user
+        else{
+            CircleImageView circleImageView = new CircleImageView(getApplicationContext());
+            circleImageView.setBorderColor(Color.BLUE);
+            circleImageView.setImageResource(R.drawable.account_black_48);
+            circleImageView.setBorderWidth(2);
+            linearLayout.addView(circleImageView);
+
+            LinearLayout subLayout = new LinearLayout(UserMapsActivity.this);
+            LinearLayout.LayoutParams subParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            subLayout.setOrientation(LinearLayout.VERTICAL);
+            subLayout.setLayoutParams(subParams);
+
+            TextView currentLocText = new TextView(UserMapsActivity.this);
+            currentLocText.setText("Current Location");
+            currentLocText.setGravity(Gravity.CENTER_HORIZONTAL);
+            currentLocText.setTextColor(Color.BLACK);
+            subLayout.addView(currentLocText);
+
+            TextView userLat = new TextView(UserMapsActivity.this);
+            String latString = "Latitude: " + latitude;
+            userLat.setText(latString);
+            userLat.setGravity(Gravity.CENTER_HORIZONTAL);
+            userLat.setTextColor(Color.BLACK);
+            subLayout.addView(userLat);
+
+            TextView userLng = new TextView(UserMapsActivity.this);
+            String lngString = "Longitude: " + longitude;
+            userLng.setText(lngString);
+            userLng.setGravity(Gravity.CENTER_HORIZONTAL);
+            userLng.setTextColor(Color.BLACK);
+            subLayout.addView(userLng);
+
+            try {
+                Geocoder gc = new Geocoder(getApplicationContext(), Locale.getDefault());
+                List<Address> addressList = gc.getFromLocation(latitude, longitude, 1);
+                TextView userAddress = new TextView(UserMapsActivity.this);
+                Address userCurrentAddress = addressList.get(0);
+                String userStreetAddress = userCurrentAddress.getAddressLine(0);
+                String userCityAddress   = userCurrentAddress.getAddressLine(1);
+                String userCountryAddress= userCurrentAddress.getAddressLine(2);
+                String userAddressString = "Address: " + userStreetAddress +
+                        "\n" + userCityAddress + " " + userCountryAddress;
+                userAddress.setText(userAddressString);
+                userAddress.setTextColor(Color.BLACK);
+                userAddress.setGravity(Gravity.CENTER_HORIZONTAL);
+                subLayout.addView(userAddress);
+            }
+            catch(IOException io){
+                Log.i(TAG, "Exception thrown trying to resolve address for info window");
+                io.printStackTrace();
+            }
+
+            linearLayout.addView(subLayout);
+        }
+
         return linearLayout;
     }
 
@@ -464,6 +476,11 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
     @Override
     public boolean onQueryTextSubmit(String query) {
         Log.i(TAG, "Text Query: " + query);
+        FirebaseDatabase fdb = FirebaseDatabase.getInstance();
+        DatabaseReference fdbRef = fdb.getReference();
+        Log.i(TAG, "Db Reference: " + fdbRef);
+
+
         return false;
     }
 

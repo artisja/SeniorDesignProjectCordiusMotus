@@ -1,9 +1,6 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
 import android.content.Intent;
-import android.content.IntentSender;
-import android.net.Uri;
-import android.nfc.Tag;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -19,24 +16,28 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.mikepenz.materialdrawer.AccountHeader;
+import com.mikepenz.materialdrawer.Drawer;
 
 public class ContactSimpleActivity extends AppCompatActivity {
     public final String       TAG = ContactSimpleActivity.class.getSimpleName();
     private String            contactStringKey;
     private FirebaseDatabase  firebaseDatabase;
     private FirebaseAuth      firebaseAuth;
+    private Drawer            drawerResult;
+    private AccountHeader     headerResult;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contact_simple);
+
+        // Set up the toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        headerResult = NavigationDrawerHandler.getAccountHeader(this, savedInstanceState, getApplicationContext());
+        drawerResult = NavigationDrawerHandler.getUserDrawer(this, headerResult, toolbar);
 
         // May want to add email address to contacts
         final EditText contactName       = (EditText) findViewById(R.id.contact_simple_name);
@@ -47,13 +48,15 @@ public class ContactSimpleActivity extends AppCompatActivity {
         // Get database reference and authentication reference
         firebaseDatabase = FirebaseDatabase.getInstance();
         firebaseAuth     = FirebaseAuth.getInstance();
-        Intent intent =getIntent();
-        if (!intent.getExtras().isEmpty()){
-            Bundle bundle = intent.getExtras();
-            String email = bundle.getString("Email");
-            String password = bundle.getString("Password");
-            firebaseAuth.signInWithEmailAndPassword(email,password);
-        }
+
+//        Intent intent    = getIntent();
+//        if (!intent.getExtras().isEmpty()){
+//            Bundle bundle = intent.getExtras();
+//            String email = bundle.getString("Email");
+//            String password = bundle.getString("Password");
+//            firebaseAuth.signInWithEmailAndPassword(email,password);
+//        }
+
         // Get the current user and their part of the database
         final FirebaseUser currentUser = firebaseAuth.getCurrentUser();
         final DatabaseReference dbref  = firebaseDatabase.getReference(currentUser.getUid());
@@ -70,7 +73,7 @@ public class ContactSimpleActivity extends AppCompatActivity {
                 String email = contactEmail.getText().toString();
 
                 // Set database value if the information in the text fields is not empty
-                if( !(name.isEmpty() || phone.isEmpty() || email.isEmpty())) {
+                if( !(name.isEmpty() && phone.isEmpty() && email.isEmpty())) {
                     Log.i(TAG, "Name , Email, Phone Number is not empty");
                     Contact newContact = new Contact(name, phone, email);
                     dbref.push().setValue(newContact);

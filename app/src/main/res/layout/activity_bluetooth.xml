@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_bluetooth"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".BluetoothActivity">
+    tools:context="mult_603.seniordesignprojectcordiusmotus.BluetoothActivity">
 
     <include android:id="@+id/toolbar" layout="@layout/toolbar"/>
 
@@ -17,7 +19,8 @@
         android:paddingBottom="@dimen/activity_vertical_margin"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
-        android:paddingTop="@dimen/activity_vertical_margin">
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:layout_below="@+id/toolbar">
     </ListView>
 
     <Button
@@ -28,7 +31,9 @@
         android:id="@+id/refresh_button"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="15sp"
+        android:layout_marginRight="15sp"/>
 
     <Button
         android:layout_width="wrap_content"
@@ -38,7 +43,9 @@
         android:textColor="@color/wordColorRed"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="15sp"
+        android:layout_marginBottom="15sp"/>
 
     <Spinner
         android:layout_width="wrap_content"

@@ -49,4 +49,6 @@
     <string name="map_activity">Map</string>
     <string name="bluetooth_activity">Bluetooth Connections</string>
     <string name="bluetooth_chart_activity">Bluetooth Chart</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="contact_text_view_add">Please add an emergency contact you trust that we can notify in the event of cardiac arrest by filling in the fields provided below and pressing the add button. To edit current contacts hit the contact list button</string>
 </resources>

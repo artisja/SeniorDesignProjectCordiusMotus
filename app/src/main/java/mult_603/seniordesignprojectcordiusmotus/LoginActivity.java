@@ -44,8 +44,8 @@ public class LoginActivity extends AppCompatActivity {
         headerResult = NavigationDrawerHandler.getAccountHeader(this, savedInstanceState, getApplicationContext());
         drawerResult = NavigationDrawerHandler.getUserDrawer(this, headerResult, toolbar);
 
-        firebaseUser = appController.currentUser;
-        firebaseAuth = appController.firebaseAuth;
+        firebaseAuth = FirebaseAuth.getInstance();
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
         if(firebaseUser != null){
             Log.i(TAG, "Current User Display Name " + firebaseUser.getDisplayName());

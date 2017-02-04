@@ -12,19 +12,32 @@
     tools:context="mult_603.seniordesignprojectcordiusmotus.ContactSimpleActivity"
     tools:showIn="@layout/activity_contact_simple">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/add_contact_text_view"
+        android:layout_marginTop="60sp"
+        android:text="@string/contact_text_view_add"
+        android:textSize="18dp"
+        android:layout_marginLeft="15sp"
+        android:layout_marginRight="15sp"/>
+
     <EditText
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
         android:ems="10"
         android:id="@+id/contact_simple_name"
         android:hint="@string/name_hint"
         android:textColorHint="@color/wordColorRed"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/add_contact_text_view"
+        android:layout_marginTop="15sp"
+        android:layout_marginLeft="15sp"
+        android:layout_marginRight="15sp"/>
 
     <EditText
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="phone"
         android:ems="10"
@@ -32,10 +45,12 @@
         android:hint="@string/phone_number_hint"
         android:textColorHint="@color/wordColorRed"
         android:layout_below="@+id/contact_simple_name"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="15sp"
+        android:layout_marginRight="15sp"/>
 
     <EditText
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textEmailAddress"
         android:ems="10"
@@ -43,7 +58,9 @@
         android:hint="@string/email_hint"
         android:textColorHint="@color/wordColorRed"
         android:layout_below="@+id/contact_simple_phone"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="15sp"
+        android:layout_marginRight="15sp"/>
 
     <Button
         android:layout_width="wrap_content"

@@ -47,6 +47,8 @@ public class NavigationDrawerHandler implements
     private static PrimaryDrawerItem login;
     // Regular activities
     private static PrimaryDrawerItem home;
+    private static PrimaryDrawerItem signUp;
+    private static PrimaryDrawerItem addContact;
     private static PrimaryDrawerItem contactList;
     private static PrimaryDrawerItem map;
     private static PrimaryDrawerItem bluetooth;
@@ -58,6 +60,8 @@ public class NavigationDrawerHandler implements
     private final static String FORGOT_PASSWORD_TAG = "ForgotPassword";
     private final static String DELETE_ACCOUNT_TAG  = "DeleteAccount";
     private final static String HOME_TAG = "Home";
+    private final static String SIGN_UP_TAG = "SignUp";
+    private final static String ADD_CONTACT_TAG = "AddContact";
     private final static String CONTACT_TAG = "Contact";
     private final static String MAP_TAG = "Map";
     private final static String BLUETOOTH_TAG = "Bluetooth";
@@ -84,6 +88,22 @@ public class NavigationDrawerHandler implements
                             Intent homeIntent = new Intent(context, UserDefinitionActivity.class);
                             homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             context.startActivity(homeIntent);
+                            break;
+
+                        case ADD_CONTACT_TAG:
+                            Log.i(TAG, "Add Contact Tag Pressed");
+                            userDrawer.closeDrawer();
+                            Intent addContactIntent = new Intent(context, ContactSimpleActivity.class);
+                            addContactIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            context.startActivity(addContactIntent);
+                            break;
+
+                        case SIGN_UP_TAG:
+                            Log.i(TAG, "Sign Up Tag Pressed");
+                            userDrawer.closeDrawer();
+                            Intent signUpIntent = new Intent(context, SignUpActivity.class);
+                            signUpIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            context.startActivity(signUpIntent);
                             break;
 
                         case CONTACT_TAG:
@@ -228,6 +248,7 @@ public class NavigationDrawerHandler implements
         // Instantiate all the drawer items
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         home = new PrimaryDrawerItem();
+        addContact = new PrimaryDrawerItem();
         contactList = new PrimaryDrawerItem();
         map = new PrimaryDrawerItem();
         bluetooth = new PrimaryDrawerItem();
@@ -239,6 +260,7 @@ public class NavigationDrawerHandler implements
         signOut = new PrimaryDrawerItem();
         deleteAccount = new PrimaryDrawerItem();
         login = new PrimaryDrawerItem();
+        signUp = new PrimaryDrawerItem();
 
         home.withDescription(R.string.home_activity)
                 .withSelectedColorRes(R.color.lightGrayWithRed)
@@ -252,6 +274,12 @@ public class NavigationDrawerHandler implements
 
 
         if(currentUser != null) {
+
+            // User add contact
+            addContact.withDescription("Add Contact")
+                    .withSelectedColorRes(R.color.lightGrayWithRed)
+                    .withIcon(R.drawable.ic_add_circle_black_24dp)
+                    .withTag(ADD_CONTACT_TAG);
 
             // Users contact list
             contactList.withDescription(R.string.contact_activity)
@@ -305,6 +333,7 @@ public class NavigationDrawerHandler implements
                     .withDisplayBelowStatusBar(true)
                     .withToolbar(toolbar)
                     .addDrawerItems(home,
+                                    addContact,
                                     contactList,
                                     map,
                                     bluetooth,
@@ -314,6 +343,7 @@ public class NavigationDrawerHandler implements
                                     changePassword,
                                     signOut,
                                     deleteAccount)
+                    .withSelectedItem(-1)
                     .withOnDrawerListener(new Drawer.OnDrawerListener() {
                         @Override
                         public void onDrawerOpened(View drawerView) {
@@ -350,6 +380,11 @@ public class NavigationDrawerHandler implements
                     .withDescriptionTextColorRes(R.color.colorPrimaryDark)
                     .withTag(LOGIN_TAG);
 
+            signUp = new PrimaryDrawerItem()
+                    .withDescription("Sign Up")
+                    .withDescriptionTextColorRes(R.color.colorPrimaryDark)
+                    .withTag(SIGN_UP_TAG);
+
             currentUserAccountHeader = new AccountHeaderBuilder()
                     .withActivity(activity)
                     .withHeaderBackground(R.drawable.header_nav_background_adjusted)
@@ -368,7 +403,9 @@ public class NavigationDrawerHandler implements
                             home,
                             map,
                             new DividerDrawerItem(),
-                            login)
+                            login,
+                            signUp)
+                    .withSelectedItem(-1)
                     .build();
 
             // Set up the on click listener for the navigation drawer
@@ -379,11 +416,13 @@ public class NavigationDrawerHandler implements
 
     @Override
     public boolean onProfileChanged(View view, IProfile profile, boolean current) {
+
+        Log.i(TAG, "On Profile changed was called");
         return false;
     }
 
     @Override
     public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-
+        Log.i(TAG, "On Auth State Changed");
     }
 }
