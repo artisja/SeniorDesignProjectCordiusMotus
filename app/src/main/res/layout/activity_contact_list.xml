@@ -15,5 +15,7 @@
         android:id="@+id/contact_list"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:divider="@color/colorPrimaryDark"
+        android:dividerHeight="2dp"/>
 </RelativeLayout>

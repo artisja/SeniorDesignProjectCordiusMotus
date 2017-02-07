@@ -144,7 +144,7 @@ public class SignUpActivity extends AppCompatActivity{
                     Toast.makeText(SignUpActivity.this, "One of the following is blank Password, Email, UserName or Confirmed Password", Toast.LENGTH_SHORT).show();
                 }else{
                     // Check to see that the passwords match
-                    if(password == cPassword) {
+                    if(password.equals(cPassword)) {
                         // If all the fields have input then create a new user
                         mFirebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                             @Override
@@ -169,15 +169,17 @@ public class SignUpActivity extends AppCompatActivity{
                                     setPasswordEdit.setText("");
                                     setEmailEdit.setText("");
                                     setUserNameEdit.setText("");
+                                    confirmPassword.setText("");
 
                                     // Press the back button to return to the login screen
                                     onBackPressed();
                                 } else {
-                                    Toast.makeText(appController, "Was unable to create an account. Please try again", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(appController, "Was unable to create an account. Check Internet Connection and try again", Toast.LENGTH_SHORT).show();
                                     // Reset the text fields
                                     setPasswordEdit.setText("");
                                     setEmailEdit.setText("");
                                     setUserNameEdit.setText("");
+                                    confirmPassword.setText("");
                                 }
                             }
                         });

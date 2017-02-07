@@ -12,7 +12,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.support.v7.app.AlertDialog;
-
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -53,6 +52,7 @@ public class NavigationDrawerHandler implements
     private static PrimaryDrawerItem map;
     private static PrimaryDrawerItem bluetooth;
     private static PrimaryDrawerItem blueChart;
+    // Tags
     private final static String LOGIN_TAG           = "Login";
     private final static String CHANGE_EMAIL_TAG    = "ChangeEmail";
     private final static String CHANGE_PASSWORD_TAG = "ChangePassword";
@@ -68,10 +68,17 @@ public class NavigationDrawerHandler implements
     private final static String BLUETOOTH_CHART_TAG = "BluetoothChart";
     private static FirebaseUser currentUser;
     private static Context      context;
+    private static Activity     activity;
 
     public NavigationDrawerHandler(Activity activity, Context context){
+        this.activity = activity;
         this.context  = context;
     }
+
+//    @Override
+//    public onAttach(Context context){
+//        super.onAttach();
+//    }
 
     public static Drawer.OnDrawerItemClickListener handleOnClick(final Drawer drawer, final AppCompatActivity activity){
         return new Drawer.OnDrawerItemClickListener() {
@@ -171,12 +178,14 @@ public class NavigationDrawerHandler implements
 
                         case DELETE_ACCOUNT_TAG:
                             Log.i(TAG, "Delete Account Tag Pressed");
+                            userDrawer.closeDrawer();
                             de.hdodenhof.circleimageview.CircleImageView img = new de.hdodenhof.circleimageview.CircleImageView(context);
                             img.setImageURI(currentUser.getPhotoUrl());
 
                             new AlertDialog.Builder(context)
-                                    .setMessage("Are you sure you want to delete your account with the following Info : " + "\n\nEmail : " + currentUser.getEmail() +
-                                            "\nUser Name: " + currentUser.getDisplayName())
+                                    .setMessage("Are you sure you want to delete your account with the following Info : "
+                                            + "\n\nEmail : "  + currentUser.getEmail()
+                                            + "\nUser Name: " + currentUser.getDisplayName())
                                     .setCustomTitle(img)
                                     .setNegativeButton("Yes", new DialogInterface.OnClickListener() {
                                         @Override
@@ -418,7 +427,7 @@ public class NavigationDrawerHandler implements
     public boolean onProfileChanged(View view, IProfile profile, boolean current) {
 
         Log.i(TAG, "On Profile changed was called");
-        return false;
+        return true;
     }
 
     @Override

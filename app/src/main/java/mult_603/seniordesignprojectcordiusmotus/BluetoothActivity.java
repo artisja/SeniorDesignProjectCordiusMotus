@@ -71,82 +71,85 @@ public class BluetoothActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluetooth);
 
+        // Set up the initial views and resources
+        findViews();
+
         // Set up the toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         headerResult = NavigationDrawerHandler.getAccountHeader(this, savedInstanceState, getApplicationContext());
         drawerResult = NavigationDrawerHandler.getUserDrawer(this, headerResult, toolbar);
 
-        // Set up the initial views and resources
-        findViews();
-
         // Try to get bluetooth access
         enableBluetooth();
 
-        // Start discovery
-        bluetoothAdapter.startDiscovery();
+        // If the bluetooth adapter got set then proceed
+        if(bluetoothAdapter!= null) {
+            // Start discovery
+            bluetoothAdapter.startDiscovery();
 
-        bluetoothReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
+            bluetoothReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    String action = intent.getAction();
 
-                switch(action){
-                    case BluetoothDevice.ACTION_BOND_STATE_CHANGED:
-                        Log.i(TAG, "Action Bond State Changed ");
-                        break;
-                    case BluetoothDevice.ACTION_FOUND:
-                        Log.i(TAG, "Action Found ");
-                        BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                        final int state = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, BluetoothDevice.ERROR);
-                        final int previousState = intent.getIntExtra(BluetoothDevice.EXTRA_PREVIOUS_BOND_STATE, BluetoothDevice.ERROR);
+                    switch (action) {
+                        case BluetoothDevice.ACTION_BOND_STATE_CHANGED:
+                            Log.i(TAG, "Action Bond State Changed ");
+                            break;
+                        case BluetoothDevice.ACTION_FOUND:
+                            Log.i(TAG, "Action Found ");
+                            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                            final int state = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, BluetoothDevice.ERROR);
+                            final int previousState = intent.getIntExtra(BluetoothDevice.EXTRA_PREVIOUS_BOND_STATE, BluetoothDevice.ERROR);
 
-                        // If the device is not in the list then add it
-                        if (!deviceList.contains(device)) {
-                            deviceList.add(device);
-                            Log.i(TAG, "Device Found: " + device.getName() + " , " + device.getAddress());
-                        }
+                            // If the device is not in the list then add it
+                            if (!deviceList.contains(device)) {
+                                deviceList.add(device);
+                                Log.i(TAG, "Device Found: " + device.getName() + " , " + device.getAddress());
+                            }
 
-                        // Is the state of the device bonded or bonding?
-                        if (state == BluetoothDevice.BOND_BONDED && previousState == BluetoothDevice.BOND_BONDING) {
-                            Log.i(TAG, "Paired in bluetooth receiver");
-                        }
+                            // Is the state of the device bonded or bonding?
+                            if (state == BluetoothDevice.BOND_BONDED && previousState == BluetoothDevice.BOND_BONDING) {
+                                Log.i(TAG, "Paired in bluetooth receiver");
+                            }
 
-                        // Device is unpairing
-                        else if (state == BluetoothDevice.BOND_NONE && previousState == BluetoothDevice.BOND_BONDED) {
-                            Log.i(TAG, "Unpaired in bluetooth receiver");
-                        }
-                        break;
-                    case BluetoothAdapter.ACTION_DISCOVERY_STARTED:
-                        Log.i(TAG, "Action Discovery Started ");
-                        break;
-                    case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:
-                        Log.i(TAG, "Action Discovery Finished ");
-                        break;
-                    case BluetoothAdapter.ACTION_STATE_CHANGED:
-                        Log.i(TAG, "Action State Changed ");
-                        break;
+                            // Device is unpairing
+                            else if (state == BluetoothDevice.BOND_NONE && previousState == BluetoothDevice.BOND_BONDED) {
+                                Log.i(TAG, "Unpaired in bluetooth receiver");
+                            }
+                            break;
+                        case BluetoothAdapter.ACTION_DISCOVERY_STARTED:
+                            Log.i(TAG, "Action Discovery Started ");
+                            break;
+                        case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:
+                            Log.i(TAG, "Action Discovery Finished ");
+                            break;
+                        case BluetoothAdapter.ACTION_STATE_CHANGED:
+                            Log.i(TAG, "Action State Changed ");
+                            break;
+                    }
                 }
+            };
+            // Set up the adapter and the list view
+            bluetoothListAdapter = new BluetoothListAdapter(deviceList, getApplicationContext());
+            listView.setAdapter(bluetoothListAdapter);
+
+            // Register broadcast receiver
+            registerReceiver(bluetoothReceiver, foundFilter);
+
+            // Get bonded devices
+            getBondedDevices();
+
+
+            // Create a thread between the device and the application
+            if (connectedDevice != null) {
+                //AcceptThread acceptThread = new AcceptThread();
+                ConnectThread connectThread = new ConnectThread(connectedDevice);
+                connectThread.start();
+                Log.i(TAG, "Connect Thread " + connectThread.getName() + "\n"
+                        + "Connect Thread State " + connectThread.getState() + "\n"
+                        + "Connect Thread Id " + connectThread.getId());
             }
-        };
-        // Set up the adapter and the list view
-        bluetoothListAdapter = new BluetoothListAdapter(deviceList, getApplicationContext());
-        listView.setAdapter(bluetoothListAdapter);
-
-        // Register broadcast receiver
-        registerReceiver(bluetoothReceiver, foundFilter);
-
-        // Get bonded devices
-        getBondedDevices();
-
-
-        // Create a thread between the device and the application
-        if (connectedDevice != null){
-            //AcceptThread acceptThread = new AcceptThread();
-            ConnectThread connectThread = new ConnectThread(connectedDevice);
-            connectThread.start();
-            Log.i(TAG, "Connect Thread " + connectThread.getName() + "\n"
-                    + "Connect Thread State " + connectThread.getState() + "\n"
-                    + "Connect Thread Id " + connectThread.getId());
         }
     }
 
@@ -174,93 +177,73 @@ public class BluetoothActivity extends AppCompatActivity {
         refreshButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                bluetoothListAdapter.notifyDataSetChanged();
+                if (bluetoothAdapter != null) {
+                    bluetoothListAdapter.notifyDataSetChanged();
 
-                if (bluetoothListAdapter.getCount() == 0) {
-                    //Toast.makeText(getApplicationContext(), "No devices found", Toast.LENGTH_LONG).show();
-                    new AlertDialog.Builder(v.getContext())
-                            .setTitle("Bluetooth Devices")
-                            .setMessage("No Bluetooth Devices were found.")
+                    if (bluetoothListAdapter.getCount() == 0) {
+                        //Toast.makeText(getApplicationContext(), "No devices found", Toast.LENGTH_LONG).show();
+                        new AlertDialog.Builder(v.getContext())
+                                .setTitle("Bluetooth Devices")
+                                .setMessage("No Bluetooth Devices were found.")
+                                .setPositiveButton("Exit", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.cancel();
+                                    }
+                                })
+                                .create()
+                                .show();
+                        Log.i(TAG, "No Bluetooth Devices were found");
+                    } else {
+                        Log.i(TAG, "Bluetooth Devices were found ");
+                    }
+                }
+                else{
+                    Log.i(TAG, "Bluetooth Adapter is null");
+                    new android.support.v7.app.AlertDialog.Builder(BluetoothActivity.this)
+                            .setTitle("Bluetooth Compatibility")
+                            .setMessage("Unfortunately This device does not support bluetooth")
                             .setPositiveButton("Exit", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    dialog.cancel();
+                                    dialog.dismiss();
                                 }
                             })
                             .create()
                             .show();
-                    Log.i(TAG, "No Bluetooth Devices were found");
-                } else {
-                    Log.i(TAG, "Bluetooth Devices were found ");
                 }
             }
         });
     }
-/*
-    // Unregister receiver in on pause
-    @Override
-    protected void onPause(){
-        super.onPause();
-        Log.i(TAG, "On Pause Called ");
-        synchronized (this){
-            if(bluetoothReceiver != null){
-                unregisterReceiver(bluetoothReceiver);
-            }
-        }
-    }
-
-    // Register reciever in on resume
-    @Override
-    protected void onResume(){
-        super.onResume();
-        Log.i(TAG, "On Resume Called ");
-        synchronized(this){
-            registerReceiver(bluetoothReceiver, foundFilter);
-        }
-
-    }
-
-    @Override
-    protected void onStop(){
-        super.onStop();
-        Log.i(TAG, "On Stop Called ");
-
-    }
-
-    @Override
-    protected void onDestroy(){
-        super.onDestroy();
-        Log.i(TAG, "On Destroy Called ");
-    }
-*/
 
     private void enableBluetooth() {
-        // Check to see if bluetooth is enabled
+        // The device doesn't support bluetooth
         if (bluetoothAdapter == null) {
             Log.i(TAG, "Device does not support bluetooth :( ");
             // If the user does not have a bluetooth device we should notify them
-            new AlertDialog.Builder(getApplicationContext())
-                    .setTitle("Bluetooth Compatibility")
-                    .setMessage("This device does not support bluetooth")
-                    .setPositiveButton("Exit", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                        }
-                    })
-                    .create()
-                    .show();
-        } else {
-            Log.i(TAG, "Device supports bluetooth :)");
+            new android.support.v7.app.AlertDialog.Builder(BluetoothActivity.this)
+            .setTitle("Bluetooth Compatibility")
+            .setMessage("This device does not support bluetooth")
+            .setPositiveButton("Exit", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            })
+            .create()
+            .show();
         }
-
-        // Check to see if we can get permission to use bluetooth
-        if (!bluetoothAdapter.isEnabled()) {
-            Intent enableByInent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableByInent, REQUEST_BLUETOOTH_ENABLED);
-            Log.i(TAG, "User must enable bluetooth");
-        } else {
-            Log.i(TAG, "User has enabled bluetooth");
+        // Bluetooth adapter is not null
+        else {
+            Log.i(TAG, "Device supports bluetooth :)");
+            // Check to see if we can get permission to use bluetooth as long as the adapter isn't null
+            if (!bluetoothAdapter.isEnabled()){
+                Intent enableByIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(enableByIntent, REQUEST_BLUETOOTH_ENABLED);
+                Log.i(TAG, "User must enable bluetooth");
+            } else {
+                Log.i(TAG, "User has enabled bluetooth");
+            }
         }
     }
 

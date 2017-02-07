@@ -47,6 +47,9 @@
         android:id="@+id/contact_list_remove_button"
         android:layout_alignTop="@+id/contact_list_name"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:background="@color/lightGrayWithRed"
+        android:backgroundTint="@color/lightGrayWithRed"
+        android:textColor="@color/colorPrimaryDark"/>
 
 </RelativeLayout>

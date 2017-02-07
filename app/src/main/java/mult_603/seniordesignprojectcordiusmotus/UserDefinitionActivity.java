@@ -30,18 +30,12 @@ public class UserDefinitionActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_user_definition);
         findViews();
 
+        NavigationDrawerHandler navHandler = new NavigationDrawerHandler(this, getApplicationContext());
+
         // Set up the toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        headerResult = NavigationDrawerHandler.getAccountHeader(this, savedInstanceState, getApplicationContext());
-        drawerResult = NavigationDrawerHandler.getUserDrawer(this, headerResult, toolbar);
-
-
-        if (myAppController == null) {
-            Log.i(TAG, "My Application Controller is null");
-
-        } else {
-            Log.i(TAG, "My Application Controller is not null");
-        }
+        headerResult = navHandler.getAccountHeader(this, savedInstanceState, getApplicationContext());
+        drawerResult = navHandler.getUserDrawer(this, headerResult, toolbar);
     }
 
     @Override

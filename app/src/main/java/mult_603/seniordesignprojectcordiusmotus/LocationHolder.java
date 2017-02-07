@@ -27,6 +27,14 @@ public class LocationHolder {
         this.longitude = longitude;
     }
 
+    public boolean hasLongitude(){
+        return this.longitude != null;
+    }
+
+    public boolean hasLatitude(){
+        return this.latitude != null;
+    }
+
     public Double getLatitude() {
         return latitude;
     }

@@ -12,8 +12,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -49,19 +47,11 @@ public class ContactSimpleActivity extends AppCompatActivity {
         firebaseDatabase = FirebaseDatabase.getInstance();
         firebaseAuth     = FirebaseAuth.getInstance();
 
-//        Intent intent    = getIntent();
-//        if (!intent.getExtras().isEmpty()){
-//            Bundle bundle = intent.getExtras();
-//            String email = bundle.getString("Email");
-//            String password = bundle.getString("Password");
-//            firebaseAuth.signInWithEmailAndPassword(email,password);
-//        }
-
         // Get the current user and their part of the database
         final FirebaseUser currentUser = firebaseAuth.getCurrentUser();
         final DatabaseReference dbref  = firebaseDatabase.getReference(currentUser.getUid());
 
-
+        // TODO Need to create a hash method to shorten the uuid
         final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.add_button);
         assert fab != null;
         fab.setOnClickListener(new View.OnClickListener() {
@@ -76,13 +66,17 @@ public class ContactSimpleActivity extends AppCompatActivity {
                 if( !(name.isEmpty() && phone.isEmpty() && email.isEmpty())) {
                     Log.i(TAG, "Name , Email, Phone Number is not empty");
                     Contact newContact = new Contact(name, phone, email);
-                    dbref.push().setValue(newContact);
+                    dbref.child("Contacts").push().setValue(newContact);
 
                     // Try to send a message to the current users emergency contact
                     try {
                         SmsManager smsManager = SmsManager.getDefault();
                         Toast.makeText(ContactSimpleActivity.this, phone, Toast.LENGTH_SHORT).show();
-                        String message = "You have been added as an emergency contact for User "  + firebaseAuth.getCurrentUser().getUid().toString() + "/n This is your UUID for the device location.";
+                        String message = "You have been added as an emergency contact for User "
+                                + currentUser.getEmail()
+                                + "\n This is your UUID for the device location -> "
+                                + currentUser.getUid();
+
                         smsManager.sendTextMessage(phone, null,message, null, null);
                         Intent sendMessageIntent = new Intent(Intent.ACTION_VIEW);
                         sendMessageIntent.setType("vnd.android-dir/mms-sms");

@@ -11,6 +11,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -20,6 +21,9 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -30,25 +34,42 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnIndoorStateChangeListener;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.IndoorBuilding;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import android.widget.SearchView;
+
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -89,6 +110,7 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
     public double longitude;
     private FirebaseUser currentUser;
     private SearchView mapSearchView;
+    private LocationHolder patientsLocationHolder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -147,7 +169,8 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
     }
 
     public void setUpMapMarkerByLocation(final LatLng location){
-        // WE have a user
+        // We have a user Their marker is blue
+        // Going from red to blue
         if(currentUser != null){
             Log.i(TAG, "User is not null");
             MarkerOptions markerOptions = new MarkerOptions();
@@ -157,7 +180,7 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
             Log.i(TAG, "Created a map marker for a user");
 
         }
-        // The user of our application is not a registered patient
+        // The user of our application is not a registered patient their marker is red
         else {
             Log.i(TAG, "User is null");
             MarkerOptions markerOptions = new MarkerOptions();
@@ -223,8 +246,9 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         Log.i(TAG, "Connected");
+        // Do not have Permission to access fine location
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
+            // Request access to fine location
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
 
             if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)){
@@ -234,16 +258,21 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
                 Log.i(TAG, "DID NOT show the request permission rationale");
             }
         }
+        // We have permission to access the user's fine location
         else{
             Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+
+            // Last Location is not null
             if (lastLocation != null) {
                 Intent intent = getIntent();
-                latitude = intent.getDoubleExtra("Longitude", lastLocation.getLatitude());
+                latitude =  intent.getDoubleExtra("Longitude", lastLocation.getLatitude());
                 longitude = intent.getDoubleExtra("Latitude", lastLocation.getLongitude());
                 currentPosition = new LatLng(latitude, longitude);
                 setUpMapMarkerByLocation(currentPosition);
                 Log.i(TAG, "( Latitude: " + latitude + " Longitude: " + longitude + " )");
-            } else {
+            }
+            // Last location is null
+            else {
                 Log.i(TAG, "Location was null");
                 LocationManager locationManager = (LocationManager) getApplicationContext()
                         .getSystemService(Context.LOCATION_SERVICE);
@@ -253,8 +282,7 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
                 boolean isGPSEnabled = locationManager.isProviderEnabled(locationManager.GPS_PROVIDER);
 
                 Log.i(TAG, "Is Network Enabled " + isNetworkEnabled);
-                Log.i(TAG, "Is GPS Enabled " + isGPSEnabled);
-
+                Log.i(TAG, "Is GPS Enabled "     + isGPSEnabled);
 
             }
         }
@@ -294,6 +322,10 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
     public void onLocationChanged(Location location) {
         latitude  = location.getLatitude();
         longitude = location.getLatitude();
+
+        // Send the lat and long to update the map marker
+        LatLng newLatLng = new LatLng(latitude, longitude);
+        setUpMapMarkerByLocation(newLatLng);
         Log.i(TAG, "Location has changed to: " + location);
         Toast.makeText(getApplicationContext(), "Location " + location, Toast.LENGTH_SHORT).show();
     }
@@ -344,6 +376,13 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
         gd.setCornerRadius(25.0f);
         linearLayout.setBackground(gd);
         linearLayout.setLayoutParams(params);
+
+        if(marker.getTitle().equals("Patients Location")){
+            Log.i(TAG, "Clicked the patients location");
+        }
+        else{
+            Log.i(TAG, "Clicked a emergency contacts location");
+        }
 
         if(currentUser != null) {
             CircleImageView circleImageView = new CircleImageView(getApplicationContext());
@@ -472,21 +511,242 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
 
 
     // Search View Methods
-
     @Override
     public boolean onQueryTextSubmit(String query) {
         Log.i(TAG, "Text Query: " + query);
         FirebaseDatabase fdb = FirebaseDatabase.getInstance();
-        DatabaseReference fdbRef = fdb.getReference();
+        DatabaseReference fdbRef = fdb.getReference(query);
         Log.i(TAG, "Db Reference: " + fdbRef);
 
+        fdbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.i(TAG, "On Data Changed");
+                for(DataSnapshot location: dataSnapshot.getChildren()){
+                    // Get the location based on the text entry
+                    LocationHolder locationHolder = location.getValue(LocationHolder.class);
+                    Log.i(TAG, "Location Holder Obj from DB " + locationHolder.toString());
+                    if(locationHolder.hasLatitude() && locationHolder.hasLongitude()){
+                        Log.i(TAG, "Location Holder has latitude and longitude");
+                        Log.i(TAG, "Location Holder has latitude " + locationHolder.getLatitude());
+                        Log.i(TAG, "Location Holder has longitude " + locationHolder.getLongitude());
+                        // Set the location Holder to a static object
+                        patientsLocationHolder = locationHolder;
+                        LatLng patientsLatLng = new LatLng(patientsLocationHolder.getLatitude(), patientsLocationHolder.getLongitude());
+                        // Draw the route to the patient
+                        drawRoute(patientsLatLng);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.i(TAG, "Database Error");
+            }
+        });
 
         return false;
     }
+
 
     @Override
     public boolean onQueryTextChange(String newText) {
         Log.i(TAG, "On Query Change: " + newText);
         return false;
+    }
+
+    public LatLng calculateMidPoint(LatLng origin, LatLng destination){
+        LatLng midPoint;
+        Double originLat = origin.latitude;
+        Double originLng = origin.longitude;
+        Double destLat   = destination.latitude;
+        Double destLng   = destination.longitude;
+        // Calculate the midpoint and return it
+        Double newLat = (originLat + destLat) / 2;
+        Double newLng = (originLng + destLng) / 2;
+        midPoint = new LatLng(newLat, newLng);
+        return midPoint;
+    }
+
+    private void drawRoute(LatLng finishLocation){
+        // Get the view in order to hide the keyboard
+        final ViewGroup viewGroup = (ViewGroup) ((ViewGroup) this
+                .findViewById(R.id.map)).getChildAt(0);
+        final InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(viewGroup.getWindowToken(), 0);
+
+        // Make the finish marker
+        MarkerOptions finishMarker = new MarkerOptions();
+        finishMarker.position(finishLocation)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+                    .title("Patients Location");
+
+        String url = getDirectionsUrl(currentPosition, finishLocation);
+        DownloadTask dl = new DownloadTask();
+        dl.execute(url);
+
+    }
+
+    public String getDirectionsUrl(LatLng origin,LatLng dest){
+
+        // Origin of route
+        String str_origin = "origin="+origin.latitude+","+origin.longitude;
+
+        // Destination of route
+        String str_dest = "destination="+dest.latitude+","+dest.longitude;
+
+        // Sensor enabled
+        String sensor = "sensor=false";
+
+        // Building the parameters to the web service
+        String parameters = str_origin+"&"+str_dest+"&"+sensor;
+
+        // Output format
+        String output = "json";
+
+        // Building the url to the web service
+        String url = "https://maps.googleapis.com/maps/api/directions/"+output+"?"+parameters;
+
+        return url;
+    }
+    /** A method to download json data from url */
+    public String downloadUrl(String strUrl) throws IOException{
+        String data = "";
+        InputStream iStream = null;
+        HttpURLConnection urlConnection = null;
+        try{
+            URL url = new URL(strUrl);
+
+            // Creating an http connection to communicate with url
+            urlConnection = (HttpURLConnection) url.openConnection();
+
+            // Connecting to url
+            urlConnection.connect();
+
+            // Reading data from url
+            iStream = urlConnection.getInputStream();
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(iStream));
+
+            StringBuffer sb = new StringBuffer();
+
+            String line = "";
+            while( ( line = br.readLine()) != null){
+                sb.append(line);
+            }
+
+            data = sb.toString();
+
+            br.close();
+
+        }catch(Exception e){
+            Log.i("ExceptionDownloadingURL", e.toString());
+        }finally{
+            iStream.close();
+            urlConnection.disconnect();
+        }
+        return data;
+    }
+
+    // Fetches data from url passed
+    private class DownloadTask extends AsyncTask<String, Void, String>{
+
+        // Downloading data in non-ui thread
+        @Override
+        protected String doInBackground(String... url) {
+
+            // For storing data from web service
+            String data = "";
+
+            try{
+                // Fetching the data from web service
+                data = downloadUrl(url[0]);
+            }catch(Exception e){
+                Log.d("Background Task",e.toString());
+            }
+            return data;
+        }
+
+        // Executes in UI thread, after the execution of
+        // doInBackground()
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+
+            ParserTask parserTask = new ParserTask();
+
+            // Invokes the thread for parsing the JSON data
+            parserTask.execute(result);
+        }
+    }
+
+    /** A class to parse the Google Places in JSON format */
+    private class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String,String>>> > {
+
+        // Parsing the data in non-ui thread
+        @Override
+        protected List<List<HashMap<String, String>>> doInBackground(String... jsonData) {
+
+            JSONObject jObject;
+            List<List<HashMap<String, String>>> routes = null;
+
+            try{
+                jObject = new JSONObject(jsonData[0]);
+                DirectionParser parser = new DirectionParser();
+
+                // Starts parsing data
+                routes = parser.parse(jObject);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+            return routes;
+        }
+
+        // Executes in UI thread, after the parsing process
+        @Override
+        protected void onPostExecute(List<List<HashMap<String, String>>> result) {
+            ArrayList<LatLng> points = null;
+            PolylineOptions lineOptions = null;
+            MarkerOptions markerOptions = new MarkerOptions();
+
+            // Traversing through all the routes
+            for(int i=0;i<result.size();i++){
+                points = new ArrayList<LatLng>();
+                lineOptions = new PolylineOptions();
+
+                // Fetching i-th route
+                List<HashMap<String, String>> path = result.get(i);
+
+                // Fetching all the points in i-th route
+                for(int j=0;j<path.size();j++){
+                    HashMap<String,String> point = path.get(j);
+
+                    double lat = Double.parseDouble(point.get("lat"));
+                    double lng = Double.parseDouble(point.get("lng"));
+                    LatLng position = new LatLng(lat, lng);
+
+                    points.add(position);
+                }
+
+                // Adding all the points in the route to LineOptions
+                lineOptions.addAll(points);
+                lineOptions.width(10.0f);
+                lineOptions.color(Color.GREEN);
+                LatLng patientsLatLng = new LatLng(patientsLocationHolder.getLatitude(), patientsLocationHolder.getLongitude());
+                markerOptions.position(patientsLatLng)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+                        .title("Patients Location");
+
+                mMap.addMarker(markerOptions);
+
+                // Calculate midpoint and zoom out a bit
+                LatLng centerMap = calculateMidPoint(currentPosition, patientsLatLng);
+                CameraUpdate cmu = CameraUpdateFactory.newLatLngZoom(centerMap, 14.0f);
+                mMap.moveCamera(cmu);
+            }
+
+            // Drawing polyline in the Google Map for the i-th route
+            mMap.addPolyline(lineOptions);
+        }
     }
 }

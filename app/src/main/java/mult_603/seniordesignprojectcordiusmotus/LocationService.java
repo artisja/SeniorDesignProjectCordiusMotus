@@ -1,6 +1,7 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -14,8 +15,10 @@ import android.location.Location;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
+import android.view.Gravity;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -121,20 +124,20 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
 
     // Stop threads and unregister receivers
     public void onDestroy(){
-
         super.onDestroy();
-        Log.i(TAG, "Location Service has been destroyed");
-
+        Log.i(TAG, "Location Service has been destroyed stopping the service calling stop location updates and stop self");
+        stopLocationUpdates();
+        stopSelf();
     }
-
 
     // TODO - Add a way to get the user to enable location
 
     public void startLocationUpdates(){
         // High accuracy should use GPS to get the location
         locationRequest = new LocationRequest();
-        locationRequest.setInterval(10000);
-        locationRequest.setFastestInterval(5000);
+        locationRequest.setInterval(5000);
+        locationRequest.setFastestInterval(2000);
+        locationRequest.setSmallestDisplacement(1);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
@@ -212,10 +215,13 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
 
         Double lat = location.getLatitude();
         Double lng = location.getLongitude();
-        LocationHolder locationHolder = new LocationHolder(lat,lng);
+        final LocationHolder locationHolder = new LocationHolder(lat,lng);
         String locationString = locationHolder.toString();
         Log.i(TAG, locationString);
-        Toast.makeText(getApplicationContext(), "From Service: \n" + locationString, Toast.LENGTH_SHORT).show();
+
+        Toast locationToast = Toast.makeText(getApplicationContext(), "From Service: \n" + locationString, Toast.LENGTH_SHORT);
+//        locationToast.setGravity(Gravity.CENTER_HORIZONTAL, 0, -1);
+        locationToast.show();
 
         // Should do this only if the user is not null
 
@@ -251,7 +257,7 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
 
             String key = reference.getKey();
             Log.i(TAG, "Key " + key);
-            reference.child("Location").setValue("Lat: " + lat + " , " + "Lng: " + lng);
+            reference.child("Location").setValue(locationHolder);
         }
     }
 }

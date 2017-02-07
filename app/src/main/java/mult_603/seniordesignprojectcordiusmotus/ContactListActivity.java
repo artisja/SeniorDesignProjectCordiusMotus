@@ -35,7 +35,7 @@ public class ContactListActivity extends AppCompatActivity {
 
         // Get the users portion of the database using their uuid
         final FirebaseUser currentUser = firebaseAuth.getCurrentUser();
-        final DatabaseReference databaseReference = firebaseDatabase.getReference(currentUser.getUid());
+        final DatabaseReference databaseReference = firebaseDatabase.getReference(currentUser.getUid()).child("Contacts");
 
         Log.i(TAG, "Current User "       + currentUser);
         Log.i(TAG, "Current User Email " + currentUser.getEmail());
