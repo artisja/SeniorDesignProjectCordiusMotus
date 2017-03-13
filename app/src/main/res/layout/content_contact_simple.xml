@@ -12,16 +12,6 @@
     tools:context="mult_603.seniordesignprojectcordiusmotus.UserAddContactFragment"
     tools:showIn="@layout/activity_contact_simple">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/add_contact_text_view"
-        android:layout_marginTop="10sp"
-        android:text="@string/contact_text_view_add"
-        android:textSize="18dp"
-        android:layout_marginLeft="15sp"
-        android:layout_marginRight="15sp"/>
-
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -31,10 +21,9 @@
         android:hint="@string/name_hint"
         android:textColorHint="@color/wordColorRed"
         android:layout_centerHorizontal="true"
-        android:layout_below="@+id/add_contact_text_view"
         android:layout_marginTop="15sp"
         android:layout_marginLeft="15sp"
-        android:layout_marginRight="15sp"/>
+        android:layout_marginRight="15sp" />
 
     <EditText
         android:layout_width="match_parent"
@@ -47,7 +36,7 @@
         android:layout_below="@+id/contact_simple_name"
         android:layout_centerHorizontal="true"
         android:layout_marginLeft="15sp"
-        android:layout_marginRight="15sp"/>
+        android:layout_marginRight="15sp" />
 
     <EditText
         android:layout_width="match_parent"
@@ -60,6 +49,17 @@
         android:layout_below="@+id/contact_simple_phone"
         android:layout_centerHorizontal="true"
         android:layout_marginLeft="15sp"
-        android:layout_marginRight="15sp"/>
+        android:layout_marginRight="15sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/add_contact_text_view"
+        android:layout_marginTop="15sp"
+        android:text="@string/contact_text_view_add"
+        android:textSize="18dp"
+        android:layout_marginLeft="15sp"
+        android:layout_marginRight="15sp"
+        android:layout_below="@+id/contact_simple_email"/>
 
 </RelativeLayout>
