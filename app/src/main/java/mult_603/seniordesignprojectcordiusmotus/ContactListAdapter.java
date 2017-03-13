@@ -122,15 +122,26 @@ public class ContactListAdapter extends BaseAdapter implements ListAdapter {
                         // Get the key for the contact from the database
                         String key = keyList.get(currentPosition);
 
+                        Contact contactToRemove = contactArrayList.get(currentPosition);
+                        String contactToRemovePhone = contactToRemove.getNumber();
+                        String contactToRemoveUName = contactToRemove.getName();
+                        String contactToRemoveEmail = contactToRemove.getEmail();
+
                         Log.i(TAG, "Reference " + reference.getKey());
                         Log.i(TAG, "Key to Delete       " + key);
                         Log.i(TAG, "Reference to Delete " + reference.child(key));
 
                         SmsManager smsManager = SmsManager.getDefault();
-                        String message = "You have been Removed as an emergency contact for User "  + "Patient ID" + "/n This is your UUID for the device location.";
-                        smsManager.sendTextMessage(contactArrayList.get(currentPosition).getNumber().toString(), null,message, null, null);
+
+                        // Create the text message string
+                        String message = "You have been Removed as an emergency contact for User Name: "
+                                + contactToRemoveUName
+                                + " with Email Address: "
+                                + contactToRemoveEmail;
+
+                        smsManager.sendTextMessage(contactToRemovePhone, null,message, null, null);
                         Intent sendIntent = new Intent(Intent.ACTION_VIEW);
-                        sendIntent.putExtra("sms_body", "You got a pretty kind of dirty face.");
+                        sendIntent.putExtra("sms_body", message);
                         sendIntent.setType("vnd.android-dir/mms-sms");
                         context.startActivity(sendIntent);
 

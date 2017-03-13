@@ -28,6 +28,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private AccountHeader headerResult;
     private Drawer drawerResult;
+    private NavigationDrawerHandler navHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,8 +37,12 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
         // Set up the toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        headerResult = NavigationDrawerHandler.getAccountHeader(this, savedInstanceState, getApplicationContext());
-        drawerResult = NavigationDrawerHandler.getUserDrawer(this, headerResult, toolbar);
+
+        // Set up the navigation handler
+        navHandler = new NavigationDrawerHandler(this, savedInstanceState, getApplicationContext(), toolbar);
+        headerResult = navHandler.setAccountHeader(this, savedInstanceState, getApplicationContext());
+        drawerResult = navHandler.setUserDrawer(this, headerResult, toolbar);
+
         setUpViews();
         setOnClickListeners();
     }
@@ -85,6 +90,13 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        headerResult = navHandler.getHeader();
+        drawerResult = navHandler.getDrawer();
     }
 
     private void setUpViews(){

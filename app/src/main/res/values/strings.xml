@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">CordisMotus</string>
+    <string name="app_name">Cardian</string>
     <string name="cali_button">I am the Patient</string>
     <string name="medic_button">I am the Respondent</string>
     <string name="title_activity_user_maps">Map</string>
@@ -50,5 +50,28 @@
     <string name="bluetooth_activity">Bluetooth Connections</string>
     <string name="bluetooth_chart_activity">Bluetooth Chart</string>
     <string name="confirm_password">Confirm Password</string>
-    <string name="contact_text_view_add">Please add an emergency contact you trust that we can notify in the event of cardiac arrest by filling in the fields provided below and pressing the add button. To edit current contacts hit the contact list button</string>
+    <string name="contact_text_view_add">Please add an emergency contact you trust that we can notify in the event of cardiac arrest by filling in the fields below and pressing the plus button.</string>
+    <string name="change_password_message">In order to change your password please enter your old password followed by the new password you would like to use.</string>
+    <string name="change_password_string">Change Password</string>
+    <string name="old_password_hint">Old Password</string>
+    <string name="new_password_hint">New Password</string>
+    <string name="title_activity_user_tab">UserTabActivity</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+    <string name="title_activity_user_login">Sign in</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password (optional)</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

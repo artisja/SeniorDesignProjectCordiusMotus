@@ -1,6 +1,5 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -66,19 +65,34 @@ public class NavigationDrawerHandler implements
     private final static String MAP_TAG = "Map";
     private final static String BLUETOOTH_TAG = "Bluetooth";
     private final static String BLUETOOTH_CHART_TAG = "BluetoothChart";
-    private static FirebaseUser currentUser;
-    private static Context      context;
-    private static Activity     activity;
+    private static FirebaseUser         currentUser;
+    private static Context              context;
+    private static AppCompatActivity    activity;
+    private static Bundle               savedInstanceState;
+    private static Toolbar              toolbar;
 
-    public NavigationDrawerHandler(Activity activity, Context context){
+    public NavigationDrawerHandler(AppCompatActivity activity, Bundle savedInstanceState, Context context, Toolbar toolbar){
         this.activity = activity;
+        this.savedInstanceState = savedInstanceState;
         this.context  = context;
+        this.toolbar = toolbar;
     }
 
-//    @Override
-//    public onAttach(Context context){
-//        super.onAttach();
-//    }
+    // return the account header
+    public AccountHeader getHeader(){
+        return currentUserAccountHeader;
+    }
+
+    // return the drawer
+    public Drawer getDrawer(){
+        return userDrawer;
+    }
+
+    // Refresh the drawer after something is clicked
+    public static void refreshDrawer(){
+        currentUserAccountHeader = setAccountHeader(activity, savedInstanceState, context);
+        userDrawer = setUserDrawer(activity,currentUserAccountHeader, toolbar);
+    }
 
     public static Drawer.OnDrawerItemClickListener handleOnClick(final Drawer drawer, final AppCompatActivity activity){
         return new Drawer.OnDrawerItemClickListener() {
@@ -97,13 +111,13 @@ public class NavigationDrawerHandler implements
                             context.startActivity(homeIntent);
                             break;
 
-                        case ADD_CONTACT_TAG:
-                            Log.i(TAG, "Add Contact Tag Pressed");
-                            userDrawer.closeDrawer();
-                            Intent addContactIntent = new Intent(context, ContactSimpleActivity.class);
-                            addContactIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            context.startActivity(addContactIntent);
-                            break;
+//                        case ADD_CONTACT_TAG:
+//                            Log.i(TAG, "Add Contact Tag Pressed");
+//                            userDrawer.closeDrawer();
+//                            Intent addContactIntent = new Intent(context, ContactSimpleActivity.class);
+//                            addContactIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                            context.startActivity(addContactIntent);
+//                            break;
 
                         case SIGN_UP_TAG:
                             Log.i(TAG, "Sign Up Tag Pressed");
@@ -113,13 +127,13 @@ public class NavigationDrawerHandler implements
                             context.startActivity(signUpIntent);
                             break;
 
-                        case CONTACT_TAG:
-                            Log.i(TAG, "Contact Tag Pressed");
-                            userDrawer.closeDrawer();
-                            Intent contactIntent = new Intent(context, ContactListActivity.class);
-                            contactIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            context.startActivity(contactIntent);
-                            break;
+//                        case CONTACT_TAG:
+//                            Log.i(TAG, "Contact Tag Pressed");
+//                            userDrawer.closeDrawer();
+//                            Intent contactIntent = new Intent(context, ContactListActivity.class);
+//                            contactIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                            context.startActivity(contactIntent);
+//                            break;
 
                         case MAP_TAG:
                             Log.i(TAG, "Map Tag Pressed");
@@ -129,21 +143,21 @@ public class NavigationDrawerHandler implements
                             context.startActivity(mapIntent);
                             break;
 
-                        case BLUETOOTH_TAG:
-                            Log.i(TAG, "Bluetooth Tag Pressed");
-                            userDrawer.closeDrawer();
-                            Intent bluetoothIntent = new Intent(context, BluetoothActivity.class);
-                            bluetoothIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            context.startActivity(bluetoothIntent);
-                            break;
-
-                        case BLUETOOTH_CHART_TAG:
-                            Log.i(TAG, "Bluetooth Chart Tag Pressed");
-                            userDrawer.closeDrawer();
-                            Intent bluetoothChartIntent = new Intent(context, BluetoothChartActivity.class);
-                            bluetoothChartIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            context.startActivity(bluetoothChartIntent);
-                            break;
+//                        case BLUETOOTH_TAG:
+//                            Log.i(TAG, "Bluetooth Tag Pressed");
+//                            userDrawer.closeDrawer();
+//                            Intent bluetoothIntent = new Intent(context, BluetoothActivity.class);
+//                            bluetoothIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                            context.startActivity(bluetoothIntent);
+//                            break;
+//
+//                        case BLUETOOTH_CHART_TAG:
+//                            Log.i(TAG, "Bluetooth Chart Tag Pressed");
+//                            userDrawer.closeDrawer();
+//                            Intent bluetoothChartIntent = new Intent(context, BluetoothChartActivity.class);
+//                            bluetoothChartIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                            context.startActivity(bluetoothChartIntent);
+//                            break;
 
                         case LOGIN_TAG:
                             Log.i(TAG, "Login Tag Pressed");
@@ -161,11 +175,12 @@ public class NavigationDrawerHandler implements
                             context.startActivity(changeEmail);
                             break;
 
-                        // TODO - Change the password
                         case CHANGE_PASSWORD_TAG:
                             Log.i(TAG, "Change Password Tag Pressed");
-                            //Intent changePassword = new Intent(getApplicationContext(), )
-
+                            userDrawer.closeDrawer();
+                            Intent changePassword = new Intent(context, ChangePasswordActivity.class);
+                            changePassword.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            context.startActivity(changePassword);
                             break;
 
                         case SIGN_OUT_TAG:
@@ -219,12 +234,13 @@ public class NavigationDrawerHandler implements
                             break;
                     }
                 }
+                refreshDrawer();
                 return true;
             }
         };
     }
 
-    public static AccountHeader getAccountHeader(final AppCompatActivity activity, final Bundle savedInstanceState, final Context uContext){
+    public static AccountHeader setAccountHeader(final AppCompatActivity activity, final Bundle savedInstanceState, final Context uContext){
         // Get the current user and set the context
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         context = uContext;
@@ -252,7 +268,7 @@ public class NavigationDrawerHandler implements
     }
 
 
-    public static Drawer getUserDrawer(final AppCompatActivity activity, AccountHeader accountHeader, Toolbar toolbar){
+    public static Drawer setUserDrawer(final AppCompatActivity activity, AccountHeader accountHeader, Toolbar toolbar){
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         // Instantiate all the drawer items
         currentUser = FirebaseAuth.getInstance().getCurrentUser();

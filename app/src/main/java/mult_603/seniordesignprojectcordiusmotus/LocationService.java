@@ -70,7 +70,10 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
             googleApiClient.connect();
         }
         // Tells the service to run until we call stopSelf
-        return START_STICKY;
+//        return START_STICKY;
+
+        // This will make the service stop
+        return START_NOT_STICKY;
     }
 
     @Override
@@ -123,6 +126,7 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
 
 
     // Stop threads and unregister receivers
+    @Override
     public void onDestroy(){
         super.onDestroy();
         Log.i(TAG, "Location Service has been destroyed stopping the service calling stop location updates and stop self");
@@ -135,8 +139,8 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     public void startLocationUpdates(){
         // High accuracy should use GPS to get the location
         locationRequest = new LocationRequest();
-        locationRequest.setInterval(5000);
-        locationRequest.setFastestInterval(2000);
+        locationRequest.setInterval(2000);
+        locationRequest.setFastestInterval(1000);
         locationRequest.setSmallestDisplacement(1);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
@@ -220,7 +224,6 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
         Log.i(TAG, locationString);
 
         Toast locationToast = Toast.makeText(getApplicationContext(), "From Service: \n" + locationString, Toast.LENGTH_SHORT);
-//        locationToast.setGravity(Gravity.CENTER_HORIZONTAL, 0, -1);
         locationToast.show();
 
         // Should do this only if the user is not null

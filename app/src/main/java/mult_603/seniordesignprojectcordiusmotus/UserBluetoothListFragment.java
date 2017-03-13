@@ -8,17 +8,17 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Handler;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
+import android.os.Handler;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
-import com.mikepenz.materialdrawer.AccountHeader;
-import com.mikepenz.materialdrawer.Drawer;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,8 +29,11 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
 
-public class BluetoothActivity extends AppCompatActivity {
-    public static final String TAG = BluetoothActivity.class.getSimpleName();
+/**
+ * Created by Wes on 3/13/17.
+ */
+public class UserBluetoothListFragment extends Fragment {
+    private static final String TAG = UserBluetoothListFragment.class.getSimpleName();
     public static void setHandler(Handler handler){
         mHandler = handler;
     }
@@ -43,7 +46,6 @@ public class BluetoothActivity extends AppCompatActivity {
             connectedThread = null;
         }
     }
-
     static Handler mHandler = new Handler();
     static ConnectedThread connectedThread;
     static ConnectedThread mConnectedThread;
@@ -62,23 +64,86 @@ public class BluetoothActivity extends AppCompatActivity {
     private Set<BluetoothDevice>        bondedDevices;
     private BluetoothDevice             connectedDevice;
     private Button                      chartButton;
-    private Drawer drawerResult;
-    private AccountHeader headerResult;
+    private View view;
 
+
+    // Empty constructor
+    public UserBluetoothListFragment(){
+
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_bluetooth);
+    }
 
-        // Set up the initial views and resources
-        findViews();
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
+        view = inflater.inflate(R.layout.activity_bluetooth, container, false);
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        listView         = (ListView) view.findViewById(R.id.bluetooth_list);
+        refreshButton    = (Button) view.findViewById(R.id.refresh_button);
+        foundFilter      = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+        enableBluetoothIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+        deviceList  = new ArrayList<>();
+//        chartButton = (Button) view.findViewById(R.id.bluetooth_chart_button);
 
-        // Set up the toolbar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        headerResult = NavigationDrawerHandler.getAccountHeader(this, savedInstanceState, getApplicationContext());
-        drawerResult = NavigationDrawerHandler.getUserDrawer(this, headerResult, toolbar);
+//        // Set the Chart button on click listener
+//        chartButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent chartActivity = new Intent(view.getContext(), UserBluetoothListFragment.class);
+//                startActivity(chartActivity);
+//            }
+//        });
 
+
+        // Set the refresh button on click listener
+        refreshButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (bluetoothAdapter != null) {
+                    bluetoothListAdapter.notifyDataSetChanged();
+
+                    if (bluetoothListAdapter.getCount() == 0) {
+                        //Toast.makeText(getApplicationContext(), "No devices found", Toast.LENGTH_LONG).show();
+                        new AlertDialog.Builder(v.getContext())
+                                .setTitle("Bluetooth Devices")
+                                .setMessage("No Bluetooth Devices were found.")
+                                .setPositiveButton("Exit", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.cancel();
+                                    }
+                                })
+                                .create()
+                                .show();
+                        Log.i(TAG, "No Bluetooth Devices were found");
+                    } else {
+                        Log.i(TAG, "Bluetooth Devices were found ");
+                    }
+                }
+                else{
+                    Log.i(TAG, "Bluetooth Adapter is null");
+                    new android.support.v7.app.AlertDialog.Builder(view.getContext())
+                            .setTitle("Bluetooth Compatibility")
+                            .setMessage("Unfortunately This device does not support bluetooth")
+                            .setPositiveButton("Exit", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            })
+                            .create()
+                            .show();
+                }
+            }
+        });
+
+        setUpBluetooth();
+        return view;
+    }
+
+    public void setUpBluetooth(){
         // Try to get bluetooth access
         enableBluetooth();
 
@@ -131,11 +196,11 @@ public class BluetoothActivity extends AppCompatActivity {
                 }
             };
             // Set up the adapter and the list view
-            bluetoothListAdapter = new BluetoothListAdapter(deviceList, getApplicationContext());
+            bluetoothListAdapter = new BluetoothListAdapter(deviceList, view.getContext());
             listView.setAdapter(bluetoothListAdapter);
 
             // Register broadcast receiver
-            registerReceiver(bluetoothReceiver, foundFilter);
+            getActivity().registerReceiver(bluetoothReceiver, foundFilter);
 
             // Get bonded devices
             getBondedDevices();
@@ -153,85 +218,22 @@ public class BluetoothActivity extends AppCompatActivity {
         }
     }
 
-    // Set up the variables for this class
-    private void findViews() {
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        listView = (ListView) findViewById(R.id.bluetooth_list);
-        refreshButton = (Button) findViewById(R.id.refresh_button);
-        foundFilter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        enableBluetoothIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-        deviceList = new ArrayList<>();
-        chartButton = (Button) findViewById(R.id.bluetooth_chart_button);
-
-        // Set the Chart button on click listener
-        chartButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent chartActivity = new Intent(getApplicationContext(), BluetoothChartActivity.class);
-                startActivity(chartActivity);
-            }
-        });
-
-
-        // Set the refresh button on click listener
-        refreshButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (bluetoothAdapter != null) {
-                    bluetoothListAdapter.notifyDataSetChanged();
-
-                    if (bluetoothListAdapter.getCount() == 0) {
-                        //Toast.makeText(getApplicationContext(), "No devices found", Toast.LENGTH_LONG).show();
-                        new AlertDialog.Builder(v.getContext())
-                                .setTitle("Bluetooth Devices")
-                                .setMessage("No Bluetooth Devices were found.")
-                                .setPositiveButton("Exit", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.cancel();
-                                    }
-                                })
-                                .create()
-                                .show();
-                        Log.i(TAG, "No Bluetooth Devices were found");
-                    } else {
-                        Log.i(TAG, "Bluetooth Devices were found ");
-                    }
-                }
-                else{
-                    Log.i(TAG, "Bluetooth Adapter is null");
-                    new android.support.v7.app.AlertDialog.Builder(BluetoothActivity.this)
-                            .setTitle("Bluetooth Compatibility")
-                            .setMessage("Unfortunately This device does not support bluetooth")
-                            .setPositiveButton("Exit", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                }
-                            })
-                            .create()
-                            .show();
-                }
-            }
-        });
-    }
-
     private void enableBluetooth() {
         // The device doesn't support bluetooth
         if (bluetoothAdapter == null) {
             Log.i(TAG, "Device does not support bluetooth :( ");
             // If the user does not have a bluetooth device we should notify them
-            new android.support.v7.app.AlertDialog.Builder(BluetoothActivity.this)
-            .setTitle("Bluetooth Compatibility")
-            .setMessage("This device does not support bluetooth")
-            .setPositiveButton("Exit", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                }
-            })
-            .create()
-            .show();
+            new android.support.v7.app.AlertDialog.Builder(view.getContext())
+                    .setTitle("Bluetooth Compatibility")
+                    .setMessage("This device does not support bluetooth")
+                    .setPositiveButton("Exit", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    })
+                    .create()
+                    .show();
         }
         // Bluetooth adapter is not null
         else {

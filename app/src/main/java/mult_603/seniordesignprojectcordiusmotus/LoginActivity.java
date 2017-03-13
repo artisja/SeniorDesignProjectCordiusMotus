@@ -20,6 +20,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.Drawer;
+import com.tapadoo.alerter.Alerter;
 
 public class LoginActivity extends AppCompatActivity {
     public final String TAG = LoginActivity.class.getSimpleName();
@@ -31,6 +32,7 @@ public class LoginActivity extends AppCompatActivity {
     private AccountHeader headerResult;
     private Drawer drawerResult;
     private TextView warningMsg;
+    private NavigationDrawerHandler navHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,8 +43,11 @@ public class LoginActivity extends AppCompatActivity {
 
         // Set up the toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        headerResult = NavigationDrawerHandler.getAccountHeader(this, savedInstanceState, getApplicationContext());
-        drawerResult = NavigationDrawerHandler.getUserDrawer(this, headerResult, toolbar);
+
+        // Set up the navigation handler
+        navHandler = new NavigationDrawerHandler(this, savedInstanceState, getApplicationContext(), toolbar);
+        headerResult = navHandler.setAccountHeader(this, savedInstanceState, getApplicationContext());
+        drawerResult = navHandler.setUserDrawer(this, headerResult, toolbar);
 
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -90,9 +95,22 @@ public class LoginActivity extends AppCompatActivity {
                             if (!task.isSuccessful()) {
                                 // Hide the keyboard
                                 inputMethodManager.hideSoftInputFromWindow(currentView.getWindowToken(), 0);
-                                Toast.makeText(getApplicationContext(), "Email or Password was Incorrect", Toast.LENGTH_LONG).show();
+
+                                // Throw the exception that occured
+                                try{
+                                    throw task.getException();
+                                }
+                                catch(Exception e) {
+                                    Alerter.create(LoginActivity.this)
+                                            .setTitle("Error Occured")
+                                            .setText("Error: " + e.getMessage())
+                                            .setBackgroundColor(R.color.colorPrimaryDark)
+                                            .enableIconPulse(true)
+                                            .show();
+                                }
                             } else {
-                                Intent intent = new Intent(LoginActivity.this, ContactSimpleActivity.class);
+                                Log.i(TAG, "Successfully logging user in");
+                                Intent intent = new Intent(LoginActivity.this, UserTabActivity.class);
                                 startActivity(intent);
                             }
                         }
@@ -119,6 +137,13 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        headerResult = navHandler.getHeader();
+        drawerResult = navHandler.getDrawer();
     }
 
     private void findViews() {

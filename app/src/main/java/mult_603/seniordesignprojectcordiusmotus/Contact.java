@@ -4,11 +4,11 @@ package mult_603.seniordesignprojectcordiusmotus;
  * Created by artisja on 10/1/2016.
  */
 
-public class Contact implements User{
+public class Contact{
     public final String TAG = Contact.class.getSimpleName();
     private String name,number,email,uuid;;
 
-    // Empty constructor for Fire base
+    // Empty constructor for Firebase
     public Contact(){
 
     }
@@ -43,12 +43,10 @@ public class Contact implements User{
         this.email = email;
     }
 
-    @Override
     public String getUuid() {
         return uuid;
     }
 
-    @Override
     public void setUuid(String id) {
         uuid=id;
     }

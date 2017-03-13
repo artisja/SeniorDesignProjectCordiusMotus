@@ -23,6 +23,7 @@ public class UserDefinitionActivity extends AppCompatActivity implements
     private ApplicationController myAppController;
     private AccountHeader headerResult;
     private Drawer drawerResult;
+    private NavigationDrawerHandler navHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,18 +31,23 @@ public class UserDefinitionActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_user_definition);
         findViews();
 
-        NavigationDrawerHandler navHandler = new NavigationDrawerHandler(this, getApplicationContext());
-
         // Set up the toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        headerResult = navHandler.getAccountHeader(this, savedInstanceState, getApplicationContext());
-        drawerResult = navHandler.getUserDrawer(this, headerResult, toolbar);
+
+        // Set up the navigation handler
+        navHandler = new NavigationDrawerHandler(this, savedInstanceState, getApplicationContext(), toolbar);
+        headerResult = navHandler.setAccountHeader(this, savedInstanceState, getApplicationContext());
+        drawerResult = navHandler.setUserDrawer(this, headerResult, toolbar);
     }
 
     @Override
     protected void onResume(){
         super.onResume();
         Log.i(TAG, "On Resume was called");
+
+        // Get the updated header and drawer
+        headerResult = navHandler.getHeader();
+        drawerResult = navHandler.getDrawer();
     }
 
     @Override
@@ -80,10 +86,10 @@ public class UserDefinitionActivity extends AppCompatActivity implements
                 startActivity(medicMapIntent);
                 break;
 
-            case R.id.bluetooth_Button:
-                bluetoothActivity = new Intent(getApplicationContext(), BluetoothActivity.class);
-                startActivity(bluetoothActivity);
-                break;
+//            case R.id.bluetooth_Button:
+//                bluetoothActivity = new Intent(getApplicationContext(), BluetoothActivity.class);
+//                startActivity(bluetoothActivity);
+//                break;
         }
     }
 
@@ -92,10 +98,10 @@ public class UserDefinitionActivity extends AppCompatActivity implements
         myAppController = (ApplicationController) getApplicationContext();
         caliButton      = (Button) findViewById(R.id.cali_Button);
         medicButton     = (Button) findViewById(R.id.medic_Button);
-        bluetoothButton = (Button) findViewById(R.id.bluetooth_Button);
+//        bluetoothButton = (Button) findViewById(R.id.bluetooth_Button);
 
         caliButton.setOnClickListener(this);
         medicButton.setOnClickListener(this);
-        bluetoothButton.setOnClickListener(this);
+//        bluetoothButton.setOnClickListener(this);
     }
 }

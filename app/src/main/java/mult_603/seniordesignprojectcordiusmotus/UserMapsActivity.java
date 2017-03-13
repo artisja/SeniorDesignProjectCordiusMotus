@@ -22,11 +22,8 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
@@ -40,9 +37,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnIndoorStateChangeListener;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.IndoorBuilding;
 import com.google.android.gms.maps.model.LatLng;
@@ -57,11 +52,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
 import android.widget.SearchView;
-
 import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -94,14 +86,12 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
         GoogleMap.OnInfoWindowClickListener,
         SearchView.OnQueryTextListener{
 
-    private GoogleMap mMap;
-    private RelativeLayout personFrameLayout;
-    private TextView personText;
-    private TextView personHeartRate;
-    private TextView personLocation;
+    public static final String TAG = UserMapsActivity.class.getSimpleName();
+    private final static String PATIENT_MARKER_TAG = "PatientMarkerTag";
+    private final static String EMERGENCY_CONTACT_TAG = "EmergencyMarkerTag";
     private static final int REQUEST_LOCATION = 2;
     private final static int CONNETION_TIMEOUT = 5000;
-    public static final String TAG = UserMapsActivity.class.getSimpleName();
+    private GoogleMap mMap;
     private GoogleApiClient googleApiClient;
     private LocationRequest locationRequest;
     public Location location;
@@ -111,6 +101,9 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
     private FirebaseUser currentUser;
     private SearchView mapSearchView;
     private LocationHolder patientsLocationHolder;
+    private Marker patientMarker;
+    private Marker emergencyContactMarker;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,6 +112,7 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
 
         // Set up the search view and its listeners
         mapSearchView = (SearchView) findViewById(R.id.searchView);
+        mapSearchView.setQueryHint("Patients UUID");
         mapSearchView.setOnQueryTextListener(this);
 
         FirebaseAuth auth = FirebaseAuth.getInstance();
@@ -131,13 +125,19 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
                 .addApi(LocationServices.API)
                 .build();
 
+        // Set up the patient marker
+        MarkerOptions patientMarkerOptions = new MarkerOptions();
+        MarkerOptions contactMarkerOptions = new MarkerOptions();
+
+
+
         // Create location request the time interval directly affects power usage and we want the highest accuracy
         // Priority high accuracy paired with fine location in the manifest file can find a users location within
         // the accuracy of a few feet
         locationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setFastestInterval(1 * 1000)   // 1 seconds
-                .setInterval(5 * 1000);        // 5 second
+                .setFastestInterval(1 * 1000)   // 1 second
+                .setInterval(5 * 1000);        // 5 seconds
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -165,7 +165,9 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
 
             }
         });
+        // Set the maps info window and marker click listener
         mMap.setInfoWindowAdapter(this);
+        mMap.setOnMarkerClickListener(this);
     }
 
     public void setUpMapMarkerByLocation(final LatLng location){
@@ -175,8 +177,10 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
             Log.i(TAG, "User is not null");
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.position(location)
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
-            mMap.addMarker(markerOptions);
+                        .icon(BitmapDescriptorFactory
+                                .defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+            patientMarker = mMap.addMarker(markerOptions);
+            patientMarker.setTag(PATIENT_MARKER_TAG);
             Log.i(TAG, "Created a map marker for a user");
 
         }
@@ -186,12 +190,13 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.position(location)
                     .title("My Current Location!");
-            mMap.addMarker(markerOptions);
+
+            emergencyContactMarker = mMap.addMarker(markerOptions);
+            emergencyContactMarker.setTag(EMERGENCY_CONTACT_TAG);
             Log.i(TAG, "Created a map marker for a non user");
         }
 
-        // Set the on marker listener
-        mMap.setOnMarkerClickListener(this);
+
 
 
         try {
@@ -377,14 +382,17 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
         linearLayout.setBackground(gd);
         linearLayout.setLayoutParams(params);
 
-        if(marker.getTitle().equals("Patients Location")){
-            Log.i(TAG, "Clicked the patients location");
+        // Add support for multiple markers at once w/ user info
+        if(marker.getTag().equals(PATIENT_MARKER_TAG)){
+            Log.i(TAG, "Clicked the patients marker");
         }
-        else{
-            Log.i(TAG, "Clicked a emergency contacts location");
+        else if(marker.getTag().equals(EMERGENCY_CONTACT_TAG)){
+            Log.i(TAG, "Clicked the emergency contact tag");
         }
 
         if(currentUser != null) {
+            Log.i(TAG, "Clicked a emergency contacts marker");
+
             CircleImageView circleImageView = new CircleImageView(getApplicationContext());
             circleImageView.setBorderColor(Color.BLUE);
             circleImageView.setImageURI(currentUser.getPhotoUrl());
@@ -504,6 +512,21 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
         return linearLayout;
     }
 
+    // Create a request string to send to google
+    private void getDirectionsFromGoogle(LatLng source, LatLng destination){
+        // Example -> https://maps.googleapis.com/maps/api/directions/json?origin=37.540791,-77.469917&destination=37.5450506,-77.4483879
+        String apiCallString = "https://maps.googleapis.com/maps/api/directions/json?origin="
+                                + source.latitude
+                                + ","
+                                + source.longitude
+                                + "$destination="
+                                + destination.latitude
+                                + ","
+                                + destination.longitude;
+
+
+    }
+
     @Override
     public void onInfoWindowClick(Marker marker) {
         Log.i(TAG, "Clicked Info Window");
@@ -561,6 +584,7 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
         Double originLng = origin.longitude;
         Double destLat   = destination.latitude;
         Double destLng   = destination.longitude;
+
         // Calculate the midpoint and return it
         Double newLat = (originLat + destLat) / 2;
         Double newLng = (originLng + destLng) / 2;
@@ -575,11 +599,7 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
         final InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(viewGroup.getWindowToken(), 0);
 
-        // Make the finish marker
-        MarkerOptions finishMarker = new MarkerOptions();
-        finishMarker.position(finishLocation)
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
-                    .title("Patients Location");
+        // Get url from current position to the finish location
 
         String url = getDirectionsUrl(currentPosition, finishLocation);
         DownloadTask dl = new DownloadTask();
@@ -647,6 +667,14 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
         }
         return data;
     }
+
+//    // Create multiple markers
+//    private class CreateBubbleMarkers extends  AsyncTask<String, Void, String>{
+//        @Override
+//        protected  String doInBackground(String... url){
+//
+//        }
+//    }
 
     // Fetches data from url passed
     private class DownloadTask extends AsyncTask<String, Void, String>{
@@ -730,18 +758,19 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
 
                 // Adding all the points in the route to LineOptions
                 lineOptions.addAll(points);
-                lineOptions.width(10.0f);
-                lineOptions.color(Color.GREEN);
+                lineOptions.width(12.0f);
+                lineOptions.color(R.color.colorPrimaryDark);
                 LatLng patientsLatLng = new LatLng(patientsLocationHolder.getLatitude(), patientsLocationHolder.getLongitude());
                 markerOptions.position(patientsLatLng)
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
                         .title("Patients Location");
 
-                mMap.addMarker(markerOptions);
+                patientMarker = mMap.addMarker(markerOptions);
+                patientMarker.setTag(PATIENT_MARKER_TAG);
 
                 // Calculate midpoint and zoom out a bit
                 LatLng centerMap = calculateMidPoint(currentPosition, patientsLatLng);
-                CameraUpdate cmu = CameraUpdateFactory.newLatLngZoom(centerMap, 14.0f);
+                CameraUpdate cmu = CameraUpdateFactory.newLatLngZoom(centerMap, 15.0f);
                 mMap.moveCamera(cmu);
             }
 

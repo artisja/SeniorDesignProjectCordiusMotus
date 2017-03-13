@@ -81,7 +81,7 @@ public class BluetoothListAdapter extends BaseAdapter implements ListAdapter {
         devicePairButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                BluetoothActivity tmp = new BluetoothActivity();
+                UserBluetoothListFragment tmp = new UserBluetoothListFragment();
                 BluetoothDevice bluetoothDevice = bluetoothNameList.get(listPosition);
 
                 // Attempt to pair or unpair device

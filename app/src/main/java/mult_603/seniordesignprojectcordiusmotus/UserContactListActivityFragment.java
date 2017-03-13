@@ -1,8 +1,11 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -15,8 +18,12 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
-public class ContactListActivity extends AppCompatActivity {
-    public final String TAG = ContactListActivity.class.getSimpleName();
+/**
+ * Created by Wes on 3/13/17.
+ */
+public class UserContactListActivityFragment extends Fragment {
+    private final String TAG = UserContactListActivityFragment.class.getSimpleName();
+    private View view;
     private ListView contactListView;
     private TextView contactName;
     private TextView contactPhone;
@@ -26,25 +33,43 @@ public class ContactListActivity extends AppCompatActivity {
     private FirebaseAuth       firebaseAuth;
     private ContactListAdapter contactListAdapter;
     private ArrayList<Contact> contactList;
+    private FirebaseUser currentUser;
+    private DatabaseReference databaseReference;
+
+
+    // Empty Public Constructor
+    public UserContactListActivityFragment(){
+
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_contact_list);
-        findViews();
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
+        view = inflater.inflate(R.layout.activity_contact_list, container, false);
+        findViews(view);
+        return view;
+    }
+
+    public void findViews(View view){
+        contactListView   = (ListView) view.findViewById(R.id.contact_list);
+        contactName       = (TextView) view.findViewById(R.id.contact_list_name);
+        contactPhone      = (TextView) view.findViewById(R.id.contact_list_phone);
+        contactEmail      = (TextView) view.findViewById(R.id.contact_list_email);
+        removeButton      = (Button)   view.findViewById(R.id.contact_list_remove_button);
+        firebaseDatabase  = FirebaseDatabase.getInstance();
+        firebaseAuth      = FirebaseAuth.getInstance();
+        contactList       = new ArrayList<>();
 
         // Get the users portion of the database using their uuid
-        final FirebaseUser currentUser = firebaseAuth.getCurrentUser();
-        final DatabaseReference databaseReference = firebaseDatabase.getReference(currentUser.getUid()).child("Contacts");
-
-        Log.i(TAG, "Current User "       + currentUser);
-        Log.i(TAG, "Current User Email " + currentUser.getEmail());
-        Log.i(TAG, "Current User UUID "  + currentUser.getUid());
-        Log.i(TAG, "Current User User Name " + currentUser.getDisplayName());
-        Log.i(TAG, "Database Key " + databaseReference.getKey());
+        currentUser = firebaseAuth.getCurrentUser();
+        databaseReference = firebaseDatabase.getReference(currentUser.getUid()).child("Contacts");
 
         // Set the contact List Adapter
-        contactListAdapter = new ContactListAdapter(contactList, ContactListActivity.this);
+        contactListAdapter = new ContactListAdapter(contactList, view.getContext());
         contactListView.setAdapter(contactListAdapter);
 
         databaseReference.addValueEventListener(new ValueEventListener() {
@@ -72,16 +97,5 @@ public class ContactListActivity extends AppCompatActivity {
                 Log.i(TAG, "Database Error occurred " + databaseError.getDetails());
             }
         });
-}
-
-    public void findViews(){
-        contactListView   = (ListView) findViewById(R.id.contact_list);
-        contactName       = (TextView) findViewById(R.id.contact_list_name);
-        contactPhone      = (TextView) findViewById(R.id.contact_list_phone);
-        contactEmail      = (TextView) findViewById(R.id.contact_list_email);
-        removeButton      = (Button) findViewById(R.id.contact_list_remove_button);
-        firebaseDatabase  = FirebaseDatabase.getInstance();
-        firebaseAuth      = FirebaseAuth.getInstance();
-        contactList       = new ArrayList<>();
     }
 }

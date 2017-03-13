@@ -1,10 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="whitePrimary">#fcfafa</color>
-    <color name="wordColorRed">#b62520</color>
+    <!--
+    <color name="colorPrimary">#125688</color>
+    <color name="colorPrimaryDark">#125688</color>
+    <color name="textColorPrimary">#FFFFFF</color>
+    <color name="windowBackground">#FFFFFF</color>
+    <color name="navigationBarColor">#000000</color>
+    <color name="colorAccent">#c8e8ff</color>
+    -->
+
     <color name="colorAccent">#dc0950</color>
     <color name="colorPrimary">#000</color>
     <color name="colorPrimaryDark">#892e2e</color>
+
+    <color name="whitePrimary">#fcfafa</color>
+    <color name="wordColorRed">#b62520</color>
     <color name="ColorWhite">#FFF</color>
     <color name="wordColorWhite">#FFF</color>
     <color name="lightGrayWithRed">#e1d7d7</color>

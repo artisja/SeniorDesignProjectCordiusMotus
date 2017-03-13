@@ -10,7 +10,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:id="@+id/chart_bg"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="mult_603.seniordesignprojectcordiusmotus.BluetoothChartActivity"
+    tools:context="mult_603.seniordesignprojectcordiusmotus.UserBluetoothChartFragment"
     android:weightSum="1">
 
 

@@ -2,6 +2,7 @@ package mult_603.seniordesignprojectcordiusmotus;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -10,6 +11,8 @@ import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.mikepenz.materialdrawer.AccountHeader;
+import com.mikepenz.materialdrawer.Drawer;
 
 public class ChangeEmailActivity extends AppCompatActivity {
     public static final String TAG = ChangeEmailActivity.class.getSimpleName();
@@ -18,14 +21,28 @@ public class ChangeEmailActivity extends AppCompatActivity {
     private EditText changeEmailEditText;
     private Button   changeEmailButton;
     private Button   backButton;
-    private FirebaseAuth firebaseAuth;
     private FirebaseUser currentUser;
-    private ApplicationController appController;
+    private NavigationDrawerHandler navHandler;
+    private AccountHeader headerResult;
+    private Drawer drawerResult;
+    private FirebaseAuth auth;
+    private FirebaseAuth.AuthStateListener authListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_change_email);
+
+        // Set up the toolbar
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+
+        // Set up the navigation handler
+        navHandler = new NavigationDrawerHandler(this, savedInstanceState, getApplicationContext(), toolbar);
+        headerResult = navHandler.setAccountHeader(this, savedInstanceState, getApplicationContext());
+        drawerResult = navHandler.setUserDrawer(this, headerResult, toolbar);
+
+        // Find the views
+        findViews();
 
         changeEmailButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,14 +69,35 @@ public class ChangeEmailActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onResume(){
+        super.onResume();
+        headerResult = navHandler.getHeader();
+        drawerResult = navHandler.getDrawer();
+    }
+
+    @Override
+    public void onStart(){
+        super.onStart();
+        Log.i(TAG, "On Start Called");
+        auth.addAuthStateListener(authListener);
+    }
+
+    @Override
+    public void onStop(){
+        super.onStop();
+        Log.i(TAG, "On Stop Called");
+        if(authListener != null){
+            auth.removeAuthStateListener(authListener);
+        }
+    }
+
     private void findViews(){
         changeEmailHeader      = (TextView) findViewById(R.id.change_email_text_view);
         changeEmailDescription = (TextView) findViewById(R.id.change_email_message_text_view);
         changeEmailEditText    = (EditText) findViewById(R.id.change_email_edit_text);
         changeEmailButton      = (Button)   findViewById(R.id.change_email_reset_button);
         backButton             = (Button)   findViewById(R.id.change_email_back_button);
-        appController          = (ApplicationController) getApplicationContext();
-        //firebaseAuth           = FirebaseAuth.getInstance();
-        currentUser            = appController.currentUser;
+        currentUser            = FirebaseAuth.getInstance().getCurrentUser();
     }
 }
