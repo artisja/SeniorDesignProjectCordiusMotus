@@ -6,8 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="mult_603.seniordesignprojectcordiusmotus.UserAddContactFragment"
-    android:windowSoftInputMode="stateHidden">
+    tools:context="mult_603.seniordesignprojectcordiusmotus.UserAddContactFragment">
 
     <include layout="@layout/content_contact_simple" />
 

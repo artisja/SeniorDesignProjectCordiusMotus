@@ -118,7 +118,9 @@ public class LoginActivity extends AppCompatActivity {
                                 // If firebase user is not null
                                 if(firebaseUser != null){
                                     // Set the user name to be a key to getting uuid for map lookups
-                                    DeviceUser deviceUser = new DeviceUser(firebaseUser.getEmail(), firebaseUser.getDisplayName());
+                                    DeviceUser deviceUser = new DeviceUser();
+                                    deviceUser.setEmail(firebaseUser.getEmail());
+                                    deviceUser.setUserName(firebaseUser.getDisplayName());
                                     deviceUser.setUuid(firebaseUser.getUid());
 
                                     DatabaseReference dbRef = firebaseDatabase.getReference("UserDictionary");
