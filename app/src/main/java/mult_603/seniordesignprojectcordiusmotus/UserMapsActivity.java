@@ -1,6 +1,7 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
 import android.Manifest;
+import android.bluetooth.BluetoothClass;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -537,28 +538,46 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
     @Override
     public boolean onQueryTextSubmit(String query) {
         Log.i(TAG, "Text Query: " + query);
-        FirebaseDatabase fdb = FirebaseDatabase.getInstance();
-        DatabaseReference fdbRef = fdb.getReference(query);
+        final FirebaseDatabase fdb = FirebaseDatabase.getInstance();
+        DatabaseReference fdbRef = fdb.getReference("UserDictionary").child(query);
         Log.i(TAG, "Db Reference: " + fdbRef);
 
+        // TODO broke this damnit
         fdbRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.i(TAG, "On Data Changed");
-                for(DataSnapshot location: dataSnapshot.getChildren()){
+                for(DataSnapshot user: dataSnapshot.getChildren()){
                     // Get the location based on the text entry
-                    LocationHolder locationHolder = location.getValue(LocationHolder.class);
-                    Log.i(TAG, "Location Holder Obj from DB " + locationHolder.toString());
-                    if(locationHolder.hasLatitude() && locationHolder.hasLongitude()){
-                        Log.i(TAG, "Location Holder has latitude and longitude");
-                        Log.i(TAG, "Location Holder has latitude " + locationHolder.getLatitude());
-                        Log.i(TAG, "Location Holder has longitude " + locationHolder.getLongitude());
-                        // Set the location Holder to a static object
-                        patientsLocationHolder = locationHolder;
-                        LatLng patientsLatLng = new LatLng(patientsLocationHolder.getLatitude(), patientsLocationHolder.getLongitude());
-                        // Draw the route to the patient
-                        drawRoute(patientsLatLng);
-                    }
+                    DeviceUser dev = user.getValue(DeviceUser.class);
+                    Log.i(TAG, "Device User -> " + dev.toString());
+                    DatabaseReference locationRef = fdb.getReference(dev.getUuid());
+
+                    locationRef.child("Location").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            for(DataSnapshot location: dataSnapshot.getChildren()) {
+                                LocationHolder locationHolder = location.getValue(LocationHolder.class);
+                                Log.i(TAG, "Location Holder Obj from DB " + locationHolder.toString());
+
+                                if (locationHolder.hasLatitude() && locationHolder.hasLongitude()) {
+                                    Log.i(TAG, "Location Holder has latitude and longitude");
+                                    Log.i(TAG, "Location Holder has latitude " + locationHolder.getLatitude());
+                                    Log.i(TAG, "Location Holder has longitude " + locationHolder.getLongitude());
+                                    // Set the location Holder to a static object
+                                    patientsLocationHolder = locationHolder;
+                                    LatLng patientsLatLng = new LatLng(patientsLocationHolder.getLatitude(), patientsLocationHolder.getLongitude());
+                                    // Draw the route to the patient
+                                    drawRoute(patientsLatLng);
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
                 }
             }
 

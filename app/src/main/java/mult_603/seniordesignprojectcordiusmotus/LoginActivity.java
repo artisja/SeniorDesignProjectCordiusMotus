@@ -18,6 +18,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.Drawer;
 import com.tapadoo.alerter.Alerter;
@@ -28,6 +30,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText passwordEditText,emailEditText;
     private FirebaseAuth firebaseAuth;
     private FirebaseUser firebaseUser;
+    private FirebaseDatabase firebaseDatabase;
     private ApplicationController appController;
     private AccountHeader headerResult;
     private Drawer drawerResult;
@@ -110,6 +113,18 @@ public class LoginActivity extends AppCompatActivity {
                                 }
                             } else {
                                 Log.i(TAG, "Successfully logging user in");
+                                firebaseUser = firebaseAuth.getCurrentUser();
+
+                                // If firebase user is not null
+                                if(firebaseUser != null){
+                                    // Set the user name to be a key to getting uuid for map lookups
+                                    DeviceUser deviceUser = new DeviceUser(firebaseUser.getEmail(), firebaseUser.getDisplayName());
+                                    deviceUser.setUuid(firebaseUser.getUid());
+
+                                    DatabaseReference dbRef = firebaseDatabase.getReference("UserDictionary");
+                                    dbRef.child(firebaseUser.getDisplayName()).setValue(deviceUser);
+                                }
+
                                 Intent intent = new Intent(LoginActivity.this, UserTabActivity.class);
                                 startActivity(intent);
                             }
@@ -154,6 +169,7 @@ public class LoginActivity extends AppCompatActivity {
         passwordEditText     = (EditText) findViewById(R.id.password_edit);
         appController        = (ApplicationController) getApplicationContext();
         warningMsg           = (TextView) findViewById(R.id.warning_message);
+        firebaseDatabase     = FirebaseDatabase.getInstance();
 
         // Warn the user to only use the login if they are wearing a device
         warningMsg.setText("Please only create a login if you are currently using our heart rate monitor device");

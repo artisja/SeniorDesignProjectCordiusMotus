@@ -44,7 +44,6 @@ import java.util.Locale;
  * Created by Wes on 1/21/17.
  */
 
-// TODO This service runs all the time Regardless of if the app gets terminated. Make sure that is what we want.
 
 public class LocationService extends Service implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,

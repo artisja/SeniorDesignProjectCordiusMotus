@@ -111,13 +111,14 @@ public class NavigationDrawerHandler implements
                             context.startActivity(homeIntent);
                             break;
 
-//                        case ADD_CONTACT_TAG:
-//                            Log.i(TAG, "Add Contact Tag Pressed");
-//                            userDrawer.closeDrawer();
-//                            Intent addContactIntent = new Intent(context, ContactSimpleActivity.class);
-//                            addContactIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                            context.startActivity(addContactIntent);
-//                            break;
+                        case ADD_CONTACT_TAG:
+                            Log.i(TAG, "Add Contact Tag Pressed");
+                            userDrawer.closeDrawer();
+                            Intent addContactIntent = new Intent(context, UserTabActivity.class);
+                            addContactIntent.putExtra("Page", 0);
+                            addContactIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            context.startActivity(addContactIntent);
+                            break;
 
                         case SIGN_UP_TAG:
                             Log.i(TAG, "Sign Up Tag Pressed");
@@ -127,13 +128,14 @@ public class NavigationDrawerHandler implements
                             context.startActivity(signUpIntent);
                             break;
 
-//                        case CONTACT_TAG:
-//                            Log.i(TAG, "Contact Tag Pressed");
-//                            userDrawer.closeDrawer();
-//                            Intent contactIntent = new Intent(context, ContactListActivity.class);
-//                            contactIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                            context.startActivity(contactIntent);
-//                            break;
+                        case CONTACT_TAG:
+                            Log.i(TAG, "Contact Tag Pressed");
+                            userDrawer.closeDrawer();
+                            Intent contactIntent = new Intent(context, UserTabActivity.class);
+                            contactIntent.putExtra("Page", 1);
+                            contactIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            context.startActivity(contactIntent);
+                            break;
 
                         case MAP_TAG:
                             Log.i(TAG, "Map Tag Pressed");
@@ -143,21 +145,23 @@ public class NavigationDrawerHandler implements
                             context.startActivity(mapIntent);
                             break;
 
-//                        case BLUETOOTH_TAG:
-//                            Log.i(TAG, "Bluetooth Tag Pressed");
-//                            userDrawer.closeDrawer();
-//                            Intent bluetoothIntent = new Intent(context, BluetoothActivity.class);
-//                            bluetoothIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                            context.startActivity(bluetoothIntent);
-//                            break;
-//
-//                        case BLUETOOTH_CHART_TAG:
-//                            Log.i(TAG, "Bluetooth Chart Tag Pressed");
-//                            userDrawer.closeDrawer();
-//                            Intent bluetoothChartIntent = new Intent(context, BluetoothChartActivity.class);
-//                            bluetoothChartIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                            context.startActivity(bluetoothChartIntent);
-//                            break;
+                        case BLUETOOTH_TAG:
+                            Log.i(TAG, "Bluetooth Tag Pressed");
+                            userDrawer.closeDrawer();
+                            Intent bluetoothIntent = new Intent(context, UserTabActivity.class);
+                            bluetoothIntent.putExtra("Page", 2);
+                            bluetoothIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            context.startActivity(bluetoothIntent);
+                            break;
+
+                        case BLUETOOTH_CHART_TAG:
+                            Log.i(TAG, "Bluetooth Chart Tag Pressed");
+                            userDrawer.closeDrawer();
+                            Intent bluetoothChartIntent = new Intent(context, UserTabActivity.class);
+                            bluetoothChartIntent.putExtra("Page", 3);
+                            bluetoothChartIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            context.startActivity(bluetoothChartIntent);
+                            break;
 
                         case LOGIN_TAG:
                             Log.i(TAG, "Login Tag Pressed");
@@ -197,7 +201,7 @@ public class NavigationDrawerHandler implements
                             de.hdodenhof.circleimageview.CircleImageView img = new de.hdodenhof.circleimageview.CircleImageView(context);
                             img.setImageURI(currentUser.getPhotoUrl());
 
-                            new AlertDialog.Builder(context)
+                            new AlertDialog.Builder(activity)
                                     .setMessage("Are you sure you want to delete your account with the following Info : "
                                             + "\n\nEmail : "  + currentUser.getEmail()
                                             + "\nUser Name: " + currentUser.getDisplayName())

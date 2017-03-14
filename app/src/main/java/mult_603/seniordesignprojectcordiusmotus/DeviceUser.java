@@ -10,8 +10,6 @@ public class DeviceUser {
     private String userName;
     private String uuid;
     private String userImage;
-//    private ArrayList<Contact> contactList;
-//    private LocationHolder locationHolder;
 
     // Initializer
     public DeviceUser(){ }
@@ -32,15 +30,6 @@ public class DeviceUser {
     public String getUuid(){
         return this.uuid;
     }
-//    public ArrayList<Contact> getContactList(){
-//        return this.contactList;
-//    }
-//    public LocationHolder getLocationHolder(){ return this.locationHolder; }
-
-    // Add contact to device user's contact list
-//    public void addContactToDeviceUsersList(Contact c){
-//        this.contactList.add(c);
-//    }
 
     // Setters
     public void setUserImage(String userImage){ this.userImage = userImage; }
@@ -53,12 +42,6 @@ public class DeviceUser {
     public void setUuid(String uuid){
         this.uuid = uuid;
     }
-//    public void setContactList(ArrayList<Contact> cList){
-//        this.contactList = cList;
-//    }
-//    public void setLocationHolder(LocationHolder lh){
-//        this.locationHolder = lh;
-//    }
 
     public String toString(){
         return "Email: " + this.email +"\n"

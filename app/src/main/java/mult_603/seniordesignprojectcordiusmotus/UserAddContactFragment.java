@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import com.google.firebase.auth.FirebaseAuth;
@@ -31,6 +32,7 @@ public class UserAddContactFragment extends Fragment {
     private FloatingActionButton fab;
     private DatabaseReference dbref;
     private FirebaseUser currentUser;
+    private InputMethodManager inputMethodManager;
     private View view;
 
     // Blank public constructor
@@ -52,6 +54,11 @@ public class UserAddContactFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         //super.onCreateView(inflater, container, savedInstanceState);
         view = inflater.inflate(R.layout.activity_contact_simple, container, false);
+
+        // hide the keyboard
+        inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+
 
         // May want to add email address to contacts
         contactName       = (EditText) view.findViewById(R.id.contact_simple_name);
