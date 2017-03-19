@@ -106,7 +106,7 @@ public class NavigationDrawerHandler implements
                         case HOME_TAG:
                             Log.i(TAG, "Home Tag Pressed");
                             userDrawer.closeDrawer();
-                            Intent homeIntent = new Intent(context, UserDefinitionActivity.class);
+                            Intent homeIntent = new Intent(context, UserMainActivity.class);
                             homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             context.startActivity(homeIntent);
                             break;

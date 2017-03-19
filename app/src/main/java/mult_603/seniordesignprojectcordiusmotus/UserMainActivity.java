@@ -6,21 +6,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.Drawer;
 
-public class UserDefinitionActivity extends AppCompatActivity implements
+public class UserMainActivity extends AppCompatActivity implements
         View.OnClickListener {
-    public final String TAG = UserDefinitionActivity.class.getSimpleName();
-    private Button medicButton, caliButton, bluetoothButton;
-    private ImageButton accountButton;
+    public final String TAG = UserMainActivity.class.getSimpleName();
+    private Button medicButton, caliButton;
     private Intent medicMapIntent;
-    private Intent bluetoothActivity;
-    private ApplicationController myAppController;
     private AccountHeader headerResult;
     private Drawer drawerResult;
     private NavigationDrawerHandler navHandler;
@@ -50,16 +45,16 @@ public class UserDefinitionActivity extends AppCompatActivity implements
         drawerResult = navHandler.getDrawer();
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem menuItem) {
-        Log.i(TAG, "On Options Item Selected");
-        switch (menuItem.getItemId()) {
-            case R.id.profile_button:
-                Log.i(TAG, "Profile Button Clicked ");
-                return true;
-        }
-        return super.onOptionsItemSelected(menuItem);
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem menuItem) {
+//        Log.i(TAG, "On Options Item Selected");
+//        switch (menuItem.getItemId()) {
+//            case R.id.profile_button:
+//                Log.i(TAG, "Profile Button Clicked ");
+//                return true;
+//        }
+//        return super.onOptionsItemSelected(menuItem);
+//    }
 
     @Override
     public void onPostCreate(Bundle saveInstanceState) {
@@ -86,22 +81,15 @@ public class UserDefinitionActivity extends AppCompatActivity implements
                 startActivity(medicMapIntent);
                 break;
 
-//            case R.id.bluetooth_Button:
-//                bluetoothActivity = new Intent(getApplicationContext(), BluetoothActivity.class);
-//                startActivity(bluetoothActivity);
-//                break;
         }
     }
 
     private void findViews() {
         // Get the application controller and set up the buttons
-        myAppController = (ApplicationController) getApplicationContext();
         caliButton      = (Button) findViewById(R.id.cali_Button);
         medicButton     = (Button) findViewById(R.id.medic_Button);
-//        bluetoothButton = (Button) findViewById(R.id.bluetooth_Button);
 
         caliButton.setOnClickListener(this);
         medicButton.setOnClickListener(this);
-//        bluetoothButton.setOnClickListener(this);
     }
 }

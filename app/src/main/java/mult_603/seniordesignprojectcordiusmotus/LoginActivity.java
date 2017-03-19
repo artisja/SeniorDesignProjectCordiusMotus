@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -34,7 +33,6 @@ public class LoginActivity extends AppCompatActivity {
     private ApplicationController appController;
     private AccountHeader headerResult;
     private Drawer drawerResult;
-    private TextView warningMsg;
     private NavigationDrawerHandler navHandler;
 
     @Override
@@ -156,6 +154,13 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    // Disable going backwards from the login screen
+    @Override
+    public void onBackPressed(){
+        super.onBackPressed();
+
+    }
+
     @Override
     public void onResume(){
         super.onResume();
@@ -170,10 +175,6 @@ public class LoginActivity extends AppCompatActivity {
         emailEditText        = (EditText) findViewById(R.id.email_edit);
         passwordEditText     = (EditText) findViewById(R.id.password_edit);
         appController        = (ApplicationController) getApplicationContext();
-        warningMsg           = (TextView) findViewById(R.id.warning_message);
         firebaseDatabase     = FirebaseDatabase.getInstance();
-
-        // Warn the user to only use the login if they are wearing a device
-        warningMsg.setText("Please only create a login if you are currently using our heart rate monitor device");
     }
 }

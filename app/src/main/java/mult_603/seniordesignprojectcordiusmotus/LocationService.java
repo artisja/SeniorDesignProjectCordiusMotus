@@ -1,31 +1,24 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.LocationManager;
-import android.media.audiofx.BassBoost;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.location.Location;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
-import android.view.Gravity;
 import android.widget.Toast;
-
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.FusedLocationProviderApi;
 import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -34,7 +27,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
@@ -71,7 +63,7 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
         // Tells the service to run until we call stopSelf
 //        return START_STICKY;
 
-        // This will make the service stop
+        // This will make the service stop when application is terminated
         return START_NOT_STICKY;
     }
 
@@ -132,8 +124,6 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
         stopLocationUpdates();
         stopSelf();
     }
-
-    // TODO - Add a way to get the user to enable location
 
     public void startLocationUpdates(){
         // High accuracy should use GPS to get the location
@@ -222,15 +212,10 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
         String locationString = locationHolder.toString();
         Log.i(TAG, locationString);
 
-        Toast locationToast = Toast.makeText(getApplicationContext(), "From Service: \n" + locationString, Toast.LENGTH_SHORT);
-        locationToast.show();
-
-        // Should do this only if the user is not null
-
-        // TODO Want to tell non patients not to sign up for the service
-        // Update the database
+        // Get the instance of the current user
         FirebaseUser currentUser =  FirebaseAuth.getInstance().getCurrentUser();
 
+        // If the current user is not null then we post their location in the database under their unique identifier
         if (currentUser != null) {
             database = FirebaseDatabase.getInstance();
             DatabaseReference reference = database.getReference(currentUser.getUid());
@@ -260,6 +245,10 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
             String key = reference.getKey();
             Log.i(TAG, "Key " + key);
             reference.child("Location").setValue(locationHolder);
+
+            // Show a toast for location if the user is logged in only
+            Toast locationToast = Toast.makeText(getApplicationContext(), "From Service: \n" + locationString, Toast.LENGTH_SHORT);
+            locationToast.show();
         }
     }
 }

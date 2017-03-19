@@ -45,6 +45,7 @@ public class UserTabActivity extends AppCompatActivity {
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         viewPager.setCurrentItem(page);
         tabLayout.setupWithViewPager(viewPager);
+        // Icons make the text distort currently
 //        setUpTabIcons();
 
     }

@@ -2,7 +2,7 @@
 <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
-        tools:context="mult_603.seniordesignprojectcordiusmotus.UserDefinitionActivity"
+        tools:context=".UserMainActivity"
         android:id="@+id/activity_user_definition"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

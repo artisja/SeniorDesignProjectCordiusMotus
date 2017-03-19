@@ -2,17 +2,13 @@ package mult_603.seniordesignprojectcordiusmotus;
 
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
-import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import org.w3c.dom.Text;
 
 public class SplashEntranceScreen extends Activity {
 
@@ -45,7 +41,7 @@ public class SplashEntranceScreen extends Activity {
             @Override
             public void onAnimationEnd(Animation animation) {
                 finish();
-                Intent intent = new Intent(getBaseContext(),UserDefinitionActivity.class);
+                Intent intent = new Intent(getBaseContext(),UserMainActivity.class);
                 startActivity(intent);
             }
 
