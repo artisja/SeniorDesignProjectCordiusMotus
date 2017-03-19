@@ -127,8 +127,8 @@ public class UserBluetoothChartFragment extends Fragment {
         Description description = new Description();
         description.setText("Heart Rate Data For User");
         description.setTextColor(Color.RED);
-        lineChart.setBackgroundColor(Color.LTGRAY);
         lineChart.setDescription(description);
+        lineChart.setBackgroundColor(Color.LTGRAY);
         lineChart.setNoDataText("No Bluetooth Heart Rate Data to Display");
         lineChart.setNoDataTextColor(R.color.colorPrimaryDark);
         lineChart.setNoDataTextColor(Color.RED);

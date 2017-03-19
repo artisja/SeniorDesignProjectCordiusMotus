@@ -63,7 +63,6 @@ public class UserBluetoothListFragment extends Fragment {
     private Intent                      enableBluetoothIntent;
     private Set<BluetoothDevice>        bondedDevices;
     private BluetoothDevice             connectedDevice;
-    private Button                      chartButton;
     private View view;
 
 
@@ -85,16 +84,6 @@ public class UserBluetoothListFragment extends Fragment {
         foundFilter      = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         enableBluetoothIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         deviceList  = new ArrayList<>();
-//        chartButton = (Button) view.findViewById(R.id.bluetooth_chart_button);
-
-//        // Set the Chart button on click listener
-//        chartButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent chartActivity = new Intent(view.getContext(), UserBluetoothListFragment.class);
-//                startActivity(chartActivity);
-//            }
-//        });
 
 
         // Set the refresh button on click listener
@@ -208,7 +197,6 @@ public class UserBluetoothListFragment extends Fragment {
 
             // Create a thread between the device and the application
             if (connectedDevice != null) {
-                //AcceptThread acceptThread = new AcceptThread();
                 ConnectThread connectThread = new ConnectThread(connectedDevice);
                 connectThread.start();
                 Log.i(TAG, "Connect Thread " + connectThread.getName() + "\n"
