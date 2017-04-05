@@ -10,14 +10,10 @@ public class DeviceUser {
     private String userName;
     private String uuid;
     private String userImage;
+    private String shortHash;
 
-    // Initializer
+    // Empty constructor
     public DeviceUser(){ }
-
-    public DeviceUser(String email, String userName){
-        this.email = email;
-        this.userName = userName;
-    }
 
     // Getters
     public String getUserImage(){ return this.userImage; }
@@ -25,11 +21,12 @@ public class DeviceUser {
         return this.email;
     }
     public String getUserName(){
-        return this.email;
+        return this.userName;
     }
     public String getUuid(){
         return this.uuid;
     }
+    public String getShortHash(){return this.shortHash;}
 
     // Setters
     public void setUserImage(String userImage){ this.userImage = userImage; }
@@ -42,10 +39,12 @@ public class DeviceUser {
     public void setUuid(String uuid){
         this.uuid = uuid;
     }
+    public void setShortHash(String shortHash){this.shortHash = shortHash;}
 
     public String toString(){
-        return "Email: " + this.email +"\n"
-                + "User Name: " + this.userName + "\n"
+        return  "User Name: " + this.userName + "\n"
+                + "Email: "   + this.email +"\n"
+                + "Short Hash: " + this.shortHash + "\n"
                 + "UUID: " + this.uuid;
     }
 }

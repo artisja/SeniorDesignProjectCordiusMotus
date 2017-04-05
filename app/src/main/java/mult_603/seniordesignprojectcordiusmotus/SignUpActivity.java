@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -21,7 +22,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
@@ -37,7 +37,12 @@ import com.google.firebase.storage.UploadTask;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.Drawer;
 import com.tapadoo.alerter.Alerter;
+import com.tapadoo.alerter.OnHideAlertListener;
+import com.tapadoo.alerter.OnShowAlertListener;
 import android.net.Uri;
+import org.hashids.Hashids;
+
+import java.io.IOException;
 
 
 public class SignUpActivity extends AppCompatActivity{
@@ -47,7 +52,7 @@ public class SignUpActivity extends AppCompatActivity{
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener authStateListener;
     private ImageView profileImage;
-    private Uri userImagePath;
+    private Uri userImageUri;
     private AccountHeader headerResult;
     private Drawer drawerResult;
     private NavigationDrawerHandler navHandler;
@@ -56,8 +61,8 @@ public class SignUpActivity extends AppCompatActivity{
     private FirebaseStorage mFirebaseStorage;
     private String userImageReferenceString;
     private FirebaseUser currentUser;
-    public static DeviceUser newUser;
-    public static DatabaseReference userDatabaseReferenceKey;
+    public static DeviceUser newUser = new DeviceUser();
+    public static DatabaseReference userDictRef = FirebaseDatabase.getInstance().getReference("UserDictionary");;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,36 +91,22 @@ public class SignUpActivity extends AppCompatActivity{
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 final FirebaseUser user = firebaseAuth.getCurrentUser();
-                Log.i(TAG, "Current User " + user);
+                Log.i(TAG, "Auth state listener");
 
                 if(user != null){
                     Log.i(TAG, "Current User is not null");
-                    String uName = setUserNameEdit.getText().toString().trim();
-
-                    // Check that the user name is not null
-                    if(!uName.isEmpty()){
-                        // Can use this to give them an image with their profile as well
-                        // Giving the user a username
-                        Log.i(TAG, "User Image Path -> " + userImagePath);
-
-
-                        UserProfileChangeRequest userProfileChangeRequest = new UserProfileChangeRequest.Builder()
-                                .setDisplayName(uName)
-                                .setPhotoUri(userImagePath)
-                                .build();
-
-                        user.updateProfile(userProfileChangeRequest);
-
-
-
-                        Log.i(TAG, "User Get Display Name " + user.getDisplayName());
-                        Log.i(TAG, "User Get Email " + user.getEmail());
-                        Log.i(TAG, "User UUID " + user.getUid());
+                    if(newUser.getShortHash() != null) {
+                        Log.i(TAG, "Current User short hash is not null");
+                        userDictRef.child(newUser.getShortHash()).setValue(newUser);
                     }
                     else{
-                        Log.i(TAG, "User Name: " + user.getDisplayName() + "User Photo Url" + user.getPhotoUrl());
+                        Log.i(TAG, "Current User short hash is null");
                     }
                 }
+                else{
+                    Log.i(TAG, "Current User is null");
+                }
+
             }
         };
 
@@ -129,8 +120,8 @@ public class SignUpActivity extends AppCompatActivity{
         super.onStop();
         Log.i(TAG, "On Stop Entered");
 
-        // If the auth listener exists remove it
-        if(authStateListener != null){
+        // remove auth state listener
+        if(mFirebaseAuth != null){
             mFirebaseAuth.removeAuthStateListener(authStateListener);
         }
     }
@@ -183,18 +174,28 @@ public class SignUpActivity extends AppCompatActivity{
                                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
-                                Log.i(TAG, "Creating user with email: " + email
-                                        + "\n and password: " + password
-                                        + "\n success -> " + task.isSuccessful()
-                                        + "\n complete -> " + task.isComplete());
 
                                 if (task.isSuccessful()) {
                                     // Create a new device user
-                                    newUser = new DeviceUser(email, uName);
-                                    newUser.setUserImage(userImageReferenceString);
-                                    newUser.setUserName(uName);
+                                    Log.i(TAG, "Creating a user with the following credientals");
+                                    Log.i(TAG, "Email: " + email);
+                                    Log.i(TAG, "UName: " + uName);
+                                    Log.i(TAG, "Password: " + password);
+                                    Log.i(TAG, "Confirm Password: " + cPassword);
+                                    Log.i(TAG, "User Image Reference String: " + userImageReferenceString);
 
-                                    // TODO Sign in the new user automatically???
+                                    // Set the user name, email, image path, and short haash
+                                    newUser.setUserName(uName);
+                                    newUser.setEmail(email);
+                                    newUser.setUserImage(userImageReferenceString);
+
+                                    // Set the short hash code
+                                    Hashids shortHash = new Hashids(email);
+                                    String hash = shortHash.encode(12345);
+                                    Log.i(TAG, "Hash: " + hash);
+                                    newUser.setShortHash(hash);
+
+                                    // Sign the user in after allowing them to create an account
                                     mFirebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(SignUpActivity.this, new OnCompleteListener<com.google.firebase.auth.AuthResult>() {
                                         @Override
                                         public void onComplete(@NonNull Task<com.google.firebase.auth.AuthResult> task) {
@@ -208,8 +209,26 @@ public class SignUpActivity extends AppCompatActivity{
                                                     Log.i(TAG, "Exception during login: " + e.getMessage());
                                                 }
                                             } else {
-                                                // Get the current user
+                                                // Get the current user set the uuid of the user
+                                                Log.i(TAG, "Successfully logged the user in after creating an account");
                                                 currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
+                                                UserProfileChangeRequest userProfileChangeRequest = new UserProfileChangeRequest.Builder()
+                                                        .setDisplayName(uName)
+                                                        .setPhotoUri(userImageUri)
+                                                        .build();
+
+                                                // Update user profile, set device user's user name update user dictionary
+                                                currentUser.updateProfile(userProfileChangeRequest);
+
+                                                // Update the user's profile information
+                                                if (currentUser != null) {
+                                                    newUser.setUuid(currentUser.getUid());
+                                                    newUser.setUserName(currentUser.getDisplayName());
+                                                }
+
+                                                userDictRef.child(newUser.getShortHash()).setValue(newUser);
+
                                                 DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference(currentUser.getUid());
                                                 dbRef.child("CurrentUser").setValue(newUser);
 
@@ -218,13 +237,24 @@ public class SignUpActivity extends AppCompatActivity{
                                                         .enableIconPulse(true)
                                                         .setTitle("New User Created")
                                                         .setBackgroundColor(R.color.colorPrimaryDark)
-                                                        .setText("New user with the following email address " + email + " was created. Please go to the login screen and login.")
-                                                        .setDuration(5000)
-                                                        .show();
+                                                        .setText("New user with the following email address " + email + " was created. Logging in...")
+                                                        .setDuration(5000).setOnShowListener(new OnShowAlertListener() {
+                                                        @Override
+                                                         public void onShow() {
+                                                                Log.i(TAG, "Sign Up Alert Shown");
+                                                            }
+                                                         })
+                                                        .setOnHideListener(new OnHideAlertListener() {
+                                                        @Override
+                                                        public void onHide() {
+                                                                Log.i(TAG, "Sign Up Alert Hidden");
 
-                                                // Go to the add contact / bluetooth page
-//                                                Intent userIntent = new Intent(SignUpActivity.this, ContactSimpleActivity.class);
-//                                                startActivity(userIntent);
+                                                                // Go to the add contact / bluetooth page
+                                                                Intent userIntent = new Intent(SignUpActivity.this, UserTabActivity.class);
+                                                                startActivity(userIntent);
+                                                            }
+                                                        })
+                                                        .show();
                                             }
                                         }
                                     });
@@ -339,19 +369,33 @@ public class SignUpActivity extends AppCompatActivity{
                 // The user picked a photo.
                 // The Intent's data Uri identifies which photo was selected.
                 Log.i(TAG, "Get Photo from users camera");
-                // Do something with the photo here (bigger example below)
-                userImagePath = data.getData();
-                Log.i(TAG, "Selected Image to String " + profileImage.toString());
-                Log.i(TAG, "Selected Image Path "      + userImagePath.getPath());
-                Log.i(TAG, "Selected Image Last Path Segment " + userImagePath.getLastPathSegment());
 
-                profileImage.setImageURI(userImagePath);
+                // Do something with the photo here (bigger example below)
+                userImageUri = data.getData();
+//                try {
+//                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), userImageUri);
+//                    Bitmap resized = Bitmap.createScaledBitmap(bitmap, 60, 60, true);
+//
+//                }
+//                catch(IOException i){
+//                    Log.i(TAG, "IOException: " + i.getMessage());
+//                }
+
+                Log.i(TAG, "Selected Image to String " + profileImage.toString());
+                Log.i(TAG, "Selected Image Path "      + userImageUri.getPath());
+                Log.i(TAG, "Selected Image Last Path Segment " + userImageUri.getLastPathSegment());
+
+
+                profileImage.setImageURI(userImageUri);
 
                 // Store the user's image in fire base storage
-                StorageReference newImageRef = userImageReference.child(userImagePath.getLastPathSegment());
+                StorageReference newImageRef = userImageReference.child(userImageUri.getLastPathSegment());
                 userImageReferenceString = newImageRef.getPath();
 
-                newImageRef.putFile(userImagePath).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                // Set new users image reference and update the user
+                newUser.setUserImage(userImageReferenceString);
+
+                newImageRef.putFile(userImageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                         Log.i(TAG, "Uploaded file with image path " + userImageReferenceString);
@@ -379,3 +423,4 @@ public class SignUpActivity extends AppCompatActivity{
         submitButton          = (Button) findViewById(R.id.submit_signup_button);
     }
 }
+

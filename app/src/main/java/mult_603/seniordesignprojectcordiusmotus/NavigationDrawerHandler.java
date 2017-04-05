@@ -44,7 +44,7 @@ public class NavigationDrawerHandler implements
     private static PrimaryDrawerItem changeEmail;
     private static PrimaryDrawerItem login;
     // Regular activities
-    private static PrimaryDrawerItem home;
+//    private static PrimaryDrawerItem home;
     private static PrimaryDrawerItem signUp;
     private static PrimaryDrawerItem addContact;
     private static PrimaryDrawerItem contactList;
@@ -58,7 +58,7 @@ public class NavigationDrawerHandler implements
     private final static String SIGN_OUT_TAG        = "SignOut";
     private final static String FORGOT_PASSWORD_TAG = "ForgotPassword";
     private final static String DELETE_ACCOUNT_TAG  = "DeleteAccount";
-    private final static String HOME_TAG = "Home";
+//    private final static String HOME_TAG = "Home";
     private final static String SIGN_UP_TAG = "SignUp";
     private final static String ADD_CONTACT_TAG = "AddContact";
     private final static String CONTACT_TAG = "Contact";
@@ -103,14 +103,6 @@ public class NavigationDrawerHandler implements
                     final String str = drawerItem.getTag().toString();
 
                     switch (str) {
-                        case HOME_TAG:
-                            Log.i(TAG, "Home Tag Pressed");
-                            userDrawer.closeDrawer();
-                            Intent homeIntent = new Intent(context, UserMainActivity.class);
-                            homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            context.startActivity(homeIntent);
-                            break;
-
                         case ADD_CONTACT_TAG:
                             Log.i(TAG, "Add Contact Tag Pressed");
                             userDrawer.closeDrawer();
@@ -187,12 +179,23 @@ public class NavigationDrawerHandler implements
                             context.startActivity(changePassword);
                             break;
 
+                        case FORGOT_PASSWORD_TAG:
+                            Log.i(TAG, "Forgot Password Tag Pressed");
+                            userDrawer.closeDrawer();
+                            Intent forgotPassword = new Intent(context, ForgotPasswordActivity.class);
+                            forgotPassword.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            context.startActivity(forgotPassword);
+                            break;
+
                         case SIGN_OUT_TAG:
                             Log.i(TAG, "Sign Out Tag Pressed");
                             if (currentUser != null) {
                                 FirebaseAuth.getInstance().signOut();
                             }
                             userDrawer.closeDrawer();
+                            Intent logoutIntent = new Intent(context, LoginActivity.class);
+                            logoutIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            context.startActivity(logoutIntent);
                             break;
 
                         case DELETE_ACCOUNT_TAG:
@@ -218,12 +221,16 @@ public class NavigationDrawerHandler implements
                                                     @Override
                                                     public void onComplete(@NonNull Task<Void> task) {
                                                         if (task.isSuccessful()) {
-                                                            Log.i(TAG, "User has been Deleted");
+                                                            Log.i(TAG, "User has successfully been Deleted");
+                                                            Intent logoutIntent = new Intent(context, LoginActivity.class);
+                                                            logoutIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                            context.startActivity(logoutIntent);
                                                         } else {
                                                             Log.i(TAG, "Something went wrong deleting the user");
                                                         }
                                                     }
                                                 });
+
                                             }
                                         }
                                     })
@@ -273,10 +280,8 @@ public class NavigationDrawerHandler implements
 
 
     public static Drawer setUserDrawer(final AppCompatActivity activity, AccountHeader accountHeader, Toolbar toolbar){
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         // Instantiate all the drawer items
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        home = new PrimaryDrawerItem();
         addContact = new PrimaryDrawerItem();
         contactList = new PrimaryDrawerItem();
         map = new PrimaryDrawerItem();
@@ -286,15 +291,11 @@ public class NavigationDrawerHandler implements
         // User account specific
         changeEmail = new PrimaryDrawerItem();
         changePassword = new PrimaryDrawerItem();
+        forgotPassword = new PrimaryDrawerItem();
         signOut = new PrimaryDrawerItem();
         deleteAccount = new PrimaryDrawerItem();
         login = new PrimaryDrawerItem();
         signUp = new PrimaryDrawerItem();
-
-        home.withDescription(R.string.home_activity)
-                .withSelectedColorRes(R.color.lightGrayWithRed)
-                .withIcon(R.drawable.ic_home_black_24dp)
-                .withTag(HOME_TAG);
 
         map.withDescription(R.string.map_activity)
                 .withSelectedColorRes(R.color.lightGrayWithRed)
@@ -303,6 +304,12 @@ public class NavigationDrawerHandler implements
 
 
         if(currentUser != null) {
+            // User Profile
+            userProfile = new ProfileDrawerItem()
+                    .withEmail(currentUser.getEmail())
+                    .withName(currentUser.getDisplayName())
+                    .withIcon(currentUser.getPhotoUrl())
+                    .withTextColor(Color.BLACK);
 
             // User add contact
             addContact.withDescription("Add Contact")
@@ -340,6 +347,12 @@ public class NavigationDrawerHandler implements
                     .withSelectedColorRes(R.color.lightGrayWithRed)
                     .withTag(CHANGE_PASSWORD_TAG);
 
+            // Forgot password
+            forgotPassword.withDescription("Forgot Password")
+                    .withDescriptionTextColorRes(R.color.material_drawer_dark_selected)
+                    .withSelectedColorRes(R.color.lightGrayWithRed)
+                    .withTag(FORGOT_PASSWORD_TAG);
+
             // Log out drawer item
             signOut.withDescriptionTextColorRes(R.color.wordColorRed)
                     .withDescription("Sign Out")
@@ -361,7 +374,7 @@ public class NavigationDrawerHandler implements
                     .withTranslucentStatusBar(false)
                     .withDisplayBelowStatusBar(true)
                     .withToolbar(toolbar)
-                    .addDrawerItems(home,
+                    .addDrawerItems(
                                     addContact,
                                     contactList,
                                     map,
@@ -370,8 +383,10 @@ public class NavigationDrawerHandler implements
                                     new DividerDrawerItem(),
                                     changeEmail,
                                     changePassword,
+                                    forgotPassword,
                                     signOut,
-                                    deleteAccount)
+                                    deleteAccount
+                    )
                     .withSelectedItem(-1)
                     .withOnDrawerListener(new Drawer.OnDrawerListener() {
                         @Override
@@ -424,12 +439,11 @@ public class NavigationDrawerHandler implements
             userDrawer = new DrawerBuilder()
                     .withActivity(activity)
                     .withAccountHeader(accountHeader)
-                    .withAccountHeader(currentUserAccountHeader)
+//                    .withAccountHeader(currentUserAccountHeader)
                     .withTranslucentStatusBar(false)
                     .withDisplayBelowStatusBar(true)
                     .withToolbar(toolbar)
                     .addDrawerItems(
-                            home,
                             map,
                             new DividerDrawerItem(),
                             login,

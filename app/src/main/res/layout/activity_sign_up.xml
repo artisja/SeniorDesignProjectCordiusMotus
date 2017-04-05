@@ -9,14 +9,6 @@
 
     <include android:id="@+id/toolbar" layout="@layout/toolbar"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/userInstructionSignUp"
-        android:textSize="30sp"
-        android:layout_marginBottom="10sp"
-        android:layout_gravity="center" />
-
     <de.hdodenhof.circleimageview.CircleImageView
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/profile_image"
@@ -66,7 +58,7 @@
         android:hint="@string/password_hint"
         android:textColorHint="@color/wordColorRed"
         android:layout_gravity="center"
-        android:layout_marginBottom="15sp"
+        android:layout_marginBottom="5sp"
         android:inputType="textPassword"
         android:singleLine="true"
         android:imeOptions="actionNext"

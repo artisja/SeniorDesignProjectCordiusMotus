@@ -41,7 +41,7 @@ public class SplashEntranceScreen extends Activity {
             @Override
             public void onAnimationEnd(Animation animation) {
                 finish();
-                Intent intent = new Intent(getBaseContext(),UserMainActivity.class);
+                Intent intent = new Intent(getBaseContext(), LoginActivity.class);
                 startActivity(intent);
             }
 

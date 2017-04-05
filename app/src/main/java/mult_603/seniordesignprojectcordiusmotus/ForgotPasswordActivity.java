@@ -17,13 +17,14 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.Drawer;
+import com.tapadoo.alerter.Alerter;
+import com.tapadoo.alerter.OnShowAlertListener;
 
 public class ForgotPasswordActivity extends AppCompatActivity {
     public final String TAG = ForgotPasswordActivity.class.getSimpleName();
     private ApplicationController appController;
     private EditText emailEditText;
     private Button passwordResetButton;
-    private Button backButton;
     private FirebaseUser currentUser;
     private FirebaseAuth auth;
     private AccountHeader headerResult;
@@ -60,7 +61,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                 }
                     final String emailAddress = emailEditText.getText().toString().trim();
 
-                    if(emailAddress.isEmpty() == false) {
+                    if(!emailAddress.isEmpty()) {
                         Log.i(TAG, "Email Address is not empty " + emailAddress);
 
                         auth.sendPasswordResetEmail(emailAddress).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -68,10 +69,40 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {
                                     Log.i(TAG, "We have sent an email to reset password to " + emailAddress);
-                                    Toast.makeText(getApplicationContext(), "We have sent and email to " + emailAddress, Toast.LENGTH_LONG).show();
+                                    // Notify the user that both email and password fields are empty
+                                    Alerter.create(ForgotPasswordActivity.this)
+                                            .setTitle("Success")
+                                            .setText("We have sent an email to reset your password at the following email address " + emailAddress)
+                                            .setBackgroundColor(R.color.colorPrimaryDark)
+                                            .enableIconPulse(true)
+                                            .setOnShowListener(new OnShowAlertListener() {
+                                                @Override
+                                                public void onShow() {
+
+                                                }
+                                            })
+                                            .show();
                                 } else {
                                     Log.i(TAG, "Failed to send an email to reset password to " + emailAddress);
-                                    Toast.makeText(getApplicationContext(), "Password reset email failed to send", Toast.LENGTH_LONG).show();
+
+                                    try {
+                                        throw task.getException();
+                                    }
+                                    catch(Exception e) {
+                                        // Notify the user that both email and password fields are empty
+                                        Alerter.create(ForgotPasswordActivity.this)
+                                                .setTitle("Error Occurred")
+                                                .setText("Error: " + e.getMessage())
+                                                .setBackgroundColor(R.color.colorPrimaryDark)
+                                                .enableIconPulse(true)
+                                                .setOnShowListener(new OnShowAlertListener() {
+                                                    @Override
+                                                    public void onShow() {
+
+                                                    }
+                                                })
+                                                .show();
+                                    }
                                 }
                             }
                         });
@@ -79,15 +110,6 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                     else{
                         Log.i(TAG, "Email Address is empty " + emailAddress);
                     }
-            }
-        });
-
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.i(TAG, "Back button clicked");
-                Intent intent = new Intent(ForgotPasswordActivity.this, LoginActivity.class);
-                startActivity(intent);
             }
         });
     }
@@ -103,7 +125,6 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         appController = (ApplicationController) getApplicationContext();
         emailEditText = (EditText) findViewById(R.id.email_forgot_password);
         passwordResetButton = (Button) findViewById(R.id.password_reset_button);
-        backButton = (Button) findViewById(R.id.forgot_password_back_button);
         currentUser = appController.currentUser;
         auth        = appController.firebaseAuth;
     }

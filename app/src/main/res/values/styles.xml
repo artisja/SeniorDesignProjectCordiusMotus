@@ -28,4 +28,10 @@
 
     <style name="PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="AppThemeDialog" parent="Theme.AppCompat.Dialog">
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:textColorPrimary">@color/whitePrimary</item>
+        <item name="android:background">@color/colorPrimaryDark</item>
+    </style>
+
 </resources>

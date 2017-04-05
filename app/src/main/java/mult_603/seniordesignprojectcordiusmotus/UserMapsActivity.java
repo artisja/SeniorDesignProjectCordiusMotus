@@ -1,13 +1,11 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
 import android.Manifest;
-import android.bluetooth.BluetoothClass;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -20,13 +18,14 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.LinearLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
+import com.bumptech.glide.Glide;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -53,6 +52,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import android.widget.SearchView;
 import org.json.JSONObject;
 import java.io.BufferedReader;
@@ -65,7 +66,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  *  The Icons used in this Map activity come from flaticon.com
@@ -88,14 +88,14 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
         SearchView.OnQueryTextListener{
 
     public static final String TAG = UserMapsActivity.class.getSimpleName();
-    private final static String PATIENT_MARKER_TAG = "PatientMarkerTag";
+    private final static String SEARCHED_PATIENT_MARKER_TAG = "SearchedPatientMarkerTag";
     private final static String EMERGENCY_CONTACT_TAG = "EmergencyMarkerTag";
+    private final static String OTHER_PATIENT_MARKER_TAG = "OtherPatientMarkerTag";
     private static final int REQUEST_LOCATION = 2;
     private final static int CONNETION_TIMEOUT = 5000;
     private GoogleMap mMap;
     private GoogleApiClient googleApiClient;
     private LocationRequest locationRequest;
-    public Location location;
     public LatLng currentPosition;
     public double latitude;
     public double longitude;
@@ -103,8 +103,10 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
     private SearchView mapSearchView;
     private LocationHolder patientsLocationHolder;
     private Marker patientMarker;
+    private Marker otherPatientMarker;
     private Marker emergencyContactMarker;
-    private boolean searchedForPatient = false;
+    private DeviceUser searchedUser;
+    private LatLng patientsLatLng;
 
 
     @Override
@@ -126,12 +128,6 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
-
-        // Set up the patient marker
-        MarkerOptions patientMarkerOptions = new MarkerOptions();
-        MarkerOptions contactMarkerOptions = new MarkerOptions();
-
-
 
         // Create location request the time interval directly affects power usage and we want the highest accuracy
         // Priority high accuracy paired with fine location in the manifest file can find a users location within
@@ -160,6 +156,7 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
         // Set Map Click Listener
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
@@ -173,16 +170,17 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
     }
 
     public void setUpMapMarkerByLocation(final LatLng location){
-        // We have a user Their marker is blue
+        Log.i(TAG, "Set Up Map Marker By Location");
+
         // Going from red to blue
         if(currentUser != null){
             Log.i(TAG, "User is not null");
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.position(location)
-                        .icon(BitmapDescriptorFactory
-                                .defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
-            patientMarker = mMap.addMarker(markerOptions);
-            patientMarker.setTag(PATIENT_MARKER_TAG);
+                    .icon(BitmapDescriptorFactory
+                            .defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+            otherPatientMarker = mMap.addMarker(markerOptions);
+            otherPatientMarker.setTag(OTHER_PATIENT_MARKER_TAG);
             Log.i(TAG, "Created a map marker for a user");
 
         }
@@ -191,14 +189,14 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
             Log.i(TAG, "User is null");
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.position(location)
-                    .title("My Current Location!");
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                    .title("Current Location");
 
             emergencyContactMarker = mMap.addMarker(markerOptions);
             emergencyContactMarker.setTag(EMERGENCY_CONTACT_TAG);
             Log.i(TAG, "Created a map marker for a non user");
+
         }
-
-
 
 
         try {
@@ -284,12 +282,9 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
                         .getSystemService(Context.LOCATION_SERVICE);
 
                 boolean isNetworkEnabled = locationManager.isProviderEnabled(locationManager.NETWORK_PROVIDER);
-
                 boolean isGPSEnabled = locationManager.isProviderEnabled(locationManager.GPS_PROVIDER);
-
                 Log.i(TAG, "Is Network Enabled " + isNetworkEnabled);
                 Log.i(TAG, "Is GPS Enabled "     + isGPSEnabled);
-
             }
         }
     }
@@ -330,10 +325,9 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
         longitude = location.getLatitude();
 
         // Send the lat and long to update the map marker
-        LatLng newLatLng = new LatLng(latitude, longitude);
-        setUpMapMarkerByLocation(newLatLng);
+        currentPosition = new LatLng(latitude, longitude);
+        setUpMapMarkerByLocation(currentPosition);
         Log.i(TAG, "Location has changed to: " + location);
-        Toast.makeText(getApplicationContext(), "Location " + location, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -372,284 +366,104 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
         return createInfoWindow(marker);
     }
 
-    private View createInfoWindow(Marker marker){
-        LinearLayout linearLayout = new LinearLayout(UserMapsActivity.this);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        linearLayout.setOrientation(LinearLayout.VERTICAL);
-        linearLayout.setPadding(15, 15, 15, 15);
-        int[] colors = {Color.WHITE, Color.WHITE};
-        GradientDrawable gd = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, colors);
-        gd.setCornerRadius(25.0f);
-        linearLayout.setBackground(gd);
-        linearLayout.setLayoutParams(params);
+    private String reverseGeocode(Double lat, Double lng){
+        String userAddressString = "";
 
-        // Searched for patient
-        if (searchedForPatient){
-            Log.i(TAG, "Searched for patient == True");
-            searchedForPatient = false;
-
-            // Get marker by tag
-            if(marker.getTag().equals(PATIENT_MARKER_TAG)){
-                Log.i(TAG, "Clicked the patients marker");
-
-                CircleImageView circleImageView = new CircleImageView(getApplicationContext());
-                circleImageView.setBorderColor(Color.BLUE);
-//                circleImageView.setImageURI(currentUser.getPhotoUrl());
-                circleImageView.setBorderWidth(2);
-                linearLayout.addView(circleImageView);
-
-                LinearLayout subLayout = new LinearLayout(UserMapsActivity.this);
-                LinearLayout.LayoutParams subParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                subLayout.setOrientation(LinearLayout.VERTICAL);
-                subLayout.setLayoutParams(subParams);
-
-                TextView userName = new TextView(UserMapsActivity.this);
-//                userName.setText(currentUser.getDisplayName());
-                userName.setGravity(Gravity.CENTER_HORIZONTAL);
-                userName.setTextColor(Color.BLACK);
-                subLayout.addView(userName);
-
-                TextView userEmail = new TextView(UserMapsActivity.this);
-//                userEmail.setText(currentUser.getEmail());
-                userEmail.setGravity(Gravity.CENTER_HORIZONTAL);
-                userEmail.setTextColor(Color.BLACK);
-                subLayout.addView(userEmail);
-
-                TextView userLat = new TextView(UserMapsActivity.this);
-                String latString = "Latitude: " + patientsLocationHolder.getLatitude();
-                userLat.setText(latString);
-                userLat.setGravity(Gravity.CENTER_HORIZONTAL);
-                userLat.setTextColor(Color.BLACK);
-                subLayout.addView(userLat);
-
-                TextView userLng = new TextView(UserMapsActivity.this);
-                String lngString = "Longitude: " + patientsLocationHolder.getLongitude();
-                userLng.setText(lngString);
-                userLng.setGravity(Gravity.CENTER_HORIZONTAL);
-                userLng.setTextColor(Color.BLACK);
-                subLayout.addView(userLng);
-
-                try {
-                    Geocoder gc = new Geocoder(getApplicationContext(), Locale.getDefault());
-                    List<Address> addressList = gc.getFromLocation(patientsLocationHolder.getLatitude(),
-                                                                   patientsLocationHolder.getLongitude(), 1);
-                    TextView userAddress = new TextView(UserMapsActivity.this);
-                    Address userCurrentAddress = addressList.get(0);
-                    String userStreetAddress = userCurrentAddress.getAddressLine(0);
-                    String userCityAddress   = userCurrentAddress.getAddressLine(1);
-                    String userCountryAddress= userCurrentAddress.getAddressLine(2);
-                    String userAddressString = "Address: " + userStreetAddress +
-                            "\n" + userCityAddress + " " + userCountryAddress;
-                    userAddress.setText(userAddressString);
-                    userAddress.setTextColor(Color.BLACK);
-                    userAddress.setGravity(Gravity.CENTER_HORIZONTAL);
-                    subLayout.addView(userAddress);
-                }
-                catch(IOException io){
-                    Log.i(TAG, "Exception thrown trying to resolve address for info window");
-                    io.printStackTrace();
-                }
-
-                linearLayout.addView(subLayout);
-
-            }
-            else if(marker.getTag().equals(EMERGENCY_CONTACT_TAG)){
-                Log.i(TAG, "Clicked the emergency contact tag");
-
-                CircleImageView circleImageView = new CircleImageView(getApplicationContext());
-                circleImageView.setBorderColor(Color.BLUE);
-                circleImageView.setImageResource(R.drawable.account_black_48);
-                circleImageView.setBorderWidth(2);
-                linearLayout.addView(circleImageView);
-
-                LinearLayout subLayout = new LinearLayout(UserMapsActivity.this);
-                LinearLayout.LayoutParams subParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                subLayout.setOrientation(LinearLayout.VERTICAL);
-                subLayout.setLayoutParams(subParams);
-
-                TextView currentLocText = new TextView(UserMapsActivity.this);
-                currentLocText.setText("Current Location");
-                currentLocText.setGravity(Gravity.CENTER_HORIZONTAL);
-                currentLocText.setTextColor(Color.BLACK);
-                subLayout.addView(currentLocText);
-
-                TextView userLat = new TextView(UserMapsActivity.this);
-                String latString = "Latitude: " + latitude;
-                userLat.setText(latString);
-                userLat.setGravity(Gravity.CENTER_HORIZONTAL);
-                userLat.setTextColor(Color.BLACK);
-                subLayout.addView(userLat);
-
-                TextView userLng = new TextView(UserMapsActivity.this);
-                String lngString = "Longitude: " + longitude;
-                userLng.setText(lngString);
-                userLng.setGravity(Gravity.CENTER_HORIZONTAL);
-                userLng.setTextColor(Color.BLACK);
-                subLayout.addView(userLng);
-
-                try {
-                    Geocoder gc = new Geocoder(getApplicationContext(), Locale.getDefault());
-                    List<Address> addressList = gc.getFromLocation(latitude, longitude, 1);
-                    TextView userAddress = new TextView(UserMapsActivity.this);
-                    Address userCurrentAddress = addressList.get(0);
-                    String userStreetAddress = userCurrentAddress.getAddressLine(0);
-                    String userCityAddress   = userCurrentAddress.getAddressLine(1);
-                    String userCountryAddress= userCurrentAddress.getAddressLine(2);
-                    String userAddressString = "Address: " + userStreetAddress +
-                            "\n" + userCityAddress + " " + userCountryAddress;
-                    userAddress.setText(userAddressString);
-                    userAddress.setTextColor(Color.BLACK);
-                    userAddress.setGravity(Gravity.CENTER_HORIZONTAL);
-                    subLayout.addView(userAddress);
-                }
-                catch(IOException io){
-                    Log.i(TAG, "Exception thrown trying to resolve address for info window");
-                    io.printStackTrace();
-                }
-
-                linearLayout.addView(subLayout);
-            }
-            return linearLayout;
+        Geocoder gc = new Geocoder(getApplicationContext(), Locale.getDefault());
+        try {
+            List<Address> addressList = gc.getFromLocation(lat, lng, 1);
+            Address userCurrentAddress = addressList.get(0);
+            String userStreetAddress = userCurrentAddress.getAddressLine(0);
+            String userCityAddress   = userCurrentAddress.getAddressLine(1);
+            String userCountryAddress= userCurrentAddress.getAddressLine(2);
+            userAddressString = "Address: " + userStreetAddress + "\n"
+                                                   + userCityAddress + " "
+                                                   + userCountryAddress;
         }
-        else{
-            Log.i(TAG, "Searched for patient == False");
-
-            // The current user is not null
-            if(currentUser != null) {
-                Log.i(TAG, "Clicked a emergency contacts marker");
-
-                CircleImageView circleImageView = new CircleImageView(getApplicationContext());
-                circleImageView.setBorderColor(Color.BLUE);
-                circleImageView.setImageURI(currentUser.getPhotoUrl());
-                circleImageView.setBorderWidth(2);
-                linearLayout.addView(circleImageView);
-
-                LinearLayout subLayout = new LinearLayout(UserMapsActivity.this);
-                LinearLayout.LayoutParams subParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                subLayout.setOrientation(LinearLayout.VERTICAL);
-                subLayout.setLayoutParams(subParams);
-
-                TextView userName = new TextView(UserMapsActivity.this);
-                userName.setText(currentUser.getDisplayName());
-                userName.setGravity(Gravity.CENTER_HORIZONTAL);
-                userName.setTextColor(Color.BLACK);
-                subLayout.addView(userName);
-
-                TextView userEmail = new TextView(UserMapsActivity.this);
-                userEmail.setText(currentUser.getEmail());
-                userEmail.setGravity(Gravity.CENTER_HORIZONTAL);
-                userEmail.setTextColor(Color.BLACK);
-                subLayout.addView(userEmail);
-
-                TextView userLat = new TextView(UserMapsActivity.this);
-                String latString = "Latitude: " + latitude;
-                userLat.setText(latString);
-                userLat.setGravity(Gravity.CENTER_HORIZONTAL);
-                userLat.setTextColor(Color.BLACK);
-                subLayout.addView(userLat);
-
-                TextView userLng = new TextView(UserMapsActivity.this);
-                String lngString = "Longitude: " + longitude;
-                userLng.setText(lngString);
-                userLng.setGravity(Gravity.CENTER_HORIZONTAL);
-                userLng.setTextColor(Color.BLACK);
-                subLayout.addView(userLng);
-
-                try {
-                    Geocoder gc = new Geocoder(getApplicationContext(), Locale.getDefault());
-                    List<Address> addressList = gc.getFromLocation(latitude, longitude, 1);
-                    TextView userAddress = new TextView(UserMapsActivity.this);
-                    Address userCurrentAddress = addressList.get(0);
-                    String userStreetAddress = userCurrentAddress.getAddressLine(0);
-                    String userCityAddress   = userCurrentAddress.getAddressLine(1);
-                    String userCountryAddress= userCurrentAddress.getAddressLine(2);
-                    String userAddressString = "Address: " + userStreetAddress +
-                            "\n" + userCityAddress + " " + userCountryAddress;
-                    userAddress.setText(userAddressString);
-                    userAddress.setTextColor(Color.BLACK);
-                    userAddress.setGravity(Gravity.CENTER_HORIZONTAL);
-                    subLayout.addView(userAddress);
-                }
-                catch(IOException io){
-                    Log.i(TAG, "Exception thrown trying to resolve address for info window");
-                    io.printStackTrace();
-                }
-
-                linearLayout.addView(subLayout);
-            }
-
-            // The current user is null we want to find a path from them to a registered user
-            else{
-                CircleImageView circleImageView = new CircleImageView(getApplicationContext());
-                circleImageView.setBorderColor(Color.BLUE);
-                circleImageView.setImageResource(R.drawable.account_black_48);
-                circleImageView.setBorderWidth(2);
-                linearLayout.addView(circleImageView);
-
-                LinearLayout subLayout = new LinearLayout(UserMapsActivity.this);
-                LinearLayout.LayoutParams subParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                subLayout.setOrientation(LinearLayout.VERTICAL);
-                subLayout.setLayoutParams(subParams);
-
-                TextView currentLocText = new TextView(UserMapsActivity.this);
-                currentLocText.setText("Current Location");
-                currentLocText.setGravity(Gravity.CENTER_HORIZONTAL);
-                currentLocText.setTextColor(Color.BLACK);
-                subLayout.addView(currentLocText);
-
-                TextView userLat = new TextView(UserMapsActivity.this);
-                String latString = "Latitude: " + latitude;
-                userLat.setText(latString);
-                userLat.setGravity(Gravity.CENTER_HORIZONTAL);
-                userLat.setTextColor(Color.BLACK);
-                subLayout.addView(userLat);
-
-                TextView userLng = new TextView(UserMapsActivity.this);
-                String lngString = "Longitude: " + longitude;
-                userLng.setText(lngString);
-                userLng.setGravity(Gravity.CENTER_HORIZONTAL);
-                userLng.setTextColor(Color.BLACK);
-                subLayout.addView(userLng);
-
-                try {
-                    Geocoder gc = new Geocoder(getApplicationContext(), Locale.getDefault());
-                    List<Address> addressList = gc.getFromLocation(latitude, longitude, 1);
-                    TextView userAddress = new TextView(UserMapsActivity.this);
-                    Address userCurrentAddress = addressList.get(0);
-                    String userStreetAddress = userCurrentAddress.getAddressLine(0);
-                    String userCityAddress   = userCurrentAddress.getAddressLine(1);
-                    String userCountryAddress= userCurrentAddress.getAddressLine(2);
-                    String userAddressString = "Address: " + userStreetAddress +
-                            "\n" + userCityAddress + " " + userCountryAddress;
-                    userAddress.setText(userAddressString);
-                    userAddress.setTextColor(Color.BLACK);
-                    userAddress.setGravity(Gravity.CENTER_HORIZONTAL);
-                    subLayout.addView(userAddress);
-                }
-                catch(IOException io){
-                    Log.i(TAG, "Exception thrown trying to resolve address for info window");
-                    io.printStackTrace();
-                }
-
-                linearLayout.addView(subLayout);
-            }
-            return linearLayout;
+        catch(IOException i){
+            Log.i(TAG, "IOException: " + i.getMessage());
         }
+        // Return the user's address as a string
+        return userAddressString;
     }
 
-    // Create a request string to send to google
-    private void getDirectionsFromGoogle(LatLng source, LatLng destination){
-        // Example -> https://maps.googleapis.com/maps/api/directions/json?origin=37.540791,-77.469917&destination=37.5450506,-77.4483879
-        String apiCallString = "https://maps.googleapis.com/maps/api/directions/json?origin="
-                                + source.latitude
-                                + ","
-                                + source.longitude
-                                + "$destination="
-                                + destination.latitude
-                                + ","
-                                + destination.longitude;
+    private View createInfoWindow(Marker marker){
+        View infoWindow = ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.custom_map_marker, null);
+        ImageView profileImage = (ImageView) infoWindow.findViewById(R.id.profile_image_map_marker);
+        TextView userName = (TextView) infoWindow.findViewById(R.id.user_name_map_marker);
+        TextView email = (TextView) infoWindow.findViewById(R.id.email_map_marker);
+        TextView address = (TextView) infoWindow.findViewById(R.id.address_map_marker);
+        TextView latitude = (TextView) infoWindow.findViewById(R.id.latitude_map_marker);
+        TextView longitude = (TextView) infoWindow.findViewById(R.id.longitude_map_marker);
+        infoWindow.setBackgroundColor(Color.WHITE);
 
+        if(marker.getTag() == SEARCHED_PATIENT_MARKER_TAG){
+            Log.i(TAG, "Patients Marker was clicked");
+            try {
+                String storageReferenceForUser = searchedUser.getUserImage();
+                if(storageReferenceForUser != null) {
+                    StorageReference imageStorage = FirebaseStorage.getInstance().getReference(storageReferenceForUser);
+                    Log.i(TAG, "Image Storage: " + imageStorage);
+                    userName.setText(searchedUser.getUserName());
+                    email.setText(searchedUser.getEmail());
 
+                    // Have to Reverse Geocode the address
+                    LatLng searchedPosition = marker.getPosition();
+                    String userAddress = reverseGeocode(searchedPosition.latitude,
+                                                        searchedPosition.longitude);
+                    address.setText(userAddress);
+
+                    // Set latitude and longitude strings
+                    String latString = "Latitude: " + searchedPosition.latitude;
+                    String lngString = "Longitude: " + searchedPosition.longitude;
+                    latitude.setText(latString);
+                    longitude.setText(lngString);
+
+                    Glide.with(UserMapsActivity.this)
+                            .using(new FirebaseImageLoader())
+                            .load(imageStorage)
+                            .override(200, 300)
+                            .fitCenter()
+                            .centerCrop()
+                            .into(profileImage);
+                }
+            }
+            catch(NullPointerException n){
+                Log.i(TAG, "Null Pointer Exception: " + n.getMessage());
+            }
+
+        }
+        else if (marker.getTag() == EMERGENCY_CONTACT_TAG){
+            Log.i(TAG, "Emergency Contact Tag was clicked");
+            profileImage.setImageResource(R.drawable.account_black_48);
+            if(currentPosition != null) {
+                String userAddress = reverseGeocode(currentPosition.latitude, currentPosition.longitude);
+                address.setText(userAddress);
+                latitude.setText("Current Latitude: " + currentPosition.latitude);
+                longitude.setText("Current Longitude: " + currentPosition.longitude);
+            }
+            else{
+                address.setText("Can not retrieve street address");
+            }
+            userName.setText("Emergency Contact");
+
+        }
+        else if(marker.getTag() == OTHER_PATIENT_MARKER_TAG){
+            if(currentPosition != null) {
+                String userAddress = reverseGeocode(currentPosition.latitude, currentPosition.longitude);
+                address.setText(userAddress);
+                latitude.setText("Current Latitude: " + currentPosition.latitude);
+                longitude.setText("Current Longitude: " + currentPosition.longitude);
+            }
+            else{
+                address.setText("Can not retrieve street address");
+            }
+            profileImage.setImageURI(currentUser.getPhotoUrl());
+            userName.setText(currentUser.getDisplayName());
+            email.setText(currentUser.getEmail());
+        }
+
+        return infoWindow;
     }
 
     @Override
@@ -659,30 +473,73 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
 
 
     // Search View Methods
+    // Use the short hash to find the user in the map
+    // Short hash corresponds to the uuid and the users other information.
+
     @Override
     public boolean onQueryTextSubmit(String query) {
-        Log.i(TAG, "Text Query: " + query);
         final FirebaseDatabase fdb = FirebaseDatabase.getInstance();
-        DatabaseReference fdbRef = fdb.getReference(query);
+        final String stringQuery = query;
+
+        DatabaseReference fdbRef = fdb.getReference("UserDictionary");
+        Log.i(TAG, "Text Query: " + query);
         Log.i(TAG, "Db Reference: " + fdbRef);
+
 
         fdbRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.i(TAG, "On Data Changed");
-                for (DataSnapshot location : dataSnapshot.getChildren()) {
+                for (final DataSnapshot dataSnap : dataSnapshot.getChildren()) {
+                    // Get the user from the user dictionary
+                    searchedUser = dataSnap.getValue(DeviceUser.class);
+                    Log.i(TAG, "Device User -> " + searchedUser);
 
-                    LocationHolder locationHolder = location.getValue(LocationHolder.class);
-                    Log.i(TAG, "Location Holder Obj from DB " + locationHolder.toString());
+                    try {
+                        // If the text input is equal to the device users short hashcode ID
+                        if (searchedUser.getShortHash().equals(stringQuery)) {
+                            Log.i(TAG, "Searched User get Short Hash == stringQuery");
+                            Log.i(TAG, "Searches User Short Hash -> " + searchedUser.getShortHash() + " String Query -> " + stringQuery);
 
-                    if (locationHolder.hasLatitude() && locationHolder.hasLongitude()) {
-                        Log.i(TAG, "Location Holder has latitude " + locationHolder.getLatitude());
-                        Log.i(TAG, "Location Holder has longitude " + locationHolder.getLongitude());
-                        // Set the location Holder to a static object
-                        patientsLocationHolder = locationHolder;
-                        LatLng patientsLatLng = new LatLng(patientsLocationHolder.getLatitude(), patientsLocationHolder.getLongitude());
-                        // Draw the route to the patient
-                        drawRoute(patientsLatLng);
+                            DatabaseReference locationRef = fdb.getReference(searchedUser.getUuid());
+                            Log.i(TAG, "Location Reference -> " + locationRef);
+
+                            // Add a listener for the location
+                            locationRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+
+                                    // Loop through the data
+                                    for (DataSnapshot location : dataSnapshot.getChildren()) {
+                                        LocationHolder locationHolder = location.getValue(LocationHolder.class);
+                                        Log.i(TAG, "Location Holder -> " + locationHolder);
+
+                                        // Get the location and draw the route
+                                        if (locationHolder.hasLatitude() && locationHolder.hasLongitude()) {
+                                            Log.i(TAG, "Location Holder has latitude " + locationHolder.getLatitude());
+                                            Log.i(TAG, "Location Holder has longitude " + locationHolder.getLongitude());
+
+                                            // Set the location Holder to a static object
+                                            patientsLocationHolder = locationHolder;
+                                            patientsLatLng = new LatLng(patientsLocationHolder.getLatitude(), patientsLocationHolder.getLongitude());
+
+                                            // Draw the route to the patient
+                                            drawRoute(patientsLatLng);
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+                                    Log.i(TAG, "Error getting location from user in database " + databaseError.getMessage());
+                                }
+                            });
+
+
+                        }
+                    }
+                    catch(Exception e){
+                        Log.i(TAG, "Error: " + e.getMessage());
                     }
                 }
             }
@@ -729,7 +586,6 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
         String url = getDirectionsUrl(currentPosition, finishLocation);
         DownloadTask dl = new DownloadTask();
         dl.execute(url);
-
     }
 
     public String getDirectionsUrl(LatLng origin,LatLng dest){
@@ -792,14 +648,6 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
         }
         return data;
     }
-
-//    // Create multiple markers
-//    private class CreateBubbleMarkers extends  AsyncTask<String, Void, String>{
-//        @Override
-//        protected  String doInBackground(String... url){
-//
-//        }
-//    }
 
     // Fetches data from url passed
     private class DownloadTask extends AsyncTask<String, Void, String>{
@@ -885,20 +733,18 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
                 lineOptions.addAll(points);
                 lineOptions.width(12.0f);
                 lineOptions.color(Color.RED);
-                LatLng patientsLatLng = new LatLng(patientsLocationHolder.getLatitude(), patientsLocationHolder.getLongitude());
+
+                patientsLatLng = new LatLng(patientsLocationHolder.getLatitude(), patientsLocationHolder.getLongitude());
                 markerOptions.position(patientsLatLng)
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
                         .title("Patients Location");
 
                 patientMarker = mMap.addMarker(markerOptions);
-                patientMarker.setTag(PATIENT_MARKER_TAG);
-
-                // Set searched for patient to true
-                searchedForPatient = true;
+                patientMarker.setTag(SEARCHED_PATIENT_MARKER_TAG);
 
                 // Calculate midpoint and zoom out a bit
                 LatLng centerMap = calculateMidPoint(currentPosition, patientsLatLng);
-                CameraUpdate cmu = CameraUpdateFactory.newLatLngZoom(centerMap, 15.0f);
+                CameraUpdate cmu = CameraUpdateFactory.newLatLngZoom(centerMap, 14.0f);
                 mMap.moveCamera(cmu);
             }
 

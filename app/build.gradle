@@ -51,5 +51,11 @@ dependencies {
     compile 'com.google.maps.android:android-maps-utils:0.4.+'
     // Alerter
     compile 'com.tapadoo.android:alerter:1.0.2'
+    // HashID's
+    compile 'org.hashids:hashids:1.0.1'
+    // Glide for loading images
+    compile 'com.github.bumptech.glide:glide:3.7.0'
+    // FirebaseUI Storage only
+    compile 'com.firebaseui:firebase-ui-storage:0.6.1'
 }
 apply plugin: 'com.google.gms.google-services'

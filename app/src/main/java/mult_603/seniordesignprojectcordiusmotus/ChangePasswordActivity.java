@@ -1,5 +1,6 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
+import android.app.ProgressDialog;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,6 +19,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.Drawer;
 import com.tapadoo.alerter.Alerter;
+import com.tapadoo.alerter.OnShowAlertListener;
 
 public class ChangePasswordActivity extends AppCompatActivity {
     private static final String TAG = ChangePasswordActivity.class.getSimpleName();
@@ -31,7 +33,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
     private EditText oldPassword;
     private EditText newPassword;
     private Button submitButton;
-    private Button backButton;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,65 +58,123 @@ public class ChangePasswordActivity extends AppCompatActivity {
                 final String oldEmail = changePasswordEmail.getText().toString().trim();
                 final String oldPass  = oldPassword.getText().toString().trim();
                 final String newPass  = newPassword.getText().toString().trim();
-                Log.i(TAG, "Attempting to change the users password ");
 
-                // If the user is not signed in then reauthenticate them
+                // Create a progress dialog to show to the user
+                progressDialog = new ProgressDialog(ChangePasswordActivity.this, R.style.AppThemeDialog);
+                progressDialog.setIndeterminate(true);
+                progressDialog.setMessage("Changing Password...");
+                progressDialog.show();
 
-                AuthCredential credential = EmailAuthProvider.getCredential(oldEmail, oldPass);
-                currentUser.reauthenticate(credential).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if(task.isSuccessful()) {
-                            Alerter.create(ChangePasswordActivity.this)
-                                    .setBackgroundColor(R.color.colorPrimaryDark)
-                                    .setText("Successfully Reauthenticated in order to update password")
-                                    .setTitle("Success")
-                                    .setDuration(3000)
-                                    .enableIconPulse(true)
-                                    .show();
+                // Change the user's password
+                changeUsersPassword(oldEmail, oldPass, newPass);
 
-                            // Update the users password
-                            currentUser.updatePassword(newPass).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if(task.isSuccessful()){
-                                        Alerter.create(ChangePasswordActivity.this)
-                                                .enableIconPulse(true)
-                                                .setDuration(3000)
-                                                .setTitle("Success")
-                                                .setText("Updated your password successfully")
-                                                .setBackgroundColor(R.color.colorPrimaryDark);
-                                    }
-                                    else{
-                                        try {
-                                            throw task.getException();
-                                        }
-                                        catch(Exception e) {
-                                            Log.i(TAG, "Error updating password " + e.getMessage());
-                                            Alerter.create(ChangePasswordActivity.this)
-                                                    .setText("Error: " + e.getMessage())
-                                                    .setTitle("Error")
-                                                    .setDuration(3000)
-                                                    .enableIconPulse(true)
-                                                    .show();
-                                        }
-                                    }
-                                }
-                            });
-                        }
-                        else{
-                            Alerter.create(ChangePasswordActivity.this)
-                                    .setBackgroundColor(R.color.colorPrimaryDark)
-                                    .setText("The user name and email were not recognized. Please create a login")
-                                    .setTitle("Error")
-                                    .setDuration(3000)
-                                    .enableIconPulse(true)
-                                    .show();
-                        }
-                    }
-                });
             }
         });
+    }
+
+    private void changeUsersPassword(String oldEmail, String oldPass, String newPassword){
+        Log.i(TAG, "Attempting to change the users password ");
+        final String newPass = newPassword;
+
+        if (oldEmail.isEmpty() && oldPass.isEmpty() && newPass.isEmpty()) {
+            Log.i(TAG, "All Fields Blank");
+            Alerter.create(ChangePasswordActivity.this)
+                    .setBackgroundColor(R.color.colorPrimaryDark)
+                    .setText("Error All Text Fields are empty")
+                    .setTitle("Error")
+                    .setDuration(3000)
+                    .enableIconPulse(true)
+                    .setOnShowListener(new OnShowAlertListener() {
+                        @Override
+                        public void onShow() {
+                            progressDialog.cancel();
+                        }
+                    })
+                    .show();
+        }
+        else if(oldEmail.isEmpty() || oldPass.isEmpty() || newPass.isEmpty()){
+            Alerter.create(ChangePasswordActivity.this)
+                    .setBackgroundColor(R.color.colorPrimaryDark)
+                    .setText("Error one of the below fields is empty")
+                    .setTitle("Error")
+                    .setDuration(3000)
+                    .enableIconPulse(true)
+                    .setOnShowListener(new OnShowAlertListener() {
+                        @Override
+                        public void onShow() {
+                            progressDialog.cancel();
+                        }
+                    })
+                    .show();
+        }
+        else {
+            // If the user is not signed in then re-authenticate them
+
+            AuthCredential credential = EmailAuthProvider.getCredential(oldEmail, oldPass);
+            currentUser.reauthenticate(credential).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    // Successfully re-authenticated the user to reset their password
+                    if (task.isSuccessful()) {
+
+                        // Update the users password
+                        currentUser.updatePassword(newPass).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                // Successfully updated the users password
+                                if (task.isSuccessful()) {
+                                    Alerter.create(ChangePasswordActivity.this)
+                                            .enableIconPulse(true)
+                                            .setDuration(3000)
+                                            .setTitle("Success")
+                                            .setText("Updated your password successfully")
+                                            .setBackgroundColor(R.color.colorPrimaryDark)
+                                            .setOnShowListener(new OnShowAlertListener() {
+                                                @Override
+                                                public void onShow() {
+                                                    progressDialog.cancel();
+                                                }
+                                            })
+                                            .show();
+                                } else {
+                                    try {
+                                        throw task.getException();
+                                    } catch (Exception e) {
+                                        Log.i(TAG, "Error updating password " + e.getMessage());
+                                        Alerter.create(ChangePasswordActivity.this)
+                                                .setText("Error: " + e.getMessage())
+                                                .setTitle("Error")
+                                                .setDuration(3000)
+                                                .enableIconPulse(true)
+                                                .setOnShowListener(new OnShowAlertListener() {
+                                                    @Override
+                                                    public void onShow() {
+                                                        progressDialog.cancel();
+                                                    }
+                                                })
+                                                .show();
+                                    }
+                                }
+                            }
+                        });
+                    } else {
+                        Alerter.create(ChangePasswordActivity.this)
+                                .setBackgroundColor(R.color.colorPrimaryDark)
+                                .setText("The user name and email were not recognized. Please create a login")
+                                .setTitle("Error")
+                                .setDuration(3000)
+                                .enableIconPulse(true)
+                                .setOnShowListener(new OnShowAlertListener() {
+                                    @Override
+                                    public void onShow() {
+                                        progressDialog.cancel();
+                                    }
+                                })
+                                .show();
+                    }
+                }
+            });
+        }
     }
 
     public void findViews(){
@@ -124,7 +184,6 @@ public class ChangePasswordActivity extends AppCompatActivity {
         oldPassword  = (EditText) findViewById(R.id.old_password);
         newPassword  = (EditText) findViewById(R.id.new_password);
         submitButton = (Button) findViewById(R.id.submit_change_password_button);
-        backButton   = (Button) findViewById(R.id.change_password_back_button);
     }
 
     @Override
