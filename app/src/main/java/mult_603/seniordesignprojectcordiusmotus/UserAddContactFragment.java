@@ -1,5 +1,6 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
+import android.bluetooth.BluetoothClass;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,9 +16,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.tapadoo.alerter.Alerter;
+import com.tapadoo.alerter.OnHideAlertListener;
 
 /**
  * Created by Wes on 3/13/17.
@@ -80,55 +85,37 @@ public class UserAddContactFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 // Get the text from the input fields to send to the database
-                String name  = contactName.getText().toString().trim();
-                String phone = contactPhone.getText().toString().trim();
-                String email = contactEmail.getText().toString().trim();
+                final String name  = contactName.getText().toString().trim();
+                final String phone = contactPhone.getText().toString().trim();
+                final String email = contactEmail.getText().toString().trim();
 
                 // Set database value if the information in the text fields is not empty
-                if( !(name.isEmpty() && phone.isEmpty() && email.isEmpty())) {
+                if((!name.isEmpty() && !phone.isEmpty() && !email.isEmpty())) {
                     Log.i(TAG, "Name , Email, Phone Number is not empty");
                     Contact newContact = new Contact(name, phone, email);
                     dbref.child("Contacts").push().setValue(newContact);
 
-                    // Try to send a message to the current users emergency contact
-                    try {
-                        SmsManager smsManager = SmsManager.getDefault();
-                        String message = "You have been added as an emergency contact for User "
-                                + currentUser.getEmail()
-                                + "\n This is your UUID for the device location -> "
-                                + currentUser.getUid();
-
-                        smsManager.sendTextMessage(phone, null,message, null, null);
-                        Intent sendMessageIntent = new Intent(Intent.ACTION_VIEW);
-                        sendMessageIntent.setType("vnd.android-dir/mms-sms");
-
-                        Intent intent = new Intent(Intent.ACTION_SEND);
-                        intent.setType("text/html");
-                        intent.putExtra(Intent.EXTRA_EMAIL,"artisja@vcu.edu");
-                        intent.putExtra(Intent.EXTRA_SUBJECT,"Cordis Motus Emergency Contact");
-                        intent.putExtra(Intent.EXTRA_TEXT,message);
-                        startActivity(Intent.createChooser(intent,"Send Email"));
-                    }catch (Exception e){
-                        e.printStackTrace();
-                        Alerter.create(getActivity())
-                                .setTitle("Error Occured")
-                                .setText("Error: " + e.getMessage())
-                                .setBackgroundColor(R.color.colorPrimaryDark)
-                                .enableIconPulse(true)
-                                .show();
-                    }
-
-//                    // Present a message letting the user know that the contact was added to the database
-//                    Alerter.create(ContactSimpleActivity.this)
-//                            .setIcon(R.drawable.account_black_48)
-//                            .setBackgroundColor(R.color.colorPrimaryDark)
-//                            .setTitle("Contact Added")
-//                            .setText("Contact with name: " + name + " has been added.")
-//                            .enableIconPulse(true)
-//                            .show();
+                    // Present a message letting the user know that the contact was added to the database
+                    Alerter.create(getActivity())
+                            .setIcon(R.drawable.account_black_48)
+                            .setBackgroundColor(R.color.colorPrimaryDark)
+                            .setTitle("Contact Added")
+                            .setText("Contact \nName: " + name
+                                    + "\nPhone: " + phone
+                                    + "\nEmail: " + email
+                                    + " has been added.")
+                            .enableIconPulse(true)
+                            .setOnHideListener(new OnHideAlertListener() {
+                                @Override
+                                public void onHide() {
+                                    // When the alert goes away fire the email and text
+                                    getDeviceUserShortHash(phone, email);
+                                }
+                            })
+                            .show();
                 }
                 // Name, Email or Phone number is empty
-                else{
+                else if(name.isEmpty() || phone.isEmpty() || email.isEmpty()){
                     Log.i(TAG, "Name , Email, Phone Number is empty");
 
                     Alerter.create(getActivity())
@@ -147,6 +134,72 @@ public class UserAddContactFragment extends Fragment {
         });
 
         return view;
+    }
+
+    // Get the users short hash code and send it to the emergency contact
+    private void getDeviceUserShortHash(String phone, String email){
+        final String userPhone = phone;
+        final String userEmail = email;
+
+        // Get the short hash from the database
+        DatabaseReference firebaseUserRef = firebaseDatabase.getReference("UserDictionary");
+        firebaseUserRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(DataSnapshot dataSnap: dataSnapshot.getChildren()){
+                    Log.i(TAG, "DataSnapshot child " + dataSnap);
+
+                    DeviceUser deviceUser = dataSnap.getValue(DeviceUser.class);
+                    Log.i(TAG, "Device User -> " + deviceUser);
+
+                    if(deviceUser.getUuid().equals(currentUser.getUid())){
+                        Log.i(TAG, "Device user uuid == current user uuid");
+
+                        // Get the short hash and send it to the emergency contact via email or phone
+                        String shortHash = deviceUser.getShortHash();
+                        sendNotificationToContact(userPhone, userEmail, shortHash);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.i(TAG, "Database Error: " + databaseError.getMessage());
+            }
+        });
+    }
+
+    // TODO can we ask for permission to use text messaging and email if someone doesn't let us?
+    
+    // Notify the emergency contact
+    private void sendNotificationToContact(String phone, String email, String shortHash){
+        // Try to send a message to the current users emergency contact
+        try {
+            SmsManager smsManager = SmsManager.getDefault();
+            String message = "You have been added as an emergency contact for User "
+                    + email
+                    + "\n This is your UUID for the device location -> "
+                    + shortHash;
+
+            smsManager.sendTextMessage(phone, null,message, null, null);
+            Intent sendMessageIntent = new Intent(Intent.ACTION_VIEW);
+            sendMessageIntent.setType("vnd.android-dir/mms-sms");
+
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType("text/html");
+            intent.putExtra(Intent.EXTRA_EMAIL,"artisja@vcu.edu");
+            intent.putExtra(Intent.EXTRA_SUBJECT,"Cardian Emergency Contact");
+            intent.putExtra(Intent.EXTRA_TEXT,message);
+            startActivity(Intent.createChooser(intent,"Send Email"));
+        }catch (Exception e){
+            e.printStackTrace();
+            Alerter.create(getActivity())
+                    .setTitle("Error Occurred")
+                    .setText("Error: " + e.getMessage())
+                    .setBackgroundColor(R.color.colorPrimaryDark)
+                    .enableIconPulse(true)
+                    .show();
+        }
     }
 
 }
