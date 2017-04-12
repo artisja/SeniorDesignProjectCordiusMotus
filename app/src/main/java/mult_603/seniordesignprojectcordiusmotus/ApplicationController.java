@@ -3,6 +3,7 @@ package mult_603.seniordesignprojectcordiusmotus;
 import android.app.Application;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.media.MediaPlayer;
 import android.util.Log;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
@@ -41,6 +42,18 @@ public class ApplicationController extends Application {
         locationIntent = new Intent(getApplicationContext(), LocationService.class);
         startService(locationIntent);
 
+        // Debugging play alert sound
+        playAlertSound();
+
+    }
+
+    public void playAlertSound(){
+        int MAX_VOLUME = 100;
+        float soundVolume = 90;
+        float volume = (float) (1 - (Math.log(MAX_VOLUME - soundVolume) / Math.log(MAX_VOLUME)));
+        MediaPlayer mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.alert);
+        mediaPlayer.setVolume(volume, volume);
+        mediaPlayer.start();
     }
 
     @Override

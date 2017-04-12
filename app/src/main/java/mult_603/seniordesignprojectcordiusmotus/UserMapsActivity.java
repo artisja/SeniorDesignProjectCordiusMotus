@@ -49,6 +49,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
@@ -511,20 +512,28 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
 
                                     // Loop through the data
                                     for (DataSnapshot location : dataSnapshot.getChildren()) {
-                                        LocationHolder locationHolder = location.getValue(LocationHolder.class);
-                                        Log.i(TAG, "Location Holder -> " + locationHolder);
+//                                        Log.i(TAG, "Location DataSnapshot: " + location);
 
-                                        // Get the location and draw the route
-                                        if (locationHolder.hasLatitude() && locationHolder.hasLongitude()) {
-                                            Log.i(TAG, "Location Holder has latitude " + locationHolder.getLatitude());
-                                            Log.i(TAG, "Location Holder has longitude " + locationHolder.getLongitude());
+                                        // Catch an exception when getting the vitals
+                                        try {
+                                            LocationHolder locationHolder = location.getValue(LocationHolder.class);
+                                            Log.i(TAG, "Location Holder -> " + locationHolder);
 
-                                            // Set the location Holder to a static object
-                                            patientsLocationHolder = locationHolder;
-                                            patientsLatLng = new LatLng(patientsLocationHolder.getLatitude(), patientsLocationHolder.getLongitude());
+                                            // Get the location and draw the route
+                                            if (locationHolder.hasLatitude() && locationHolder.hasLongitude()) {
+                                                Log.i(TAG, "Location Holder has latitude " + locationHolder.getLatitude());
+                                                Log.i(TAG, "Location Holder has longitude " + locationHolder.getLongitude());
 
-                                            // Draw the route to the patient
-                                            drawRoute(patientsLatLng);
+                                                // Set the location Holder to a static object
+                                                patientsLocationHolder = locationHolder;
+                                                patientsLatLng = new LatLng(patientsLocationHolder.getLatitude(), patientsLocationHolder.getLongitude());
+
+                                                // Draw the route to the patient
+                                                drawRoute(patientsLatLng);
+                                            }
+                                        }
+                                        catch(DatabaseException d){
+                                            Log.i(TAG, "Database Exception: " + d.getMessage());
                                         }
                                     }
                                 }
@@ -534,8 +543,6 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
                                     Log.i(TAG, "Error getting location from user in database " + databaseError.getMessage());
                                 }
                             });
-
-
                         }
                     }
                     catch(Exception e){

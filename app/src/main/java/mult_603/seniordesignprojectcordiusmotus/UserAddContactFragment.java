@@ -170,7 +170,7 @@ public class UserAddContactFragment extends Fragment {
     }
 
     // TODO can we ask for permission to use text messaging and email if someone doesn't let us?
-    
+
     // Notify the emergency contact
     private void sendNotificationToContact(String phone, String email, String shortHash){
         // Try to send a message to the current users emergency contact
