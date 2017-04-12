@@ -166,30 +166,28 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
                 .build();
     }
 
-    // A lot of this seems to fail
-    // TODO Fix this
 
-    public void reverseGeocode(Location location){
-        if(Geocoder.isPresent()){
-            try {
-                Geocoder gc = new Geocoder(LocationService.this, Locale.getDefault());
-                List<Address> addressList = gc.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-
-                // Try to get the location in street address style
-                if (addressList != null && addressList.size() > 0) {
-                    Address a = addressList.get(0);
-                    Address b = addressList.get(1);
-                    Address c = addressList.get(2);
-                    Log.i(TAG, "a: " + a + " b: " + b + " c: " + c);
-                }
-            }
-            catch(IOException e){
-                Log.i(TAG, "IOException ");
-                e.printStackTrace();
-            }
-
-        }
-    }
+//    public void reverseGeocode(Location location){
+//        if(Geocoder.isPresent()){
+//            try {
+//                Geocoder gc = new Geocoder(LocationService.this, Locale.getDefault());
+//                List<Address> addressList = gc.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+//
+//                // Try to get the location in street address style
+//                if (addressList != null && addressList.size() > 0) {
+//                    Address a = addressList.get(0);
+//                    Address b = addressList.get(1);
+//                    Address c = addressList.get(2);
+//                    Log.i(TAG, "a: " + a + " b: " + b + " c: " + c);
+//                }
+//            }
+//            catch(IOException e){
+//                Log.i(TAG, "IOException ");
+//                e.printStackTrace();
+//            }
+//
+//        }
+//    }
 
     @Override
     public void onLocationChanged(Location location) {
@@ -247,8 +245,8 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
             reference.child("Location").setValue(locationHolder);
 
             // Show a toast for location if the user is logged in only
-            Toast locationToast = Toast.makeText(getApplicationContext(), "From Service: \n" + locationString, Toast.LENGTH_SHORT);
-            locationToast.show();
+//            Toast locationToast = Toast.makeText(getApplicationContext(), "From Service: \n" + locationString, Toast.LENGTH_SHORT);
+//            locationToast.show();
         }
     }
 }
