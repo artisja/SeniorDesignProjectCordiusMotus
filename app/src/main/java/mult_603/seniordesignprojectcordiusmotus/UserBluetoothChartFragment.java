@@ -26,6 +26,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.mikepenz.materialize.color.Material;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -48,6 +49,7 @@ public class UserBluetoothChartFragment extends Fragment {
     private DatabaseReference userVitalsReference = firebaseDatabase.getReference(currentUser.getUid()).child("Vitals");
     private ArrayList<Double> vitalsArray = new ArrayList<>(100);
 
+
     Handler mHandler = new Handler(){
         @Override
         public void handleMessage(Message msg){
@@ -69,18 +71,14 @@ public class UserBluetoothChartFragment extends Fragment {
                     // If there is a number then add it to the graph
                     try{
                         double vDouble  = 0.0;
-                        double sDouble  = 0.0;
 
                         String[] newStrings = readLine.split(",");
-                        String seconds  = newStrings[0];
-                        String vString  = newStrings[1];
+                        String vString  = newStrings[0];
 
                         // Replace the things we don't need in the V String.
-                        seconds = seconds.replace("S = ", "").trim();
-                        vString = vString.replace("V = ", "").replace("#", "");
+                        vString = vString.replace("V = ", "").trim();
 
                         // Parse it to a double
-                        sDouble = Double.parseDouble(seconds);
                         vDouble = Double.parseDouble(vString);
 
                         // Create an entry
@@ -89,22 +87,15 @@ public class UserBluetoothChartFragment extends Fragment {
                         // Add entry to the chart
                         addEntryToChart((float) iteration, (float) vDouble);
 
-
                         // Add to the values array list
                         vitalsArray.add(vDouble);
 
-                        // Add to fire base
-                        Log.i(TAG, "X Value: " + xValue);
-                        Log.i(TAG, "vDouble: " + vDouble);
-                        Log.i(TAG, "Seconds: " + sDouble);
-
                         // If x value is 100 reset it
-                        if (xValue == 200){
+                        if (xValue == 100){
                             userVitalsReference.setValue(vitalsArray);
                             vitalsArray.clear();
                             xValue = 0;
                         }
-
                         xValue ++;
 
 
@@ -173,25 +164,30 @@ public class UserBluetoothChartFragment extends Fragment {
         Legend legend = lineChart.getLegend();
         legend.setForm(Legend.LegendForm.LINE);
         legend.setFormLineWidth(5f);
-        legend.setTextColor(Color.WHITE);
+        legend.setTextColor(Color.BLACK);
+        legend.setTextSize(15f);
         legend.setMaxSizePercent(25);
         legend.setDrawInside(true);
         legend.setFormSize(25);
         legend.setDirection(Legend.LegendDirection.RIGHT_TO_LEFT);
         legend.setOrientation(Legend.LegendOrientation.VERTICAL);
-        legend.setPosition(Legend.LegendPosition.ABOVE_CHART_RIGHT);
+//        legend.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
+//        legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
+        legend.setPosition(Legend.LegendPosition.BELOW_CHART_CENTER);
 
         // Set up the charts x and y axis
         XAxis xAxis = lineChart.getXAxis();
         xAxis.setAxisLineWidth(3f);
-        xAxis.setTextColor(Color.BLACK);
+        xAxis.setDrawLabels(false);
+        xAxis.setTextColor(Color.LTGRAY);
         xAxis.setAxisLineColor(Color.BLACK);
         xAxis.setGridColor(Color.RED);
         xAxis.setDrawGridLines(true);
         xAxis.setAvoidFirstLastClipping(true);
 
         YAxis yAxis = lineChart.getAxisLeft();
-        yAxis.setTextColor(Color.BLACK);
+        yAxis.setDrawLabels(false);
+        yAxis.setTextColor(Color.LTGRAY);
         yAxis.setAxisLineColor(Color.BLACK);
         yAxis.setGridColor(Color.RED);
         yAxis.setDrawGridLines(true);
