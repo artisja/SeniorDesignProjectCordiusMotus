@@ -19,7 +19,15 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
@@ -30,10 +38,16 @@ public class UserBluetoothChartFragment extends Fragment {
     private LinearLayout background;
     private LineChart lineChart;
     private LineData  lineData;
-    private static int    xMax = 100;
+    private static int xMax = 100;
     private View view;
-    static double         iteration = 1.0;
+    static double iteration = 1.0;
+    private int xValue = 0;
     ArrayList<Entry> entries = new ArrayList<>();
+    private FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+    private FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+    private DatabaseReference userVitalsReference = firebaseDatabase.getReference(currentUser.getUid()).child("Vitals");
+    private ArrayList<Double> vitalsArray = new ArrayList<>(100);
+
     Handler mHandler = new Handler(){
         @Override
         public void handleMessage(Message msg){
@@ -52,41 +66,47 @@ public class UserBluetoothChartFragment extends Fragment {
 
                 case UserBluetoothListFragment.READING_MESSAGE:
                     String readLine = (String) msg.obj;
-//                    Log.i(TAG, "Read Line in Chart " + readLine);
-
-                    double puDouble = 0.0;
-                    double pdDouble = 0.0;
-                    double tDouble  = 0.0;
-                    double vDouble  = 0.0;
-
-                    String[] newStrings = readLine.split(",");
-                    String puString = newStrings[0];
-                    String pdString = newStrings[1];
-                    String tString  = newStrings[2];
-                    String vString  = newStrings[3];
-
                     // If there is a number then add it to the graph
                     try{
-//                        Log.i(TAG, "PU String -->  " + puString);
-//                        Log.i(TAG, "PD String -->  " + pdString);
-//                        Log.i(TAG, "T  String -->  " + tString);
-//                        Log.i(TAG, "V  String -->  " + vString);
+                        double vDouble  = 0.0;
+                        double sDouble  = 0.0;
+
+                        String[] newStrings = readLine.split(",");
+                        String seconds  = newStrings[0];
+                        String vString  = newStrings[1];
 
                         // Replace the things we don't need in the V String.
-                        vString = vString.replace("V = ", "")
-                                .replace("#", "");
+                        seconds = seconds.replace("S = ", "").trim();
+                        vString = vString.replace("V = ", "").replace("#", "");
 
                         // Parse it to a double
+                        sDouble = Double.parseDouble(seconds);
                         vDouble = Double.parseDouble(vString);
 
                         // Create an entry
                         Entry a = new Entry((float) iteration, (float) vDouble);
 
-                        // Try to sleep
-                        UserBluetoothListFragment.connectedThread.sleep(10);
-
                         // Add entry to the chart
                         addEntryToChart((float) iteration, (float) vDouble);
+
+
+                        // Add to the values array list
+                        vitalsArray.add(vDouble);
+
+                        // Add to fire base
+                        Log.i(TAG, "X Value: " + xValue);
+                        Log.i(TAG, "vDouble: " + vDouble);
+                        Log.i(TAG, "Seconds: " + sDouble);
+
+                        // If x value is 100 reset it
+                        if (xValue == 200){
+                            userVitalsReference.setValue(vitalsArray);
+                            vitalsArray.clear();
+                            xValue = 0;
+                        }
+
+                        xValue ++;
+
 
                     }catch(Exception e){
                         Log.i(TAG, "Exception occured " + e.getMessage());
@@ -125,23 +145,22 @@ public class UserBluetoothChartFragment extends Fragment {
 
         // Create the line chart
         Description description = new Description();
-        description.setText("Heart Rate Data For User");
-        description.setTextColor(Color.RED);
+        description.setText("Heart Rate Data");
+        description.setTextColor(R.color.colorPrimaryDark);
         lineChart.setDescription(description);
+
         lineChart.setBackgroundColor(Color.LTGRAY);
         lineChart.setNoDataText("No Bluetooth Heart Rate Data to Display");
         lineChart.setNoDataTextColor(R.color.colorPrimaryDark);
-        lineChart.setNoDataTextColor(Color.RED);
         lineChart.setTouchEnabled(true);
-        lineChart.setDragEnabled(true);
         lineChart.setScaleEnabled(true);
         lineChart.setDrawGridBackground(true);
-        lineChart.setGridBackgroundColor(Color.WHITE);
+        lineChart.setGridBackgroundColor(Color.BLACK);
         lineChart.setDrawGridBackground(true);
-        lineChart.setDrawMarkers(true);
         lineChart.setPinchZoom(true);
         lineChart.setDrawBorders(true);
         lineChart.setMaxVisibleValueCount(xMax);
+        lineChart.setAutoScaleMinMaxEnabled(true);
 
         try{
             lineChart.setHardwareAccelerationEnabled(true);
@@ -165,15 +184,15 @@ public class UserBluetoothChartFragment extends Fragment {
         // Set up the charts x and y axis
         XAxis xAxis = lineChart.getXAxis();
         xAxis.setAxisLineWidth(3f);
-        xAxis.setTextColor(Color.WHITE);
-        xAxis.setAxisLineColor(Color.WHITE);
+        xAxis.setTextColor(Color.BLACK);
+        xAxis.setAxisLineColor(Color.BLACK);
         xAxis.setGridColor(Color.RED);
         xAxis.setDrawGridLines(true);
         xAxis.setAvoidFirstLastClipping(true);
 
         YAxis yAxis = lineChart.getAxisLeft();
-        yAxis.setTextColor(Color.WHITE);
-        yAxis.setAxisLineColor(Color.WHITE);
+        yAxis.setTextColor(Color.BLACK);
+        yAxis.setAxisLineColor(Color.BLACK);
         yAxis.setGridColor(Color.RED);
         yAxis.setDrawGridLines(true);
         yAxis.setAxisLineWidth(3f);
@@ -188,7 +207,7 @@ public class UserBluetoothChartFragment extends Fragment {
         lineChart.invalidate();
 
         // Logcat output bad for the processing but may be necessary
-        lineChart.setLogEnabled(true);
+//        lineChart.setLogEnabled(true);
     }
 
     // Add an entry to the chart
@@ -197,11 +216,11 @@ public class UserBluetoothChartFragment extends Fragment {
         Log.i(TAG, "Adding Entry");
 
         if(data != null){
-            Log.i(TAG, "Data is not null");
+//            Log.i(TAG, "Data is not null");
             LineDataSet set = (LineDataSet) data.getDataSetByIndex(0);
 
             if(set == null){
-                Log.i(TAG, "Set is null");
+//                Log.i(TAG, "Set is null");
                 set = createSet();
                 data.addDataSet(set);
             }
@@ -229,16 +248,14 @@ public class UserBluetoothChartFragment extends Fragment {
     private LineDataSet createSet(){
         Log.i(TAG, "Creating Set");
         LineDataSet lineDataSet = new LineDataSet(null , "Heart Rate Data");
-        lineDataSet.setDrawCircles(true);
         lineDataSet.setCubicIntensity(0.2f);
         lineDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
-        lineDataSet.setColor(Color.GREEN);
+        lineDataSet.setColor(Color.RED);
         lineDataSet.setCircleColor(Color.RED);
+        lineDataSet.setCircleColorHole(Color.RED);
+        lineDataSet.setDrawCircleHole(false);
+        lineDataSet.setDrawCircles(false);
         lineDataSet.setLineWidth(4f);
-        lineDataSet.setCircleHoleRadius(8f);
-        lineDataSet.setFillAlpha(65);
-        lineDataSet.setFillColor(Color.WHITE);
-        lineDataSet.setValueTextColor(Color.BLUE);
 
         // Set the data text value size to zero because it gets in the way
         lineDataSet.setValueTextSize(0f);

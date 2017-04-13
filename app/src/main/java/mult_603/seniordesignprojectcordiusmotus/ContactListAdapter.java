@@ -131,6 +131,8 @@ public class ContactListAdapter extends BaseAdapter implements ListAdapter {
                         Log.i(TAG, "Key to Delete       " + key);
                         Log.i(TAG, "Reference to Delete " + reference.child(key));
 
+                        // TODO make sure this is sending a sms text message and not an email
+
                         SmsManager smsManager = SmsManager.getDefault();
 
                         // Create the text message string

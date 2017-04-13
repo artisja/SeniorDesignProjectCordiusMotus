@@ -43,7 +43,7 @@ public class ApplicationController extends Application {
         startService(locationIntent);
 
         // Debugging play alert sound
-        playAlertSound();
+//        playAlertSound();
 
     }
 
