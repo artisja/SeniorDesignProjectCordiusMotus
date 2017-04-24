@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.3"
+    compileSdkVersion 25
+    buildToolsVersion "25.0.0"
     defaultConfig {
         applicationId "mult_603.seniordesignprojectcordiusmotus"
         minSdkVersion 16
@@ -43,6 +43,7 @@ dependencies {
     compile 'com.google.firebase:firebase-messaging:9.6.1'
     compile 'com.google.firebase:firebase-storage:9.6.1'
     compile 'com.android.support:design:23.4.0'
+    compile fileTree(dir: 'libs', include: ['*.jar'])
     // Circle image view
     compile 'de.hdodenhof:circleimageview:2.1.0'
     // Graphing chart library
@@ -57,5 +58,7 @@ dependencies {
     compile 'com.github.bumptech.glide:glide:3.7.0'
     // FirebaseUI Storage only
     compile 'com.firebaseui:firebase-ui-storage:0.6.1'
+    compile 'junit:junit:4.12'
+    compile 'junit:junit:4.12'
 }
 apply plugin: 'com.google.gms.google-services'

@@ -1,10 +1,13 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothClass;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.telephony.SmsManager;
 import android.util.Log;
@@ -59,6 +62,7 @@ public class UserAddContactFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         //super.onCreateView(inflater, container, savedInstanceState);
         view = inflater.inflate(R.layout.activity_contact_simple, container, false);
+        ActivityCompat.requestPermissions(getActivity(),new String[]{android.Manifest.permission.SEND_SMS},1);
 
         // hide the keyboard
         inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -174,16 +178,29 @@ public class UserAddContactFragment extends Fragment {
     // Notify the emergency contact
     private void sendNotificationToContact(String phone, String email, String shortHash){
         // Try to send a message to the current users emergency contact
+
         try {
             SmsManager smsManager = SmsManager.getDefault();
             String message = "You have been added as an emergency contact for User "
                     + email
                     + "\n This is your UUID for the device location -> "
                     + shortHash;
-
-            smsManager.sendTextMessage(phone, null,message, null, null);
-            Intent sendMessageIntent = new Intent(Intent.ACTION_VIEW);
-            sendMessageIntent.setType("vnd.android-dir/mms-sms");
+            String uri = "http://maps.google.com/maps?saddr=" + 37.5407 + "," + -77.4360;
+//            StringBuffer buffer = new StringBuffer();
+//            buffer.append(Uri.parse(uri));
+            StringBuffer smsBody = new StringBuffer();
+            smsBody.append("http://maps.google.com?q=");
+            smsBody.append("37.5407");
+            smsBody.append(",");
+            smsBody.append("-77.4360");
+            PendingIntent pi = PendingIntent.getActivity(getActivity(),0,new Intent(getActivity(),UserAddContactFragment.class),0);
+            SmsManager sms = SmsManager.getDefault();
+            sms.sendTextMessage(phone,null,message ,pi,null);
+            //emergency message
+            sms.sendTextMessage(phone,null,smsBody.toString() ,pi,null);
+//            smsManager.sendTextMessage(phone, null,message, null, null);
+//            Intent sendMessageIntent = new Intent(Intent.ACTION_VIEW);
+//            sendMessageIntent.setType("vnd.android-dir/mms-sms");
 
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.setType("text/html");
