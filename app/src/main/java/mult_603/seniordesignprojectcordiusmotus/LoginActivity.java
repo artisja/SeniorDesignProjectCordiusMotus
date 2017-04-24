@@ -60,6 +60,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
+                // If user is not null then push them to the add contact activity??
                 if(currentUser != null){
                     Log.i(TAG, "Current User is not null in login activity");
                     signUpButton.setTextColor(Color.GRAY);

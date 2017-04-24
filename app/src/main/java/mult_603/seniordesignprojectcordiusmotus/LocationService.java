@@ -46,6 +46,7 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     private GoogleApiClient googleApiClient;
     private FirebaseDatabase database;
     private LocationManager locationManager;
+    public static LocationHolder locationHolder;
 
     @Override
     public void onCreate(){
@@ -120,7 +121,7 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     @Override
     public void onDestroy(){
         super.onDestroy();
-        Log.i(TAG, "Location Service has been destroyed stopping the service calling stop location updates and stop self");
+        Log.i(TAG, "Location Service has been destroyed");
         stopLocationUpdates();
         stopSelf();
     }
@@ -166,28 +167,9 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
                 .build();
     }
 
-
-//    public void reverseGeocode(Location location){
-//        if(Geocoder.isPresent()){
-//            try {
-//                Geocoder gc = new Geocoder(LocationService.this, Locale.getDefault());
-//                List<Address> addressList = gc.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-//
-//                // Try to get the location in street address style
-//                if (addressList != null && addressList.size() > 0) {
-//                    Address a = addressList.get(0);
-//                    Address b = addressList.get(1);
-//                    Address c = addressList.get(2);
-//                    Log.i(TAG, "a: " + a + " b: " + b + " c: " + c);
-//                }
-//            }
-//            catch(IOException e){
-//                Log.i(TAG, "IOException ");
-//                e.printStackTrace();
-//            }
-//
-//        }
-//    }
+    public static LocationHolder getLocationHolder(){
+        return locationHolder;
+    }
 
     @Override
     public void onLocationChanged(Location location) {
@@ -201,12 +183,9 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
             e.printStackTrace();
         }
 
-        // Reverse Geocode
-        //reverseGeocode(location);
-
         Double lat = location.getLatitude();
         Double lng = location.getLongitude();
-        final LocationHolder locationHolder = new LocationHolder(lat,lng);
+        locationHolder = new LocationHolder(lat,lng);
         String locationString = locationHolder.toString();
         Log.i(TAG, locationString);
 
@@ -244,9 +223,6 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
             Log.i(TAG, "Key " + key);
             reference.child("Location").setValue(locationHolder);
 
-            // Show a toast for location if the user is logged in only
-//            Toast locationToast = Toast.makeText(getApplicationContext(), "From Service: \n" + locationString, Toast.LENGTH_SHORT);
-//            locationToast.show();
         }
     }
 }

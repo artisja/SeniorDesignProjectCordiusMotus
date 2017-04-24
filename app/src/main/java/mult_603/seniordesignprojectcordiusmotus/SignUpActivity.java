@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -18,6 +17,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -42,8 +42,6 @@ import com.tapadoo.alerter.OnShowAlertListener;
 import android.net.Uri;
 import org.hashids.Hashids;
 
-import java.io.IOException;
-
 
 public class SignUpActivity extends AppCompatActivity{
     public final String TAG = SignUpActivity.class.getSimpleName();
@@ -61,6 +59,11 @@ public class SignUpActivity extends AppCompatActivity{
     private FirebaseStorage mFirebaseStorage;
     private String userImageReferenceString;
     private FirebaseUser currentUser;
+    private String uName;
+    private String email;
+    private String password;
+    private String cPassword;
+    private String userImageRefToSave;
     public static DeviceUser newUser = new DeviceUser();
     public static DatabaseReference userDictRef = FirebaseDatabase.getInstance().getReference("UserDictionary");;
 
@@ -93,6 +96,7 @@ public class SignUpActivity extends AppCompatActivity{
                 final FirebaseUser user = firebaseAuth.getCurrentUser();
                 Log.i(TAG, "Auth state listener");
 
+                // If the user is not null then using the short hash set the image reference
                 if(user != null){
                     Log.i(TAG, "Current User is not null");
                     if(newUser.getShortHash() != null) {
@@ -102,6 +106,7 @@ public class SignUpActivity extends AppCompatActivity{
                     else{
                         Log.i(TAG, "Current User short hash is null");
                     }
+
                 }
                 else{
                     Log.i(TAG, "Current User is null");
@@ -148,10 +153,10 @@ public class SignUpActivity extends AppCompatActivity{
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String password = setPasswordEdit.getText().toString().trim();
-                final String email    = setEmailEdit.getText().toString().trim();
-                final String uName    = setUserNameEdit.getText().toString().trim();
-                final String cPassword= confirmPassword.getText().toString().trim();
+                uName    = setUserNameEdit.getText().toString().trim();
+                email    = setEmailEdit.getText().toString().trim();
+                password = setPasswordEdit.getText().toString().trim();
+                cPassword= confirmPassword.getText().toString().trim();
 
                 final InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
@@ -182,9 +187,10 @@ public class SignUpActivity extends AppCompatActivity{
                                     Log.i(TAG, "UName: " + uName);
                                     Log.i(TAG, "Password: " + password);
                                     Log.i(TAG, "Confirm Password: " + cPassword);
-                                    Log.i(TAG, "User Image Reference String: " + userImageReferenceString);
+                                    Log.i(TAG, "User Image Reference String: " + userImageRefToSave);
 
-                                    // Set the user name, email, image path, and short haash
+                                    // Set the user name, email, image path, and short hash
+                                    Log.i(TAG, "User Name uName -> " + uName);
                                     newUser.setUserName(uName);
                                     newUser.setEmail(email);
                                     newUser.setUserImage(userImageReferenceString);
@@ -221,10 +227,9 @@ public class SignUpActivity extends AppCompatActivity{
                                                 // Update user profile, set device user's user name update user dictionary
                                                 currentUser.updateProfile(userProfileChangeRequest);
 
-                                                // Update the user's profile information
+//                                                // Update the user's profile information
                                                 if (currentUser != null) {
                                                     newUser.setUuid(currentUser.getUid());
-                                                    newUser.setUserName(currentUser.getDisplayName());
                                                 }
 
                                                 userDictRef.child(newUser.getShortHash()).setValue(newUser);
@@ -372,25 +377,18 @@ public class SignUpActivity extends AppCompatActivity{
 
                 // Do something with the photo here (bigger example below)
                 userImageUri = data.getData();
-//                try {
-//                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), userImageUri);
-//                    Bitmap resized = Bitmap.createScaledBitmap(bitmap, 60, 60, true);
-//
-//                }
-//                catch(IOException i){
-//                    Log.i(TAG, "IOException: " + i.getMessage());
-//                }
-
                 Log.i(TAG, "Selected Image to String " + profileImage.toString());
                 Log.i(TAG, "Selected Image Path "      + userImageUri.getPath());
-                Log.i(TAG, "Selected Image Last Path Segment " + userImageUri.getLastPathSegment());
+                Log.i(TAG, "Selected Image Last Path " + userImageUri.getLastPathSegment());
 
 
                 profileImage.setImageURI(userImageUri);
 
                 // Store the user's image in fire base storage
                 StorageReference newImageRef = userImageReference.child(userImageUri.getLastPathSegment());
+                Log.i(TAG, "Storage Reference for Image " + newImageRef);
                 userImageReferenceString = newImageRef.getPath();
+                userImageRefToSave = newImageRef.toString();
 
                 // Set new users image reference and update the user
                 newUser.setUserImage(userImageReferenceString);

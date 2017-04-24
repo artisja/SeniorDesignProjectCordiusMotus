@@ -5,6 +5,8 @@ import android.bluetooth.BluetoothClass;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -176,7 +178,7 @@ public class UserAddContactFragment extends Fragment {
     // TODO can we ask for permission to use text messaging and email if someone doesn't let us?
 
     // Notify the emergency contact
-    private void sendNotificationToContact(String phone, String email, String shortHash){
+    private void sendNotificationToContact(String phone, String email, String shortHash, String latitude, String longitude){
         // Try to send a message to the current users emergency contact
 
         try {
@@ -202,12 +204,13 @@ public class UserAddContactFragment extends Fragment {
 //            Intent sendMessageIntent = new Intent(Intent.ACTION_VIEW);
 //            sendMessageIntent.setType("vnd.android-dir/mms-sms");
 
-            Intent intent = new Intent(Intent.ACTION_SEND);
-            intent.setType("text/html");
-            intent.putExtra(Intent.EXTRA_EMAIL,"artisja@vcu.edu");
-            intent.putExtra(Intent.EXTRA_SUBJECT,"Cardian Emergency Contact");
-            intent.putExtra(Intent.EXTRA_TEXT,message);
-            startActivity(Intent.createChooser(intent,"Send Email"));
+//            Intent emailIntent = new Intent(Intent.ACTION_SEND);
+//            emailIntent.setType("text/html");
+//            emailIntent.putExtra(Intent.EXTRA_EMAIL,"artisja@vcu.edu");
+//            emailIntent.putExtra(Intent.EXTRA_SUBJECT,"Cardian Emergency Contact");
+//            emailIntent.putExtra(Intent.EXTRA_TEXT, message);
+//            startActivity(Intent.createChooser(emailIntent,"Send Email"));
+
         }catch (Exception e){
             e.printStackTrace();
             Alerter.create(getActivity())
