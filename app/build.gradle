@@ -57,5 +57,11 @@ dependencies {
     compile 'com.github.bumptech.glide:glide:3.7.0'
     // FirebaseUI Storage only
     compile 'com.firebaseui:firebase-ui-storage:0.6.1'
+
+    // Twilio Video just in case
+//    compile 'com.twilio:video-android:1.0.0-beta16'
+    // The Client SDK resides on jCenter
+    compile 'com.twilio:client-android:1.2.18'
+
 }
 apply plugin: 'com.google.gms.google-services'

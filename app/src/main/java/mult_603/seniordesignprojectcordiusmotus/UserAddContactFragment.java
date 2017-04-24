@@ -1,8 +1,9 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
-import android.bluetooth.BluetoothClass;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -12,7 +13,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -23,6 +23,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.tapadoo.alerter.Alerter;
 import com.tapadoo.alerter.OnHideAlertListener;
+import com.twilio.client.Twilio;
+import com.twilio.client.TwilioClientService;
 
 /**
  * Created by Wes on 3/13/17.
@@ -149,7 +151,7 @@ public class UserAddContactFragment extends Fragment {
                 for(DataSnapshot dataSnap: dataSnapshot.getChildren()){
                     Log.i(TAG, "DataSnapshot child " + dataSnap);
 
-                    DeviceUser deviceUser = dataSnap.getValue(DeviceUser.class);
+                    final DeviceUser deviceUser = dataSnap.getValue(DeviceUser.class);
                     Log.i(TAG, "Device User -> " + deviceUser);
 
                     if(deviceUser.getUuid().equals(currentUser.getUid())){
@@ -157,7 +159,12 @@ public class UserAddContactFragment extends Fragment {
 
                         // Get the short hash and send it to the emergency contact via email or phone
                         String shortHash = deviceUser.getShortHash();
-                        sendNotificationToContact(userPhone, userEmail, shortHash);
+                        LocationHolder locationHolder = LocationService.getLocationHolder();
+                        String lat = Double.toString(locationHolder.getLatitude());
+                        String lng = Double.toString(locationHolder.getLongitude());
+
+                        Log.i(TAG, "Location Holder from Service: " + locationHolder.toString());
+                        sendNotificationToContact(userPhone, userEmail, shortHash, lat, lng);
                     }
                 }
             }
@@ -169,28 +176,33 @@ public class UserAddContactFragment extends Fragment {
         });
     }
 
-    // TODO can we ask for permission to use text messaging and email if someone doesn't let us?
-
+    // Old way that involved using firebase messaging api
     // Notify the emergency contact
-    private void sendNotificationToContact(String phone, String email, String shortHash){
+    private void sendNotificationToContact(String phone, String email, String shortHash, String latitude, String longitude){
         // Try to send a message to the current users emergency contact
         try {
             SmsManager smsManager = SmsManager.getDefault();
             String message = "You have been added as an emergency contact for User "
                     + email
-                    + "\n This is your UUID for the device location -> "
+                    + "\n This is your UUID for the user's location -> "
                     + shortHash;
+            String uri = "http://maps.google.com/maps?saddr=" + latitude + "," + longitude;
 
-            smsManager.sendTextMessage(phone, null,message, null, null);
-            Intent sendMessageIntent = new Intent(Intent.ACTION_VIEW);
+            Intent sendMessageIntent = new Intent(Intent.ACTION_SEND);
+            StringBuffer buffer = new StringBuffer();
+            buffer.append(Uri.parse(uri));
+            message += buffer;
             sendMessageIntent.setType("vnd.android-dir/mms-sms");
+            smsManager.sendTextMessage(phone, null, message, null, null);
+            startActivity(sendMessageIntent);
 
-            Intent intent = new Intent(Intent.ACTION_SEND);
-            intent.setType("text/html");
-            intent.putExtra(Intent.EXTRA_EMAIL,"artisja@vcu.edu");
-            intent.putExtra(Intent.EXTRA_SUBJECT,"Cardian Emergency Contact");
-            intent.putExtra(Intent.EXTRA_TEXT,message);
-            startActivity(Intent.createChooser(intent,"Send Email"));
+//            Intent emailIntent = new Intent(Intent.ACTION_SEND);
+//            emailIntent.setType("text/html");
+//            emailIntent.putExtra(Intent.EXTRA_EMAIL,"artisja@vcu.edu");
+//            emailIntent.putExtra(Intent.EXTRA_SUBJECT,"Cardian Emergency Contact");
+//            emailIntent.putExtra(Intent.EXTRA_TEXT, message);
+//            startActivity(Intent.createChooser(emailIntent,"Send Email"));
+
         }catch (Exception e){
             e.printStackTrace();
             Alerter.create(getActivity())
@@ -200,6 +212,15 @@ public class UserAddContactFragment extends Fragment {
                     .enableIconPulse(true)
                     .show();
         }
+    }
+
+    // TODO going into production we need to create our own server with this
+
+    private void sendSMSToContact(String phone, String email, String shortHash){
+        final String ACCOUNT_SID = "AC49b7f3bab850868ca8733f927dd8a95c";
+        final String AUTH_TOKEN = "your_auth_token";
+
+
     }
 
 }
