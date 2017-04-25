@@ -1,11 +1,14 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothSocket;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +33,8 @@ import com.mikepenz.materialize.color.Material;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Wes on 3/13/17.
@@ -48,6 +53,8 @@ public class UserBluetoothChartFragment extends Fragment {
     private FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
     private DatabaseReference userVitalsReference = firebaseDatabase.getReference(currentUser.getUid()).child("Vitals");
     private ArrayList<Double> vitalsArray = new ArrayList<>(100);
+    ApplicationController applicationController;
+    ArrayList<String> collectContacts;
 
 
     Handler mHandler = new Handler(){
@@ -86,6 +93,39 @@ public class UserBluetoothChartFragment extends Fragment {
 
                         // Add entry to the chart
                         addEntryToChart((float) iteration, (float) vDouble);
+
+
+                        if (vDouble<60){
+                            LocationHolder emergencyLocation = LocationService.getLocationHolder();
+                            String uri = "http://maps.google.com/maps?saddr=" + 37.5407 + "," + -77.4360;
+                            StringBuffer smsBody = new StringBuffer();
+                            smsBody.append("http://maps.google.com?q=");
+                            smsBody.append(emergencyLocation.getLatitude());
+                            smsBody.append(",");
+                            smsBody.append(emergencyLocation.getLongitude());
+                            Log.d(TAG,"Status code check");
+                            PendingIntent pi = PendingIntent.getActivity(getActivity(),0,new Intent(getActivity(),UserAddContactFragment.class),0);
+                            SmsManager sms = SmsManager.getDefault();
+                            DatabaseReference reference = firebaseDatabase.getReference(String.valueOf(applicationController.firebaseAuth.getCurrentUser())).child("Contacts");
+                            reference.addValueEventListener(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                  ArrayList<String>  tempCollect = new ArrayList<String>();
+                               for (DataSnapshot data : dataSnapshot.getChildren()){
+                                       collectContacts.add(data.child("number").getValue().toString());
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+
+                            for (String contacts:collectContacts) {
+                                sms.sendTextMessage(contacts, null, smsBody.toString(), pi, null);
+                            }
+                        }
 
                         // Add to the values array list
                         vitalsArray.add(vDouble);

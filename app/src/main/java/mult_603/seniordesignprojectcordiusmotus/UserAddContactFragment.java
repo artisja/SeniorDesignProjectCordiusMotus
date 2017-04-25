@@ -163,7 +163,11 @@ public class UserAddContactFragment extends Fragment {
 
                         // Get the short hash and send it to the emergency contact via email or phone
                         String shortHash = deviceUser.getShortHash();
-                        sendNotificationToContact(userPhone, userEmail, shortHash);
+                        LocationHolder locationHolder = LocationService.getLocationHolder();
+                        String lat = Double.toString(locationHolder.getLatitude());
+                        String lng = Double.toString(locationHolder.getLongitude());
+                        Log.i(TAG, "Location Holder from Service: " + locationHolder.toString());
+                        sendNotificationToContact(userPhone, userEmail, shortHash, lat, lng);
                     }
                 }
             }
@@ -187,19 +191,9 @@ public class UserAddContactFragment extends Fragment {
                     + email
                     + "\n This is your UUID for the device location -> "
                     + shortHash;
-            String uri = "http://maps.google.com/maps?saddr=" + 37.5407 + "," + -77.4360;
-//            StringBuffer buffer = new StringBuffer();
-//            buffer.append(Uri.parse(uri));
-            StringBuffer smsBody = new StringBuffer();
-            smsBody.append("http://maps.google.com?q=");
-            smsBody.append("37.5407");
-            smsBody.append(",");
-            smsBody.append("-77.4360");
             PendingIntent pi = PendingIntent.getActivity(getActivity(),0,new Intent(getActivity(),UserAddContactFragment.class),0);
             SmsManager sms = SmsManager.getDefault();
-            sms.sendTextMessage(phone,null,message ,pi,null);
-            //emergency message
-            sms.sendTextMessage(phone,null,smsBody.toString() ,pi,null);
+            sms.sendTextMessage(phone,null,message,pi,null);
 //            smsManager.sendTextMessage(phone, null,message, null, null);
 //            Intent sendMessageIntent = new Intent(Intent.ACTION_VIEW);
 //            sendMessageIntent.setType("vnd.android-dir/mms-sms");

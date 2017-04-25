@@ -17,7 +17,11 @@ import android.util.Log;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,6 +43,7 @@ public class ApplicationController extends Application {
     public static Intent locationIntent;
     public static HashMap<String, DeviceUser> deviceUserHashMap;
 
+
     public ApplicationController getInstance() {
         return singleton;
     }
@@ -56,7 +61,6 @@ public class ApplicationController extends Application {
         // Can Start the location service when the application starts
         locationIntent = new Intent(getApplicationContext(), LocationService.class);
         startService(locationIntent);
-
         // Debugging play alert sound
 //        playAlertSound();
 
@@ -77,6 +81,10 @@ public class ApplicationController extends Application {
         Log.i(TAG, "On Configuration Changed Called");
     }
 
+    @Override
+    public void onTerminate() {
+        super.onTerminate();
+    }
     @Override
     public void onLowMemory() {
         super.onLowMemory();

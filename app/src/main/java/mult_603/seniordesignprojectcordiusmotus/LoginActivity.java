@@ -205,6 +205,7 @@ public class LoginActivity extends AppCompatActivity {
 
                         progressDialog.cancel();
 
+                        //assume user is healthy
                         // Go to the user tab activity
                         Intent intent = new Intent(LoginActivity.this, UserTabActivity.class);
                         startActivity(intent);
