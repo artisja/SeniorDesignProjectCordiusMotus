@@ -1,12 +1,19 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
+import android.*;
+import android.app.AlertDialog;
+import android.app.DialogFragment;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothSocket;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.telephony.SmsManager;
 import android.util.Log;
@@ -55,6 +62,7 @@ public class UserBluetoothChartFragment extends Fragment {
     private ArrayList<Double> vitalsArray = new ArrayList<>(100);
     ApplicationController applicationController;
     ArrayList<String> collectContacts;
+    static public boolean isOkay;
 
 
     Handler mHandler = new Handler(){
@@ -95,36 +103,37 @@ public class UserBluetoothChartFragment extends Fragment {
                         addEntryToChart((float) iteration, (float) vDouble);
 
 
-                        if (vDouble<60){
-                            LocationHolder emergencyLocation = LocationService.getLocationHolder();
-                            String uri = "http://maps.google.com/maps?saddr=" + 37.5407 + "," + -77.4360;
-                            StringBuffer smsBody = new StringBuffer();
-                            smsBody.append("http://maps.google.com?q=");
-                            smsBody.append(emergencyLocation.getLatitude());
-                            smsBody.append(",");
-                            smsBody.append(emergencyLocation.getLongitude());
-                            Log.d(TAG,"Status code check");
-                            PendingIntent pi = PendingIntent.getActivity(getActivity(),0,new Intent(getActivity(),UserAddContactFragment.class),0);
-                            SmsManager sms = SmsManager.getDefault();
-                            DatabaseReference reference = firebaseDatabase.getReference(String.valueOf(applicationController.firebaseAuth.getCurrentUser())).child("Contacts");
-                            reference.addValueEventListener(new ValueEventListener() {
+                        if(vDouble<60){
+                            final AlertDialog heartAlert;
+                            AlertDialog.Builder heartAttackAlert = new AlertDialog.Builder(getContext());
+                            heartAttackAlert.setMessage(R.string.dialog_message_emergency)
+                                    .setPositiveButton(R.string.dialog_positive_response, new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            isOkay = true;
+                                            dialog.dismiss();
+                                        }
+                                    })
+                                    .setNegativeButton(R.string.dialog_negative_response, new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            isOkay = false;
+                                            dialog.dismiss();
+                                            deadAction();
+                                        }
+                                    });
+                            heartAlert = heartAttackAlert.create();
+                            final Handler handler = new Handler();
+                            final  Runnable runnable = new Runnable() {
                                 @Override
-                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                  ArrayList<String>  tempCollect = new ArrayList<String>();
-                               for (DataSnapshot data : dataSnapshot.getChildren()){
-                                       collectContacts.add(data.child("number").getValue().toString());
+                                public void run() {
+                                    if (heartAlert.isShowing()){
+                                        heartAlert.dismiss();
+                                        deadAction();
                                     }
                                 }
-
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {
-
-                                }
-                            });
-
-                            for (String contacts:collectContacts) {
-                                sms.sendTextMessage(contacts, null, smsBody.toString(), pi, null);
-                            }
+                            };
+                            handler.postDelayed(runnable,10000);
                         }
 
                         // Add to the values array list
@@ -149,6 +158,49 @@ public class UserBluetoothChartFragment extends Fragment {
         }
     };
 
+    public void deadAction(){
+            LocationHolder emergencyLocation = LocationService.getLocationHolder();
+            String uri = "http://maps.google.com/maps?saddr=" + 37.5407 + "," + -77.4360;
+            StringBuffer smsBody = new StringBuffer();
+            smsBody.append("http://maps.google.com?q=");
+            smsBody.append(emergencyLocation.getLatitude());
+            smsBody.append(",");
+            smsBody.append(emergencyLocation.getLongitude());
+            Log.d(TAG, "Status code check");
+            PendingIntent pi = PendingIntent.getActivity(getActivity(), 0, new Intent(getActivity(), UserAddContactFragment.class), 0);
+            SmsManager sms = SmsManager.getDefault();
+            DatabaseReference reference = firebaseDatabase.getReference(String.valueOf(applicationController.firebaseAuth.getCurrentUser())).child("Contacts");
+            reference.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    ArrayList<String> tempCollect = new ArrayList<String>();
+                    for (DataSnapshot data : dataSnapshot.getChildren()) {
+                        collectContacts.add(data.child("number").getValue().toString());
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+
+
+            for (String contacts : collectContacts) {
+                sms.sendTextMessage(contacts, null, smsBody.toString(), pi, null);
+            }
+        if (ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        startActivity(new Intent(Intent.ACTION_CALL, Uri.fromParts("tel", "7577090180", null)));
+    }
     // Empty Constructor
     public UserBluetoothChartFragment(){
 

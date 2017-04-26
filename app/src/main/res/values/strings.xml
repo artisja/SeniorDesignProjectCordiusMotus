@@ -58,7 +58,9 @@
     <string name="title_activity_user_tab">UserTabActivity</string>
     <string name="section_format">Hello World from section: %1$d</string>
     <string name="title_activity_user_login">Sign in</string>
-
+    <string name="dialog_message_emergency">Are You Okay? </string>
+    <string name="dialog_positive_response">Yes,I am okay.</string>
+    <string name="dialog_negative_response">No,I am not okay.</string>
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password (optional)</string>

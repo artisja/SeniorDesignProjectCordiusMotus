@@ -1,11 +1,13 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
+import android.*;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -73,6 +75,8 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         };
+        ActivityCompat.requestPermissions(LoginActivity.this, new String[]{android.Manifest.permission.CALL_PHONE},0);
+
 
         // Add the auth state listener
         firebaseAuth.addAuthStateListener(mAuthStateListener);
