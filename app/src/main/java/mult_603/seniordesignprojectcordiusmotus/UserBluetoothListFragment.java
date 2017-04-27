@@ -113,16 +113,10 @@ public class UserBluetoothListFragment extends Fragment {
 
                 case BluetoothAdapter.ACTION_DISCOVERY_STARTED:
                     Log.i(TAG, "Action Discovery Started ");
-                    // Create a progress dialog to tell the user how long the process will take
-//                    progressDialog = new ProgressDialog(getActivity(), R.style.AppThemeDialog);
-//                    progressDialog.setIndeterminate(true);
-//                    progressDialog.setMessage("Authenticating...");
-//                    progressDialog.show();
                     break;
 
                 case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:
                     Log.i(TAG, "Action Discovery Finished ");
-//                    progressDialog.cancel();
                     break;
 
                 case BluetoothAdapter.ACTION_STATE_CHANGED:
@@ -380,8 +374,6 @@ public class UserBluetoothListFragment extends Fragment {
                 return;
             }
 
-            //mHandler.obtainMessage(SUCCESSFUL_CONNECTION, mmSocket).sendToTarget();
-
             // Connect the socket and get information
             connectedThread = new ConnectedThread(mmSocket);
             connectedThread.start();
@@ -429,7 +421,7 @@ public class UserBluetoothListFragment extends Fragment {
                 try {
                     // Read the stream line by line and send the info to the target.
                     String line = bufferedInputStream.readLine();
-                    Log.i(TAG, "Bluetooth Info -> " + line);
+//                    Log.i(TAG, "Bluetooth Info -> " + line);
                     mHandler.obtainMessage(READING_MESSAGE, line).sendToTarget();
                 }
                 catch (IOException e) {

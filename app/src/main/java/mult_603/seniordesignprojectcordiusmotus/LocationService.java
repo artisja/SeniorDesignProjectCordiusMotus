@@ -61,8 +61,6 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
         if(!googleApiClient.isConnected()){
             googleApiClient.connect();
         }
-        // Tells the service to run until we call stopSelf
-//        return START_STICKY;
 
         // This will make the service stop when application is terminated
         return START_NOT_STICKY;

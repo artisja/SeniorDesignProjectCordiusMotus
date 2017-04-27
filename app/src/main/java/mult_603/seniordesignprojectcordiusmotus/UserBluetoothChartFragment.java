@@ -1,8 +1,6 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
-import android.*;
 import android.app.AlertDialog;
-import android.app.DialogFragment;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothSocket;
 import android.content.DialogInterface;
@@ -36,12 +34,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.mikepenz.materialize.color.Material;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by Wes on 3/13/17.
@@ -49,20 +42,25 @@ import java.util.Map;
 public class UserBluetoothChartFragment extends Fragment {
     private static final String TAG = UserBluetoothChartFragment.class.getSimpleName();
     private LinearLayout background;
-    private LineChart lineChart;
-    private LineData  lineData;
+    private LineChart    lineChart;
+    private LineData     lineData;
+    private View         view;
     private static int xMax = 100;
-    private View view;
     static double iteration = 1.0;
-    private int xValue = 0;
+    private double bpm      = 0.0;
+    private int xValue      = 0;
     ArrayList<Entry> entries = new ArrayList<>();
     private FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
     private FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
     private DatabaseReference userVitalsReference = firebaseDatabase.getReference(currentUser.getUid()).child("Vitals");
+    private DatabaseReference userBpmReference    = firebaseDatabase.getReference(currentUser.getUid()).child("BPM");
+    private DatabaseReference userImuReference    = firebaseDatabase.getReference(currentUser.getUid()).child("IMU");
     private ArrayList<Double> vitalsArray = new ArrayList<>(100);
     ApplicationController applicationController;
     ArrayList<String> collectContacts;
     static public boolean isOkay;
+    private int testIMU = 0;
+    private double testBPM = 180.0;
 
 
     Handler mHandler = new Handler(){
@@ -73,9 +71,9 @@ public class UserBluetoothChartFragment extends Fragment {
             switch(msg.what){
                 case UserBluetoothListFragment.SUCCESSFUL_CONNECTION:
                     UserBluetoothListFragment.connectedThread = new UserBluetoothListFragment.ConnectedThread((BluetoothSocket) msg.obj);
-                    Log.i(TAG, "Connected Successfully Starting thread... ");
+                    Log.i(TAG,  " Connected Successfully Starting thread... ");
                     UserBluetoothListFragment.connectedThread.start();
-                    Log.i(TAG, "Bluetooth Activity Connected Thread " + UserBluetoothListFragment.connectedThread.getName()
+                    Log.i(TAG,  " Bluetooth Activity Connected Thread " + UserBluetoothListFragment.connectedThread.getName()
                             +   " Bluetooth Activity Connected Thread State " + UserBluetoothListFragment.connectedThread.getState()
                             +   " Bluetooth Activity Connected Thread Id    " + UserBluetoothListFragment.connectedThread.getId());
 
@@ -85,16 +83,29 @@ public class UserBluetoothChartFragment extends Fragment {
                     String readLine = (String) msg.obj;
                     // If there is a number then add it to the graph
                     try{
-                        double vDouble  = 0.0;
+                        double vDouble   = 0.0;
+                        double bpmDouble = 0.0;
+                        int imuInt = 0;
 
                         String[] newStrings = readLine.split(",");
-                        String vString  = newStrings[0];
+                        String vString   = newStrings[0];
+                        String bpmString = newStrings[1];
+                        String imuString = newStrings[2];
 
                         // Replace the things we don't need in the V String.
-                        vString = vString.replace("V = ", "").trim();
+                        vString   = vString.replace("V = ", "").trim();
+                        bpmString = bpmString.replace("B = ", "").trim();
+                        imuString = imuString.replace("M = ", "").trim();
 
                         // Parse it to a double
-                        vDouble = Double.parseDouble(vString);
+                        // IMU is 1 then moving
+                        // IMU is 0 then not moving
+                        vDouble   = Double.parseDouble(vString);
+                        bpmDouble = Double.parseDouble(bpmString);
+                        imuInt    = Integer.parseInt(imuString);
+
+                        // Update user's BPM
+                        bpm = bpmDouble;
 
                         // Create an entry
                         Entry a = new Entry((float) iteration, (float) vDouble);
@@ -102,8 +113,22 @@ public class UserBluetoothChartFragment extends Fragment {
                         // Add entry to the chart
                         addEntryToChart((float) iteration, (float) vDouble);
 
+                        // Add to the values array list
+                        vitalsArray.add(vDouble);
 
-                        if(vDouble<60){
+                        // Update IMU and BPM
+                        if (xValue % 100 == 0){
+                            userImuReference.setValue(imuInt);
+                            userBpmReference.setValue(bpm);
+                            testBPM = bpm;
+                            testIMU = imuInt;
+                        }
+
+                        Log.i(TAG, "V: " + vDouble + " BPM: " + bpmDouble + " IMU: " + imuInt);
+
+                        // If the user is not moving and the bpm is zero fire an alert
+                        if(testIMU == 0 && testBPM == 0.0){
+                            Log.i(TAG, "An Alert Should Happen In APP");
                             final AlertDialog heartAlert;
                             AlertDialog.Builder heartAttackAlert = new AlertDialog.Builder(getContext());
                             heartAttackAlert.setMessage(R.string.dialog_message_emergency)
@@ -136,9 +161,6 @@ public class UserBluetoothChartFragment extends Fragment {
                             handler.postDelayed(runnable,10000);
                         }
 
-                        // Add to the values array list
-                        vitalsArray.add(vDouble);
-
                         // If x value is 100 reset it
                         if (xValue == 400){
                             userVitalsReference.setValue(vitalsArray);
@@ -149,7 +171,7 @@ public class UserBluetoothChartFragment extends Fragment {
 
 
                     }catch(Exception e){
-                        Log.i(TAG, "Exception occured " + e.getMessage());
+                        Log.i(TAG, "Exception occurred " + e.getMessage());
                         e.printStackTrace();
                     }
 
@@ -231,7 +253,6 @@ public class UserBluetoothChartFragment extends Fragment {
         description.setText("Heart Rate Data");
         description.setTextColor(R.color.colorPrimaryDark);
         lineChart.setDescription(description);
-
         lineChart.setBackgroundColor(Color.LTGRAY);
         lineChart.setNoDataText("No Bluetooth Heart Rate Data to Display");
         lineChart.setNoDataTextColor(R.color.colorPrimaryDark);
@@ -263,8 +284,6 @@ public class UserBluetoothChartFragment extends Fragment {
         legend.setFormSize(25);
         legend.setDirection(Legend.LegendDirection.RIGHT_TO_LEFT);
         legend.setOrientation(Legend.LegendOrientation.VERTICAL);
-//        legend.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
-//        legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
         legend.setPosition(Legend.LegendPosition.BELOW_CHART_CENTER);
 
         // Set up the charts x and y axis
@@ -293,22 +312,17 @@ public class UserBluetoothChartFragment extends Fragment {
         lineChart.setData(lineData);
 
         lineChart.invalidate();
-
-        // Logcat output bad for the processing but may be necessary
-//        lineChart.setLogEnabled(true);
     }
 
     // Add an entry to the chart
     private void addEntryToChart(float x, float y){
         LineData data = lineChart.getData();
-        Log.i(TAG, "Adding Entry");
+//        Log.i(TAG, "Adding Entry");
 
         if(data != null){
-//            Log.i(TAG, "Data is not null");
             LineDataSet set = (LineDataSet) data.getDataSetByIndex(0);
 
             if(set == null){
-//                Log.i(TAG, "Set is null");
                 set = createSet();
                 data.addDataSet(set);
             }
@@ -335,7 +349,7 @@ public class UserBluetoothChartFragment extends Fragment {
     // Create Set
     private LineDataSet createSet(){
         Log.i(TAG, "Creating Set");
-        LineDataSet lineDataSet = new LineDataSet(null , "Heart Rate Data");
+        LineDataSet lineDataSet = new LineDataSet(null , "Heart Rate Data BPM: " + bpm);
         lineDataSet.setCubicIntensity(0.2f);
         lineDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
         lineDataSet.setColor(Color.RED);
