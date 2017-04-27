@@ -140,7 +140,7 @@ public class UserBluetoothChartFragment extends Fragment {
                         vitalsArray.add(vDouble);
 
                         // If x value is 100 reset it
-                        if (xValue == 100){
+                        if (xValue == 400){
                             userVitalsReference.setValue(vitalsArray);
                             vitalsArray.clear();
                             xValue = 0;

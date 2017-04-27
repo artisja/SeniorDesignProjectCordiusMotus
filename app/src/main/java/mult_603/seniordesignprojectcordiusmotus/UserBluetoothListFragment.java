@@ -1,5 +1,6 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -63,6 +64,7 @@ public class UserBluetoothListFragment extends Fragment {
     private Set<BluetoothDevice>        bondedDevices;
     private BluetoothDevice             connectedDevice;
     private View                        view;
+    private ProgressDialog              progressDialog;
 
     private final BroadcastReceiver broadReceiver = new BroadcastReceiver(){
         @Override
@@ -80,9 +82,9 @@ public class UserBluetoothListFragment extends Fragment {
                     if (connectedDevice != null && connectThread == null) {
                         connectThread = new ConnectThread(connectedDevice);
                         connectThread.start();
-                        Log.i(TAG, "Connect Thread " + connectThread.getName() + "\n"
+                        Log.i(TAG, "Connect Thread "      + connectThread.getName()  + "\n"
                                 + "Connect Thread State " + connectThread.getState() + "\n"
-                                + "Connect Thread Id " + connectThread.getId());
+                                + "Connect Thread Id "    + connectThread.getId());
                     }
                     break;
 
@@ -111,16 +113,21 @@ public class UserBluetoothListFragment extends Fragment {
 
                 case BluetoothAdapter.ACTION_DISCOVERY_STARTED:
                     Log.i(TAG, "Action Discovery Started ");
+                    // Create a progress dialog to tell the user how long the process will take
+//                    progressDialog = new ProgressDialog(getActivity(), R.style.AppThemeDialog);
+//                    progressDialog.setIndeterminate(true);
+//                    progressDialog.setMessage("Authenticating...");
+//                    progressDialog.show();
                     break;
 
                 case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:
                     Log.i(TAG, "Action Discovery Finished ");
+//                    progressDialog.cancel();
                     break;
 
                 case BluetoothAdapter.ACTION_STATE_CHANGED:
                     Log.i(TAG, "Action State Changed ");
                     break;
-
             }
         }
     };
@@ -159,6 +166,7 @@ public class UserBluetoothListFragment extends Fragment {
     public void onStart(){
         super.onStart();
         Log.i(TAG, "On Start Called. Fragment Visible.");
+        connectTheThread();
     }
 
     @Override
@@ -171,6 +179,7 @@ public class UserBluetoothListFragment extends Fragment {
     public void onDestroy(){
         super.onDestroy();
         Log.i(TAG, "On Destroy. Unregister receiver here");
+        getActivity().unregisterReceiver(broadReceiver);
     }
 
     @Override
@@ -180,19 +189,12 @@ public class UserBluetoothListFragment extends Fragment {
         Log.i(TAG, "Request Code: " + requestCode);
         Log.i(TAG, "Result Code: " + resultCode);
         Log.i(TAG, "Intent: " + i);
-
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         view = inflater.inflate(R.layout.activity_bluetooth, container, false);
         listView         = (ListView) view.findViewById(R.id.bluetooth_list);
         refreshButton    = (Button) view.findViewById(R.id.refresh_button);
-
-
-//        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-//        foundFilter      = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-//        enableBluetoothIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-//        deviceList  = new ArrayList<>();
 
 
         // Set the refresh button on click listener
@@ -255,17 +257,22 @@ public class UserBluetoothListFragment extends Fragment {
             bluetoothListAdapter = new BluetoothListAdapter(deviceList, view.getContext());
             listView.setAdapter(bluetoothListAdapter);
 
-            // Get bonded devices
-            getBondedDevices();
+            connectTheThread();
+        }
+    }
 
-            // Create a thread between the device and the application
-            if (connectedDevice != null) {
-                ConnectThread connectThread = new ConnectThread(connectedDevice);
-                connectThread.start();
-                Log.i(TAG, "Connect Thread " + connectThread.getName() + "\n"
-                        + "Connect Thread State " + connectThread.getState() + "\n"
-                        + "Connect Thread Id " + connectThread.getId());
-            }
+    private void connectTheThread(){
+        // If the connected device is null then look for bonded devices first and connect to them
+        if(connectedDevice == null){
+            getBondedDevices();
+        }
+        // Create a thread between the device and the application
+        if (connectedDevice != null) {
+            connectThread = new ConnectThread(connectedDevice);
+            connectThread.start();
+            Log.i(TAG, "Connect Thread " + connectThread.getName() + "\n"
+                    +  "Connect Thread State " + connectThread.getState() + "\n"
+                    +  "Connect Thread Id " + connectThread.getId());
         }
     }
 
@@ -308,7 +315,12 @@ public class UserBluetoothListFragment extends Fragment {
                 Log.i(TAG, "Bonded Device: " + device.getAddress() + " , " + " Name : " + device.getName());
                 if(!deviceList.contains(device)){
                     deviceList.add(device);
+                }
+
+                if(device.getName().equals("HC-05")){
+                    Log.i(TAG, "Found HC-05! Thanks MJ");
                     connectedDevice = device;
+                    Log.i(TAG, "Connected Device: " + device.getName() + " UUID: " + device.getUuids());
                 }
             }
         }
