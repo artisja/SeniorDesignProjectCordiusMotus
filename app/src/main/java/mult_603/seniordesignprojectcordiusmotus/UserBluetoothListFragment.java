@@ -47,24 +47,83 @@ public class UserBluetoothListFragment extends Fragment {
         }
     }
     static Handler mHandler = new Handler();
+    static ConnectThread connectThread;
     static ConnectedThread connectedThread;
-    static ConnectedThread mConnectedThread;
     public static final UUID DEVICE_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
     public static final int SUCCESSFUL_CONNECTION = 0;
     public static final int READING_MESSAGE       = 1;
     private final int REQUEST_BLUETOOTH_ENABLED   = 2;
     private BluetoothListAdapter        bluetoothListAdapter;
     private BluetoothAdapter            bluetoothAdapter;
-    private BroadcastReceiver           bluetoothReceiver;
     private ListView                    listView;
     private Button                      refreshButton;
     private ArrayList<BluetoothDevice>  deviceList;
-    private IntentFilter                foundFilter;
+    private IntentFilter                intentFilter;
     private Intent                      enableBluetoothIntent;
     private Set<BluetoothDevice>        bondedDevices;
     private BluetoothDevice             connectedDevice;
-    private View view;
+    private View                        view;
 
+    private final BroadcastReceiver broadReceiver = new BroadcastReceiver(){
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
+            switch (action) {
+                case BluetoothDevice.ACTION_BOND_STATE_CHANGED:
+                    Log.i(TAG, "Action Bond State Changed ");
+                    break;
+
+                case BluetoothDevice.ACTION_ACL_CONNECTED:
+                    Log.i(TAG, "Action ACL Connected");
+                    // Create a thread between the device and the application
+                    if (connectedDevice != null && connectThread == null) {
+                        connectThread = new ConnectThread(connectedDevice);
+                        connectThread.start();
+                        Log.i(TAG, "Connect Thread " + connectThread.getName() + "\n"
+                                + "Connect Thread State " + connectThread.getState() + "\n"
+                                + "Connect Thread Id " + connectThread.getId());
+                    }
+                    break;
+
+                case BluetoothDevice.ACTION_FOUND:
+                    Log.i(TAG, "Action Found ");
+                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                    final int state = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, BluetoothDevice.ERROR);
+                    final int previousState = intent.getIntExtra(BluetoothDevice.EXTRA_PREVIOUS_BOND_STATE, BluetoothDevice.ERROR);
+
+                    // If the device is not in the list then add it
+                    if (!deviceList.contains(device)) {
+                        deviceList.add(device);
+                        Log.i(TAG, "Device Found: " + device.getName() + " , " + device.getAddress());
+                    }
+
+                    // Is the state of the device bonded or bonding?
+                    if (state == BluetoothDevice.BOND_BONDED && previousState == BluetoothDevice.BOND_BONDING) {
+                        Log.i(TAG, "Paired in bluetooth receiver");
+                    }
+
+                    // Device is un-pairing
+                    else if (state == BluetoothDevice.BOND_NONE && previousState == BluetoothDevice.BOND_BONDED) {
+                        Log.i(TAG, "Unpaired in bluetooth receiver");
+                    }
+                    break;
+
+                case BluetoothAdapter.ACTION_DISCOVERY_STARTED:
+                    Log.i(TAG, "Action Discovery Started ");
+                    break;
+
+                case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:
+                    Log.i(TAG, "Action Discovery Finished ");
+                    break;
+
+                case BluetoothAdapter.ACTION_STATE_CHANGED:
+                    Log.i(TAG, "Action State Changed ");
+                    break;
+
+            }
+        }
+    };
 
     // Empty constructor
     public UserBluetoothListFragment(){
@@ -74,16 +133,66 @@ public class UserBluetoothListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+        bluetoothAdapter      = BluetoothAdapter.getDefaultAdapter();
+        enableBluetoothIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+        deviceList            = new ArrayList<>();
+
+        intentFilter           = new IntentFilter();
+        intentFilter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
+        intentFilter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED);
+        intentFilter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
+        intentFilter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
+        intentFilter.addAction(BluetoothDevice.ACTION_FOUND);
+        intentFilter.addAction(BluetoothDevice.ACTION_PAIRING_REQUEST);
+
+        // Register receivers
+        getActivity().registerReceiver(broadReceiver, intentFilter);
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        Log.i(TAG, "On Resume Called. Fragment Active.");
+    }
+
+    @Override
+    public void onStart(){
+        super.onStart();
+        Log.i(TAG, "On Start Called. Fragment Visible.");
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        Log.i(TAG, "On Pause. User is leaving the Fragment");
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        Log.i(TAG, "On Destroy. Unregister receiver here");
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent i){
+        super.onActivityResult(requestCode, resultCode, i);
+        Log.i(TAG, "On Activity Result Called in Fragment");
+        Log.i(TAG, "Request Code: " + requestCode);
+        Log.i(TAG, "Result Code: " + resultCode);
+        Log.i(TAG, "Intent: " + i);
+
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         view = inflater.inflate(R.layout.activity_bluetooth, container, false);
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         listView         = (ListView) view.findViewById(R.id.bluetooth_list);
         refreshButton    = (Button) view.findViewById(R.id.refresh_button);
-        foundFilter      = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        enableBluetoothIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-        deviceList  = new ArrayList<>();
+
+
+//        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+//        foundFilter      = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+//        enableBluetoothIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+//        deviceList  = new ArrayList<>();
 
 
         // Set the refresh button on click listener
@@ -138,62 +247,16 @@ public class UserBluetoothListFragment extends Fragment {
 
         // If the bluetooth adapter got set then proceed
         if(bluetoothAdapter!= null) {
+
             // Start discovery
             bluetoothAdapter.startDiscovery();
 
-            bluetoothReceiver = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    String action = intent.getAction();
-
-                    switch (action) {
-                        case BluetoothDevice.ACTION_BOND_STATE_CHANGED:
-                            Log.i(TAG, "Action Bond State Changed ");
-                            break;
-                        case BluetoothDevice.ACTION_FOUND:
-                            Log.i(TAG, "Action Found ");
-                            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                            final int state = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, BluetoothDevice.ERROR);
-                            final int previousState = intent.getIntExtra(BluetoothDevice.EXTRA_PREVIOUS_BOND_STATE, BluetoothDevice.ERROR);
-
-                            // If the device is not in the list then add it
-                            if (!deviceList.contains(device)) {
-                                deviceList.add(device);
-                                Log.i(TAG, "Device Found: " + device.getName() + " , " + device.getAddress());
-                            }
-
-                            // Is the state of the device bonded or bonding?
-                            if (state == BluetoothDevice.BOND_BONDED && previousState == BluetoothDevice.BOND_BONDING) {
-                                Log.i(TAG, "Paired in bluetooth receiver");
-                            }
-
-                            // Device is unpairing
-                            else if (state == BluetoothDevice.BOND_NONE && previousState == BluetoothDevice.BOND_BONDED) {
-                                Log.i(TAG, "Unpaired in bluetooth receiver");
-                            }
-                            break;
-                        case BluetoothAdapter.ACTION_DISCOVERY_STARTED:
-                            Log.i(TAG, "Action Discovery Started ");
-                            break;
-                        case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:
-                            Log.i(TAG, "Action Discovery Finished ");
-                            break;
-                        case BluetoothAdapter.ACTION_STATE_CHANGED:
-                            Log.i(TAG, "Action State Changed ");
-                            break;
-                    }
-                }
-            };
             // Set up the adapter and the list view
             bluetoothListAdapter = new BluetoothListAdapter(deviceList, view.getContext());
             listView.setAdapter(bluetoothListAdapter);
 
-            // Register broadcast receiver
-            getActivity().registerReceiver(bluetoothReceiver, foundFilter);
-
             // Get bonded devices
             getBondedDevices();
-
 
             // Create a thread between the device and the application
             if (connectedDevice != null) {
@@ -263,7 +326,7 @@ public class UserBluetoothListFragment extends Fragment {
         }
     }
 
-    // Unpair a previously paired bluetooth device
+    // Un-pair a previously paired bluetooth device
     public void unpairDevice(BluetoothDevice device) {
         try{
             Method method = device.getClass().getMethod("removeBond", (Class[]) null);
@@ -354,9 +417,8 @@ public class UserBluetoothListFragment extends Fragment {
                 try {
                     // Read the stream line by line and send the info to the target.
                     String line = bufferedInputStream.readLine();
-//                    Log.i(TAG, "Bluetooth Info -> " + line);
+                    Log.i(TAG, "Bluetooth Info -> " + line);
                     mHandler.obtainMessage(READING_MESSAGE, line).sendToTarget();
-
                 }
                 catch (IOException e) {
                     Log.i(TAG, "ERROR reading information from buffer " + e.getMessage());
