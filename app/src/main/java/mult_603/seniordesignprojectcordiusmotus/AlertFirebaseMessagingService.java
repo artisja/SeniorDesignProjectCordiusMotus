@@ -6,6 +6,8 @@ import com.google.firebase.messaging.RemoteMessage;
 
 /**
  * Created by artisja on 10/18/2016.
+ * I do not believe we have ever used this class or the methods in it.
+ * @Deprecated
  */
 
 public class AlertFirebaseMessagingService extends FirebaseMessagingService {

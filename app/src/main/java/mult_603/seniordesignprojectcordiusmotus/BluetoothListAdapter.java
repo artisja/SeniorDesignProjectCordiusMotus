@@ -15,6 +15,8 @@ import java.util.ArrayList;
 
 /**
  * Created by Wes on 10/5/16.
+ * The Bluetooth List Adapter is a class for storing a list of Bluetooth Devices
+ * in the immediate area into an array. This array is presented to the user so they can pair with the hardware
  */
 public class BluetoothListAdapter extends BaseAdapter implements ListAdapter {
     public final String TAG = BluetoothListAdapter.class.getSimpleName();
@@ -25,17 +27,32 @@ public class BluetoothListAdapter extends BaseAdapter implements ListAdapter {
         this.bluetoothNameList = bluetoothNameList;
         this.context = context;
     }
+
+    /**
+     * Returns the size of the array list of bluetooth devices
+     * @return
+     */
     @Override
     public int getCount() {
         return bluetoothNameList.size();
     }
 
+    /**
+     * Returns the bluetooth device at a certain position in the array list
+     * @param position
+     * @return
+     */
     @Override
     public Object getItem(int position) {
         Log.i(TAG, "Device Name: " + bluetoothNameList.get(position) + " at position: " + position);
         return bluetoothNameList.get(position);
     }
 
+    /**
+     * Get the Item Id was never changed since it was originally implemented.
+     * @param position
+     * @return
+     */
     @Override
     public long getItemId(int position) {
         // These items do not have an id if they had an id we would call get item . get id
@@ -43,6 +60,13 @@ public class BluetoothListAdapter extends BaseAdapter implements ListAdapter {
         return 0;
     }
 
+    /**
+     * This method sets up the view and lets the user know whether the bluetooth device is paired or not
+     * @param position
+     * @param convertView
+     * @param parent
+     * @return
+     */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View view = convertView;

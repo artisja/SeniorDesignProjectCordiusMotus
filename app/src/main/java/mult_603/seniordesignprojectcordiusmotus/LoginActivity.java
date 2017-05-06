@@ -1,6 +1,5 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
-import android.*;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -26,6 +25,11 @@ import com.mikepenz.materialdrawer.Drawer;
 import com.tapadoo.alerter.Alerter;
 import com.tapadoo.alerter.OnShowAlertListener;
 
+/**
+ * This is the initial screen that the user of our application sees
+ * This logs the user into our application and the exceptions are handled by Firebase
+ * The exceptions are presented to the user via Alerter
+ */
 public class LoginActivity extends AppCompatActivity {
     public final String TAG = LoginActivity.class.getSimpleName();
     private Button signUpButton, loginButton, forgotPasswordButton, mapsButton;
@@ -130,8 +134,12 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    // Method to log the user in Use this to show a progress dialog while authentication is processing
-
+    /**
+     * Login the user with their email and password and show a progress dialog in the process
+     * @param view
+     * @param typedEmail
+     * @param typedPassword
+     */
     private void loginUser(View view, String typedEmail, String typedPassword){
         final InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         final View currentView = view;
@@ -219,7 +227,10 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    // Disable going backwards from the login screen this exits application
+    /**
+     * Disable the user from pressing the back button
+     * If the user presses back button the app will be removed from view and home screen shown
+     */
     @Override
     public void onBackPressed(){
         super.onBackPressed();
@@ -227,6 +238,9 @@ public class LoginActivity extends AppCompatActivity {
         moveTaskToBack(true);
     }
 
+    /**
+     * Stop Firebase Auth State listener
+     */
     @Override
     public void onStop(){
         super.onStop();
@@ -237,6 +251,9 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Resume Firebase Auth State Listener
+     */
     @Override
     public void onResume(){
         super.onResume();

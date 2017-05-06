@@ -31,6 +31,9 @@ import com.tapadoo.alerter.OnHideAlertListener;
 
 /**
  * Created by Wes on 3/13/17.
+ * This Fragment allows users to add emergency contacts
+ * The emergency contacts are stored in the database and notified that they have been added to our service
+ * via text message
  */
 public class UserAddContactFragment extends Fragment {
     private static final String TAG = UserAddContactFragment.class.getSimpleName();
@@ -45,10 +48,13 @@ public class UserAddContactFragment extends Fragment {
     private InputMethodManager inputMethodManager;
     private View view;
 
-    // Blank public constructor
+    /**
+     * Empty Firebase constructor
+     */
     public UserAddContactFragment(){
 
     }
+
 
     @Override
     public void onAttach(Context context){
@@ -142,7 +148,11 @@ public class UserAddContactFragment extends Fragment {
         return view;
     }
 
-    // Get the users short hash code and send it to the emergency contact
+    /**
+     * Get the device user's short hash code to send to the emergency contacts
+     * @param phone
+     * @param email
+     */
     private void getDeviceUserShortHash(String phone, String email){
         final String userPhone = phone;
         final String userEmail = email;
@@ -181,7 +191,14 @@ public class UserAddContactFragment extends Fragment {
 
     // TODO can we ask for permission to use text messaging and email if someone doesn't let us?
 
-    // Notify the emergency contact
+    /**
+     * Notify the emergency contact that they have been added to our service using text messages
+     * @param phone
+     * @param email
+     * @param shortHash
+     * @param latitude
+     * @param longitude
+     */
     private void sendNotificationToContact(String phone, String email, String shortHash, String latitude, String longitude){
         // Try to send a message to the current users emergency contact
 
@@ -194,6 +211,7 @@ public class UserAddContactFragment extends Fragment {
             PendingIntent pi = PendingIntent.getActivity(getActivity(),0,new Intent(getActivity(),UserAddContactFragment.class),0);
             SmsManager sms = SmsManager.getDefault();
             sms.sendTextMessage(phone,null,message,pi,null);
+
 //            smsManager.sendTextMessage(phone, null,message, null, null);
 //            Intent sendMessageIntent = new Intent(Intent.ACTION_VIEW);
 //            sendMessageIntent.setType("vnd.android-dir/mms-sms");

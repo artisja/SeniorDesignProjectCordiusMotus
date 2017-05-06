@@ -72,6 +72,13 @@ public class ChangePasswordActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Change the user's password using their old email, password and their new password
+     * Use's Firebase to change the user's password
+     * @param oldEmail
+     * @param oldPass
+     * @param newPassword
+     */
     private void changeUsersPassword(String oldEmail, String oldPass, String newPassword){
         Log.i(TAG, "Attempting to change the users password ");
         final String newPass = newPassword;

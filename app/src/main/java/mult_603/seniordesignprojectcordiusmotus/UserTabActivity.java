@@ -14,6 +14,9 @@ import com.mikepenz.materialdrawer.Drawer;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This Activity controls all the fragments that the user that logs in will see
+ */
 public class UserTabActivity extends AppCompatActivity {
 
     private static final String TAG = UserTabActivity.class.getSimpleName();
@@ -46,10 +49,13 @@ public class UserTabActivity extends AppCompatActivity {
         viewPager.setCurrentItem(page);
         tabLayout.setupWithViewPager(viewPager);
         // Icons make the text distort currently
-//        setUpTabIcons();
 
     }
 
+    /**
+     * Add tab icons
+     * Ended up not using this anymore because of limited space
+     */
     private void setUpTabIcons(){
         try {
             tabLayout.getTabAt(0).setIcon(tabIcons[0]);
@@ -62,6 +68,10 @@ public class UserTabActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Set up view pager add fragments and set the adapter for it
+     * @param viewPager
+     */
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFragment(new UserAddContactFragment(), "Add Contact");
@@ -71,6 +81,9 @@ public class UserTabActivity extends AppCompatActivity {
         viewPager.setAdapter(adapter);
     }
 
+    /**
+     * Class for holding the list of fragments that the tab bar controls
+     */
     class ViewPagerAdapter extends FragmentPagerAdapter {
         private final List<Fragment> mFragmentList = new ArrayList<>();
         private final List<String> mFragmentTitleList = new ArrayList<>();

@@ -1,18 +1,18 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
-import android.*;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.app.Activity;
-import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
-import android.telephony.SmsManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+/**
+ * This class creates the heart pumping animation that is seen in the starting of our application
+ */
 
 public class SplashEntranceScreen extends Activity {
 

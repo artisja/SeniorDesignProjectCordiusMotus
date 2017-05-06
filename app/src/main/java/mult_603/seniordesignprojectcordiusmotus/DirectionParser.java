@@ -1,6 +1,5 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
-
 import com.google.android.gms.maps.model.LatLng;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -10,7 +9,10 @@ import java.util.List;
 
 /**
  * Created by Wes on 2/6/17.
- * Followed a tutorial at wptrafficanalyzer.in
+ * This Class is used for drawing a polyline on a map between a origin and destination address
+ * In our case this class draws a line between a user and their emergency contact
+ * I did not originally write this code
+ * I Followed a tutorial at wptrafficanalyzer.in
  */
 public class DirectionParser {
 
@@ -62,9 +64,12 @@ public class DirectionParser {
     }
 
     /**
-     * Method to decode polyline points
+     * This method decodes the strings that are given from google's directions API
+     * I did not write this code
      * Courtesy : http://jeffreysambells.com/2010/05/27/decoding-polylines-from-google-maps-direction-api-with-java
-     * */
+     * @param encoded
+     * @return arraylist of latitudes and longitudes
+     */
     private List<LatLng> decodePoly(String encoded) {
 
         List<LatLng> poly = new ArrayList<LatLng>();

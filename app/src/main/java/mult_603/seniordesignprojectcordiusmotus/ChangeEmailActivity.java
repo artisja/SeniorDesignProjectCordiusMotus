@@ -8,12 +8,16 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.Drawer;
 
+/**
+ * Allows the user to change their email address that is tied to their account.
+ * This is done using Firebase
+ * This still needs to be implemented
+ */
 public class ChangeEmailActivity extends AppCompatActivity {
     public static final String TAG = ChangeEmailActivity.class.getSimpleName();
     private TextView changeEmailHeader;

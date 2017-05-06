@@ -20,6 +20,7 @@ import java.util.ArrayList;
 
 /**
  * Created by Wes on 3/13/17.
+ * This Fragment is for displaying a list of emergency contacts to the user so that they can edit them if they wish
  */
 public class UserContactListActivityFragment extends Fragment {
     private final String TAG = UserContactListActivityFragment.class.getSimpleName();

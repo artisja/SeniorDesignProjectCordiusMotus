@@ -27,6 +27,8 @@ import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 
 /**
  * Created by Wes on 1/30/17.
+ * This class is used to display the navigation drawer that slides out by pressing the toolbar hamburger icon
+ * The Navigation Drawer changes depending on whether or not the user is logged in or not
  */
 public class NavigationDrawerHandler implements
         AccountHeader.OnAccountHeaderListener,
@@ -44,7 +46,6 @@ public class NavigationDrawerHandler implements
     private static PrimaryDrawerItem changeEmail;
     private static PrimaryDrawerItem login;
     // Regular activities
-//    private static PrimaryDrawerItem home;
     private static PrimaryDrawerItem signUp;
     private static PrimaryDrawerItem addContact;
     private static PrimaryDrawerItem contactList;
@@ -58,7 +59,6 @@ public class NavigationDrawerHandler implements
     private final static String SIGN_OUT_TAG        = "SignOut";
     private final static String FORGOT_PASSWORD_TAG = "ForgotPassword";
     private final static String DELETE_ACCOUNT_TAG  = "DeleteAccount";
-//    private final static String HOME_TAG = "Home";
     private final static String SIGN_UP_TAG = "SignUp";
     private final static String ADD_CONTACT_TAG = "AddContact";
     private final static String CONTACT_TAG = "Contact";
@@ -78,22 +78,36 @@ public class NavigationDrawerHandler implements
         this.toolbar = toolbar;
     }
 
-    // return the account header
+    /**
+     *
+     * @return the user's account header
+     */
     public AccountHeader getHeader(){
         return currentUserAccountHeader;
     }
 
-    // return the drawer
+    /**
+     *
+     * @return the navigation drawer
+     */
     public Drawer getDrawer(){
         return userDrawer;
     }
 
-    // Refresh the drawer after something is clicked
+    /**
+     * Refresh the navigation drawer
+     */
     public static void refreshDrawer(){
         currentUserAccountHeader = setAccountHeader(activity, savedInstanceState, context);
         userDrawer = setUserDrawer(activity,currentUserAccountHeader, toolbar);
     }
 
+    /**
+     * Handle the clicks in the navigation drawer
+     * @param drawer
+     * @param activity
+     * @return true
+     */
     public static Drawer.OnDrawerItemClickListener handleOnClick(final Drawer drawer, final AppCompatActivity activity){
         return new Drawer.OnDrawerItemClickListener() {
             @Override
@@ -251,6 +265,13 @@ public class NavigationDrawerHandler implements
         };
     }
 
+    /**
+     * Build the user's account header
+     * @param activity
+     * @param savedInstanceState
+     * @param uContext
+     * @return
+     */
     public static AccountHeader setAccountHeader(final AppCompatActivity activity, final Bundle savedInstanceState, final Context uContext){
         // Get the current user and set the context
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -278,7 +299,13 @@ public class NavigationDrawerHandler implements
         }
     }
 
-
+    /**
+     * Set up the user navigation drawer
+     * @param activity
+     * @param accountHeader
+     * @param toolbar
+     * @return userDrawer
+     */
     public static Drawer setUserDrawer(final AppCompatActivity activity, AccountHeader accountHeader, Toolbar toolbar){
         // Instantiate all the drawer items
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -459,7 +486,6 @@ public class NavigationDrawerHandler implements
 
     @Override
     public boolean onProfileChanged(View view, IProfile profile, boolean current) {
-
         Log.i(TAG, "On Profile changed was called");
         return true;
     }

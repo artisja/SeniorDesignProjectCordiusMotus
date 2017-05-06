@@ -42,7 +42,10 @@ import com.tapadoo.alerter.OnShowAlertListener;
 import android.net.Uri;
 import org.hashids.Hashids;
 
-
+/**
+ * This class handles the sign up of new users
+ * The sign up is handled by Firebase
+ */
 public class SignUpActivity extends AppCompatActivity{
     public final String TAG = SignUpActivity.class.getSimpleName();
     private EditText setPasswordEdit,setEmailEdit, setUserNameEdit, confirmPassword;

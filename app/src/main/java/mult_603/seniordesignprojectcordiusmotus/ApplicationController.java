@@ -1,34 +1,17 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
-import android.*;
-import android.Manifest;
 import android.app.Application;
-import android.app.DownloadManager;
-import android.app.PendingIntent;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.media.MediaPlayer;
-import android.support.v4.app.ActivityCompat;
-import android.telephony.SmsManager;
 import android.util.Log;
 
 
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.HashMap;
-import java.util.jar.*;
 
 /**
  * Created by Wes on 10/31/16.
@@ -48,6 +31,11 @@ public class ApplicationController extends Application {
         return singleton;
     }
 
+    /**
+     * The Application Controller is a singleton class. We use it to initialize Firebase
+     * and start the location service.
+     * There is also a method to play an alert sound that has not been used yet.
+     */
     @Override
     public void onCreate() {
         super.onCreate();

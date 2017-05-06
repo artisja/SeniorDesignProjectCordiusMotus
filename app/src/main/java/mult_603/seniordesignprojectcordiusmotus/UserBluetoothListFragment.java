@@ -32,6 +32,8 @@ import java.util.UUID;
 
 /**
  * Created by Wes on 3/13/17.
+ * This Fragment is used to connect the hardware device to the application.
+ * It allows the user to pair to devices in the bluetooth device array list
  */
 public class UserBluetoothListFragment extends Fragment {
     private static final String TAG = UserBluetoothListFragment.class.getSimpleName();
@@ -237,6 +239,9 @@ public class UserBluetoothListFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Set up bluetooth start discovery of devices
+     */
     public void setUpBluetooth(){
         // Try to get bluetooth access
         enableBluetooth();
@@ -255,6 +260,9 @@ public class UserBluetoothListFragment extends Fragment {
         }
     }
 
+    /**
+     * Create a connection using a thread between hardware device and application
+     */
     private void connectTheThread(){
         // If the connected device is null then look for bonded devices first and connect to them
         if(connectedDevice == null){
@@ -270,6 +278,9 @@ public class UserBluetoothListFragment extends Fragment {
         }
     }
 
+    /**
+     * Figure out if the device supports bluetooth. If it does ask the user to enable it if off.
+     */
     private void enableBluetooth() {
         // The device doesn't support bluetooth
         if (bluetoothAdapter == null) {
@@ -301,7 +312,9 @@ public class UserBluetoothListFragment extends Fragment {
         }
     }
 
-    // Get a list of all devices printed to the console
+    /**
+     * Get a list of bonded devices that are connected to the phone. Look for hardware device and set that as device to connect to
+     */
     private void getBondedDevices() {
         bondedDevices = bluetoothAdapter.getBondedDevices();
         if (bondedDevices.size() > 0) {
@@ -320,7 +333,10 @@ public class UserBluetoothListFragment extends Fragment {
         }
     }
 
-    // This gets called when the pair device button is clicked.
+    /**
+     * Attempt to pair with bluetooth device in the list
+     * @param device
+     */
     public void pairDevice(BluetoothDevice device) {
         try {
             Method method = device.getClass().getMethod("createBond", (Class[]) null);
@@ -332,7 +348,10 @@ public class UserBluetoothListFragment extends Fragment {
         }
     }
 
-    // Un-pair a previously paired bluetooth device
+    /**
+     * Attempt to unpair with a bluetooth device in the list
+     * @param device
+     */
     public void unpairDevice(BluetoothDevice device) {
         try{
             Method method = device.getClass().getMethod("removeBond", (Class[]) null);
@@ -344,7 +363,9 @@ public class UserBluetoothListFragment extends Fragment {
         }
     }
 
-    // This thread creates a socket and a connected thread and instantiates it.
+    /**
+     * This Class creates a socket and makes a connected thread between device and application
+     */
     private class ConnectThread extends Thread {
         private final BluetoothSocket mmSocket;
         private final BluetoothDevice mmDevice;
@@ -394,6 +415,9 @@ public class UserBluetoothListFragment extends Fragment {
         }
     }
 
+    /**
+     * Class to establish the thread that connects the application to the device
+     */
     static class ConnectedThread extends Thread {
         private final BluetoothSocket mmSocket;
         private final InputStream mmInStream;

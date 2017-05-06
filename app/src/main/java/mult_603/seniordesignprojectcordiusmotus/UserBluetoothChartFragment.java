@@ -38,6 +38,9 @@ import java.util.ArrayList;
 
 /**
  * Created by Wes on 3/13/17.
+ * Fragment for viewing User's Heart rate in real time
+ * The graph is a line chart and it moves after filling up with a certain amount of values
+ * The graphing library we used was MPAndroid Chart
  */
 public class UserBluetoothChartFragment extends Fragment {
     private static final String TAG = UserBluetoothChartFragment.class.getSimpleName();
@@ -117,7 +120,7 @@ public class UserBluetoothChartFragment extends Fragment {
                         vitalsArray.add(vDouble);
 
                         // Update IMU and BPM
-                        if (xValue % 100 == 0){
+                        if (xValue % 25 == 0){
                             userImuReference.setValue(imuInt);
                             userBpmReference.setValue(bpm);
                             testBPM = bpm;
@@ -129,6 +132,7 @@ public class UserBluetoothChartFragment extends Fragment {
                         // If the user is not moving and the bpm is zero fire an alert
                         if(testIMU == 0 && testBPM == 0.0){
                             Log.i(TAG, "An Alert Should Happen In APP");
+
                             final AlertDialog heartAlert;
                             AlertDialog.Builder heartAttackAlert = new AlertDialog.Builder(getContext());
                             heartAttackAlert.setMessage(R.string.dialog_message_emergency)
@@ -162,7 +166,7 @@ public class UserBluetoothChartFragment extends Fragment {
                         }
 
                         // If x value is 100 reset it
-                        if (xValue == 400){
+                        if (xValue == 300){
                             userVitalsReference.setValue(vitalsArray);
                             vitalsArray.clear();
                             xValue = 0;
@@ -180,6 +184,11 @@ public class UserBluetoothChartFragment extends Fragment {
         }
     };
 
+    /**
+     * Should rename this method
+     * This gets called when the user's BPM is zero and the IMU value is zero
+     * meaning the user is not moving
+     */
     public void deadAction(){
             LocationHolder emergencyLocation = LocationService.getLocationHolder();
             String uri = "http://maps.google.com/maps?saddr=" + 37.5407 + "," + -77.4360;
@@ -241,6 +250,9 @@ public class UserBluetoothChartFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Set up the line chart to be displayed to the user
+     */
     private void setUpChart(){
         // Set Handler
         UserBluetoothListFragment.setHandler(mHandler);
@@ -314,10 +326,13 @@ public class UserBluetoothChartFragment extends Fragment {
         lineChart.invalidate();
     }
 
-    // Add an entry to the chart
+    /**
+     * Add vital information to the line chart
+     * @param x
+     * @param y
+     */
     private void addEntryToChart(float x, float y){
         LineData data = lineChart.getData();
-//        Log.i(TAG, "Adding Entry");
 
         if(data != null){
             LineDataSet set = (LineDataSet) data.getDataSetByIndex(0);
@@ -346,7 +361,10 @@ public class UserBluetoothChartFragment extends Fragment {
         }
     }
 
-    // Create Set
+    /**
+     * Create Line Chart Data Set set up axis and colors of the line
+     * @return lineDataSet
+     */
     private LineDataSet createSet(){
         Log.i(TAG, "Creating Set");
         LineDataSet lineDataSet = new LineDataSet(null , "Heart Rate Data BPM: " + bpm);

@@ -170,6 +170,10 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
         mMap.setOnMarkerClickListener(this);
     }
 
+    /**
+     * Set up Map markers based on location and if the person is a device user or an emergency contact
+     * @param location
+     */
     public void setUpMapMarkerByLocation(final LatLng location){
         Log.i(TAG, "Set Up Map Marker By Location");
 
@@ -367,6 +371,12 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
         return createInfoWindow(marker);
     }
 
+    /**
+     * Reverse geocode a latitude and longitude address into a string
+     * @param lat
+     * @param lng
+     * @return userAddressString
+     */
     private String reverseGeocode(Double lat, Double lng){
         String userAddressString = "";
 
@@ -388,6 +398,13 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
         return userAddressString;
     }
 
+    /**
+     * Create an info window when the marker is clicked.
+     * If the marker is for a patient show their profile image and string address
+     * Otherwise show their string address and a placeholder image
+     * @param marker
+     * @return infoWindow
+     */
     private View createInfoWindow(Marker marker){
         View infoWindow = ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.custom_map_marker, null);
         ImageView profileImage = (ImageView) infoWindow.findViewById(R.id.profile_image_map_marker);
@@ -472,11 +489,12 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
         Log.i(TAG, "Clicked Info Window");
     }
 
-
-    // Search View Methods
-    // Use the short hash to find the user in the map
-    // Short hash corresponds to the uuid and the users other information.
-
+    /**
+     * Search for a user by typing in a 4 digit code and hitting search
+     * Short hash code gets converted into user unique identifier and we use that to find their last location
+     * @param query
+     * @return
+     */
     @Override
     public boolean onQueryTextSubmit(String query) {
         final FirebaseDatabase fdb = FirebaseDatabase.getInstance();
@@ -567,6 +585,12 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
         return false;
     }
 
+    /**
+     * Calculate the midpoint between a device user and an emergency contact
+     * @param origin
+     * @param destination
+     * @return
+     */
     public LatLng calculateMidPoint(LatLng origin, LatLng destination){
         LatLng midPoint;
         Double originLat = origin.latitude;
@@ -581,6 +605,10 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
         return midPoint;
     }
 
+    /**
+     * Draw a route between current location and the device wearer's location
+     * @param finishLocation
+     */
     private void drawRoute(LatLng finishLocation){
         // Get the view in order to hide the keyboard
         final ViewGroup viewGroup = (ViewGroup) ((ViewGroup) this
@@ -595,6 +623,12 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
         dl.execute(url);
     }
 
+    /**
+     * Get directions using google maps api
+     * @param origin
+     * @param dest
+     * @return
+     */
     public String getDirectionsUrl(LatLng origin,LatLng dest){
 
         // Origin of route
@@ -617,7 +651,14 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
 
         return url;
     }
-    /** A method to download json data from url */
+
+    /**
+     * Download URL JSON Data
+     * I did not write this methos
+     * @param strUrl
+     * @return
+     * @throws IOException
+     */
     public String downloadUrl(String strUrl) throws IOException{
         String data = "";
         InputStream iStream = null;
@@ -656,7 +697,9 @@ public class UserMapsActivity extends FragmentActivity implements OnMapReadyCall
         return data;
     }
 
-    // Fetches data from url passed
+    /**
+     * Download JSON Data Asynchronously to avoid hanging the UI
+     */
     private class DownloadTask extends AsyncTask<String, Void, String>{
 
         // Downloading data in non-ui thread

@@ -24,6 +24,7 @@ import java.util.ArrayList;
 
 /**
  * Created by Wes on 10/13/16.
+ * This class stores an array list of contacts to display to the user
  */
 public class ContactListAdapter extends BaseAdapter implements ListAdapter {
     public final String          TAG = ContactListAdapter.class.getSimpleName();
@@ -33,6 +34,11 @@ public class ContactListAdapter extends BaseAdapter implements ListAdapter {
     private DatabaseReference    reference = FirebaseDatabase.getInstance().getReference(currentUser.getUid());
     private ArrayList<String>    keyList;
 
+    /**
+     * Initialize this class with an array list of contacts and a context
+     * @param contacts
+     * @param c
+     */
     public ContactListAdapter(ArrayList<Contact> contacts, Context c){
         keyList = new ArrayList<>();
         contactArrayList = contacts;
@@ -60,22 +66,45 @@ public class ContactListAdapter extends BaseAdapter implements ListAdapter {
         });
     }
 
+    /**
+     *
+     * @return the size of the contact array list
+     */
     @Override
     public int getCount() {
         return contactArrayList.size();
     }
 
+    /**
+     * Get the contact at a given position in the array list
+     * @param position
+     * @return
+     */
     @Override
     public Object getItem(int position) {
         Log.i(TAG, "Contact at position: " + position + " Contact: " + contactArrayList.get(position).toString());
         return contactArrayList.get(position);
     }
 
+    /**
+     * Get the contact's item id. This has never been implemented and always returns zero
+     * @param position
+     * @return
+     */
     @Override
     public long getItemId(int position) {
         return 0;
     }
 
+    /**
+     * Return the view for the item in the list
+     * Allows us to show the user their emergency contacts in a list along with a remove button for each contact.
+     * We send the contact a text message if they are removed from this list.
+     * @param position
+     * @param convertView
+     * @param parent
+     * @return view
+     */
     @Override
     public View getView(int position, View convertView, final ViewGroup parent) {
         View view = convertView;

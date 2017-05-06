@@ -4,8 +4,6 @@ import android.Manifest;
 import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -15,7 +13,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
-import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
@@ -27,13 +24,12 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import java.io.IOException;
-import java.util.List;
-import java.util.Locale;
-
 
 /**
  * Created by Wes on 1/21/17.
+ * This service runs in the background and updates the user's location when they have moved a certain
+ * amount of distance
+ * This only posts information to our database if the user is logged in and connected to Wifi
  */
 
 
@@ -48,6 +44,9 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     private LocationManager locationManager;
     public static LocationHolder locationHolder;
 
+    /**
+     * Create Google API Client
+     */
     @Override
     public void onCreate(){
         super.onCreate();
@@ -55,6 +54,13 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
         Log.i(TAG, "On Create");
     }
 
+    /**
+     * This service stops when the application is terminated that is why start not sticky is returned
+     * @param intent
+     * @param flags
+     * @param startId
+     * @return start not sticky
+     */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
         // If the google API Client is not connected then connect it
@@ -66,6 +72,10 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
         return START_NOT_STICKY;
     }
 
+    /**
+     * Called if the service connects and starts updating the user's location
+     * @param bundle
+     */
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         Log.i(TAG, "On Connected");
@@ -98,24 +108,38 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
         startLocationUpdates();
     }
 
+    /**
+     * Connection was suspended
+     * @param i
+     */
     @Override
     public void onConnectionSuspended(int i) {
         Log.i(TAG, "On Connection Suspended");
     }
 
+    /**
+     * Connection failed
+     * @param connectionResult
+     */
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Log.i(TAG, "On Connection Failed");
     }
 
+    /**
+     * Bind the service to an intent
+     * @param intent
+     * @return null
+     */
     @Nullable
     @Override
     public IBinder onBind(Intent intent){
         return null;
     }
 
-
-    // Stop threads and unregister receivers
+    /**
+     * Stop threads and stop location updates
+     */
     @Override
     public void onDestroy(){
         super.onDestroy();
@@ -124,6 +148,9 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
         stopSelf();
     }
 
+    /**
+     * Start updating the user's location using high accuracy and fine location
+     */
     public void startLocationUpdates(){
         // High accuracy should use GPS to get the location
         locationRequest = new LocationRequest();
@@ -153,10 +180,16 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
         LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
     }
 
+    /**
+     * Stop Location Updates
+     */
     public void stopLocationUpdates(){
         LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
     }
 
+    /**
+     * Build the Google Api Client
+     */
     protected synchronized void createGoogleAPIClient() {
         googleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -165,10 +198,18 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
                 .build();
     }
 
+    /**
+     *
+     * @return the location holder with user's location information in it
+     */
     public static LocationHolder getLocationHolder(){
         return locationHolder;
     }
 
+    /**
+     * If the location changes and the user is logged in then store the location in the database
+     * @param location
+     */
     @Override
     public void onLocationChanged(Location location) {
         Log.i(TAG, "Location Has Changed");
