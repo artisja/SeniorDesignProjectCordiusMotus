@@ -105,34 +105,30 @@ public class UserBluetoothChartFragment extends Fragment {
                         // IMU is 0 then not moving
                         vDouble   = Double.parseDouble(vString);
                         bpmDouble = Double.parseDouble(bpmString);
-                        imuInt    = Integer.parseInt(imuString);
+//                        imuInt    = Integer.parseInt(imuString);
 
                         // Update user's BPM
                         bpm = bpmDouble;
 
-                        // Create an entry
-                        Entry a = new Entry((float) iteration, (float) vDouble);
-
-                        // Add entry to the chart
-                        addEntryToChart((float) iteration, (float) vDouble);
-
-                        // Add to the values array list
-                        vitalsArray.add(vDouble);
 
                         // Update IMU and BPM
                         if (xValue % 25 == 0){
                             userImuReference.setValue(imuInt);
                             userBpmReference.setValue(bpm);
                             testBPM = bpm;
-                            testIMU = imuInt;
+//                            testIMU = imuInt;
                         }
 
                         Log.i(TAG, "V: " + vDouble + " BPM: " + bpmDouble + " IMU: " + imuInt);
 
                         // If the user is not moving and the bpm is zero fire an alert
+                        // IF the test IMU value and the test BPM value are zero then make the vDouble zero
                         if(testIMU == 0 && testBPM == 0.0){
                             Log.i(TAG, "An Alert Should Happen In APP");
+                            // TODO Take this out later
+                            vDouble = 100.0;
 
+                            // TODO Figure out why this doesn't always work
                             final AlertDialog heartAlert;
                             AlertDialog.Builder heartAttackAlert = new AlertDialog.Builder(getContext());
                             heartAttackAlert.setMessage(R.string.dialog_message_emergency)
@@ -165,8 +161,14 @@ public class UserBluetoothChartFragment extends Fragment {
                             handler.postDelayed(runnable,10000);
                         }
 
+                        // Add entry to the chart
+                        addEntryToChart((float) iteration, (float) vDouble);
+
+                        // Add to the values array list
+                        vitalsArray.add(vDouble);
+
                         // If x value is 100 reset it
-                        if (xValue == 300){
+                        if (xValue == 250){
                             userVitalsReference.setValue(vitalsArray);
                             vitalsArray.clear();
                             xValue = 0;

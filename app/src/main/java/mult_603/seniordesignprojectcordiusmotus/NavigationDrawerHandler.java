@@ -15,6 +15,11 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
@@ -218,6 +223,7 @@ public class NavigationDrawerHandler implements
                             de.hdodenhof.circleimageview.CircleImageView img = new de.hdodenhof.circleimageview.CircleImageView(context);
                             img.setImageURI(currentUser.getPhotoUrl());
 
+
                             new AlertDialog.Builder(activity)
                                     .setMessage("Are you sure you want to delete your account with the following Info : "
                                             + "\n\nEmail : "  + currentUser.getEmail()
@@ -229,7 +235,8 @@ public class NavigationDrawerHandler implements
                                             if (currentUser != null) {
                                                 Log.i(TAG, "Deleting the user with display name " + currentUser.getDisplayName());
                                                 Log.i(TAG, "Deleting the user with email address " + currentUser.getEmail());
-
+                                                String currentUserUUID = currentUser.getUid();
+                                                removeCurrentUser(currentUserUUID);
 
                                                 currentUser.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                                                     @Override
@@ -263,6 +270,38 @@ public class NavigationDrawerHandler implements
                 return true;
             }
         };
+    }
+
+    private static void removeCurrentUser(String uuid){
+        // Delete the user's entry from the user dictionary
+        DatabaseReference dbReference = FirebaseDatabase.getInstance().getReference("UserDictionary");
+        final String userUUID = uuid;
+        dbReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.i(TAG, "On Data Changed");
+                for(DataSnapshot dataSnap: dataSnapshot.getChildren()){
+                    DeviceUser deviceUser = dataSnap.getValue(DeviceUser.class);
+                    Log.i(TAG, "Device User -> " + deviceUser);
+
+                    if(deviceUser.getUuid().equals(userUUID)){
+                        Log.i(TAG, "Device user uuid == current user uuid");
+
+                        // Get the short hash and send it to the emergency contact via email or phone
+                        String shortHash = deviceUser.getShortHash();
+                        FirebaseDatabase.getInstance().getReference("UserDictionary").child(shortHash).removeValue();
+                        Log.i(TAG, "Successfully removed user with hash: " + shortHash + " from user dictionary");
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.i(TAG, "Database Error While Attempting to remove value from database");
+            }
+        });
+
+        FirebaseDatabase.getInstance().getReference(uuid).removeValue();
     }
 
     /**

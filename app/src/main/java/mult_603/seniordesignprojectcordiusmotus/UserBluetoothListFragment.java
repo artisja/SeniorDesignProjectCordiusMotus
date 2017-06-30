@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -27,6 +28,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
 
@@ -316,20 +319,25 @@ public class UserBluetoothListFragment extends Fragment {
      * Get a list of bonded devices that are connected to the phone. Look for hardware device and set that as device to connect to
      */
     private void getBondedDevices() {
-        bondedDevices = bluetoothAdapter.getBondedDevices();
-        if (bondedDevices.size() > 0) {
-            for (BluetoothDevice device : bondedDevices) {
-                Log.i(TAG, "Bonded Device: " + device.getAddress() + " , " + " Name : " + device.getName());
-                if(!deviceList.contains(device)){
-                    deviceList.add(device);
-                }
+        if(bluetoothAdapter != null){
+            bondedDevices = bluetoothAdapter.getBondedDevices();
+            if (bondedDevices.size() > 0) {
+                for (BluetoothDevice device : bondedDevices) {
+                    Log.i(TAG, "Bonded Device: " + device.getAddress() + " , " + " Name : " + device.getName());
+                    if (!deviceList.contains(device)) {
+                        deviceList.add(device);
+                    }
 
-                if(device.getName().equals("HC-05")){
-                    Log.i(TAG, "Found HC-05! Thanks MJ");
-                    connectedDevice = device;
-                    Log.i(TAG, "Connected Device: " + device.getName() + " UUID: " + device.getUuids());
+                    if (device.getName().equals("HC-05")) {
+                        Log.i(TAG, "Found HC-05! Thanks MJ");
+                        connectedDevice = device;
+                        Log.i(TAG, "Connected Device: " + device.getName() + " UUID: " + device.getUuids());
+                    }
                 }
             }
+        }
+        else{
+            Log.i(TAG, "Bluetooth Adapter is null");
         }
     }
 
