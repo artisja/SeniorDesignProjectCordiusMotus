@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorAccent">#EF5B5B</color>
+    <color name="colorPrimary">#eb484646</color>
+    <color name="colorPrimaryDark">#892e2e</color>
+    <color name="whitePrimary">#fcfafa</color>
+    <color name="wordColorRed">#b62520</color>
+    <color name="ColorWhite">#FFF</color>
+    <color name="wordColorWhite">#FFF</color>
+    <color name="lightGrayWithRed">#e1d7d7</color>
+    <color name="contactColor">#4d4dff</color>
+    <color name="patientColor">#ff3333</color>
+</resources>

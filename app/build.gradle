@@ -1,0 +1,64 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.0"
+    defaultConfig {
+        applicationId "mult_603.seniordesignprojectcordiusmotus"
+        minSdkVersion 16
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            debuggable true
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    testCompile 'junit:junit:4.12'
+
+    // Navigation Drawer
+    compile('com.mikepenz:materialdrawer:5.7.0@aar') {
+        transitive = true
+    }
+
+    // android appcompat was 23.4.0
+    compile 'com.android.support:appcompat-v7:25.0.0'
+    compile 'com.google.android.gms:play-services-maps:9.6.1'
+    compile 'com.google.android.gms:play-services-location:9.6.1'
+    compile 'com.google.firebase:firebase-core:9.6.1'
+    compile 'com.google.firebase:firebase-database:9.6.1'
+    compile 'com.google.firebase:firebase-auth:9.6.1'
+    compile 'com.google.firebase:firebase-messaging:9.6.1'
+    compile 'com.google.firebase:firebase-storage:9.6.1'
+    compile 'com.android.support:design:25.0.0'
+    // Android support design was 23.4.0
+
+    // Circle image view
+    compile 'de.hdodenhof:circleimageview:2.1.0'
+    // Graphing chart library
+    compile 'com.github.PhilJay:MPAndroidChart:v3.0.0'
+    // Android map utils
+//    compile 'com.google.maps.android:android-maps-utils:0.4.+'
+    // Alerter
+    compile 'com.tapadoo.android:alerter:1.0.2'
+    // HashID's
+    compile 'org.hashids:hashids:1.0.1'
+    // Glide for loading images
+    compile 'com.github.bumptech.glide:glide:3.7.0'
+    // FirebaseUI Storage only
+    compile 'com.firebaseui:firebase-ui-storage:0.6.1'
+}
+apply plugin: 'com.google.gms.google-services'

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/activity_login"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/colorPrimary"
+    tools:context="mult_603.seniordesignprojectcordiusmotus.LoginActivity">
+
+    <include android:id="@+id/toolbar" layout="@layout/toolbar"/>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="125dp"
+        android:src="@drawable/cardianlogolarge"
+        android:maxHeight="300dp"/>
+
+    <EditText
+        android:id="@+id/email_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/email_hint"
+        android:singleLine="true"
+        android:inputType="textEmailAddress"
+        android:textColorHint="@color/wordColorRed"
+        android:maxLength="40"
+        android:imeOptions="actionNext"
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="15sp" />
+
+    <EditText
+        android:id="@+id/password_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/password_hint"
+        android:singleLine="true"
+        android:inputType="textPassword"
+        android:maxLength="20"
+        android:textColorHint="@color/wordColorRed"
+        android:imeOptions="actionDone"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="15sp"/>
+
+    <Button
+        android:id="@+id/login_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/login_label"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="15sp"
+        android:textColor="@color/wordColorRed" />
+
+    <Button
+        android:id="@+id/forgot_password_button"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:text="@string/forgot_password"
+        android:textColor="@color/wordColorRed"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="15sp"
+        android:background="@color/whitePrimary"/>
+
+    <Button
+        android:id="@+id/sign_up_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/not_a_member"
+        android:textColor="@color/wordColorRed"
+        android:background="@color/whitePrimary"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="15sp"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/user_map_button"
+        android:text="@string/user_map_button"
+        android:textColor="@color/wordColorRed"
+        android:background="@color/lightGrayWithRed"
+        android:layout_marginLeft="16sp"
+        android:layout_marginRight="16sp"/>
+
+</LinearLayout>

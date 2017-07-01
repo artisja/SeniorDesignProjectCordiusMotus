@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "739282646659",
+    "firebase_url": "https://cordiusmotus.firebaseio.com",
+    "project_id": "cordiusmotus",
+    "storage_bucket": "cordiusmotus.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:739282646659:android:6027b643827d9ea3",
+        "android_client_info": {
+          "package_name": "mult_603.seniordesignprojectcordiusmotus"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "739282646659-thc48hvhk23andcc91vq2o9mncumdn5n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA0-defSQVVeLTd9LtCZoT4mNor79AHWTg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

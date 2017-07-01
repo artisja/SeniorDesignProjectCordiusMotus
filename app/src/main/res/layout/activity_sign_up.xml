@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_sign_up"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="mult_603.seniordesignprojectcordiusmotus.SignUpActivity">
+
+    <include android:id="@+id/toolbar" layout="@layout/toolbar"/>
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/profile_image"
+        android:layout_width="128dp"
+        android:layout_height="128dp"
+        android:src="@drawable/userlogin"
+        app:civ_border_width="2dp"
+        android:layout_gravity="center"
+        app:civ_border_color="#FF000000"
+        android:layout_marginBottom="16sp"
+        android:layout_marginTop="16sp"/>
+
+    <EditText
+        android:id="@+id/input_username_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/user_name_hint"
+        android:textColorHint="@color/wordColorRed"
+        android:layout_gravity="center"
+        android:layout_marginBottom="5sp"
+        android:layout_marginTop="5sp"
+        android:inputType="text"
+        android:singleLine="true"
+        android:imeOptions="actionNext"
+        android:layout_marginLeft="15sp"
+        android:layout_marginRight="15sp"/>
+
+    <EditText
+        android:id="@+id/input_email_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/email_hint"
+        android:textColorHint="@color/wordColorRed"
+        android:layout_gravity="center"
+        android:layout_marginBottom="5sp"
+        android:inputType="textEmailAddress"
+        android:singleLine="true"
+        android:imeOptions="actionNext"
+        android:layout_marginLeft="15sp"
+        android:layout_marginRight="15sp"/>
+
+    <EditText
+        android:id="@+id/input_password_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxLength="20"
+        android:hint="@string/password_hint"
+        android:textColorHint="@color/wordColorRed"
+        android:layout_gravity="center"
+        android:layout_marginBottom="5sp"
+        android:inputType="textPassword"
+        android:singleLine="true"
+        android:imeOptions="actionNext"
+        android:layout_marginLeft="15sp"
+        android:layout_marginRight="15sp"/>
+
+    <EditText
+        android:id="@+id/input_password_confirmation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/confirm_password"
+        android:textColorHint="@color/wordColorRed"
+        android:layout_gravity="center"
+        android:layout_marginBottom="15sp"
+        android:inputType="textPassword"
+        android:singleLine="true"
+        android:imeOptions="actionDone"
+        android:layout_marginLeft="15sp"
+        android:layout_marginRight="15sp"/>
+
+    <Button
+        android:id="@+id/submit_signup_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/submit_button"
+        android:textColor="@color/wordColorRed"
+        android:layout_marginLeft="15sp"
+        android:layout_marginRight="15sp"/>
+
+</LinearLayout>

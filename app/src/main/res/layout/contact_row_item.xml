@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:text="@string/name_hint"
+        android:id="@+id/contact_list_name"
+        android:textSize="16sp"
+        android:textColor="@color/colorPrimary"
+        android:layout_alignParentTop="true"
+        android:layout_alignLeft="@+id/contact_list_phone"
+        android:layout_alignStart="@+id/contact_list_phone"
+        android:layout_marginTop="16dp"/>
+
+    <TextView
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:text="@string/phone_number_hint"
+        android:id="@+id/contact_list_phone"
+        android:textSize="16sp"
+        android:textColor="@color/colorPrimary"
+        android:layout_below="@+id/contact_list_name"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"/>
+
+    <TextView
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/contact_list_email"
+        android:text="@string/email_hint"
+        android:textSize="16sp"
+        android:textColor="@color/colorPrimary"
+        android:layout_below="@+id/contact_list_phone"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Remove"
+        android:id="@+id/contact_list_remove_button"
+        android:layout_alignTop="@+id/contact_list_name"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:background="@color/lightGrayWithRed"
+        android:backgroundTint="@color/lightGrayWithRed"
+        android:textColor="@color/colorPrimaryDark"/>
+
+</RelativeLayout>

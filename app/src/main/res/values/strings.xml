@@ -1,0 +1,80 @@
+<resources>
+    <string name="app_name">Cardian</string>
+    <string name="cali_button">I am the Patient</string>
+    <string name="medic_button">I am the Respondent</string>
+    <string name="title_activity_user_maps">Map</string>
+    <string name="submit_all_button">Submit All</string>
+    <string name="submit_button">Submit</string>
+    <string name="contact_label">Contact Name</string>
+    <string name="name_hint">Name</string>
+    <string name="phone_number_hint">Phone Number</string>
+    <string name="login_label">Login</string>
+    <string name="sign_up_label">Sign Up</string>
+    <string name="login_error">Password is not real</string>
+    <string name="email_hint">Email</string>
+    <string name="password_hint">Password</string>
+    <string name="user_name_hint">User Name</string>
+    <string name="discover_bluetooth_devices">Discover Devices</string>
+    <string name="bluetooth_button">Bluetooth Button</string>
+    <string name="pair_bluetooth_device">Pair Device</string>
+    <string name="address_bluetooth_device">Device Address</string>
+    <string name="name_bluetooth_device">Device Name</string>
+    <string name="contact_list_button">Contact List</string>
+    <string name="userInstructionSignUp">Type in Unique Password</string>
+    <string name="drawer_open">Open</string>
+    <string name="drawer_closed">Closed</string>
+    <string name="title_activity_patient_emergency_contact">PatientEmergencyContactActivity</string>
+    <string name="add_button_label">Add Button</string>
+    <string name="title_activity_contact_simple">ContactSimpleActivity</string>
+    <string name="device_locator_instructions">Type in your Unique Password.</string>
+    <string name="project_description">Senior Design Project:MULT 603</string>
+    <string name="title_activity_navigation_drawer">NavigationDrawerActivity</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="change_email">Change Email</string>
+    <string name="change_password">Change Password</string>
+    <string name="action_settings">Settings</string>
+    <string name="not_a_member">Not a Member? Sign Up!</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name='forgot_password_message'>Please enter your email address and we will send you a message to reset your password</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="back_button">Back</string>
+    <string name="unique_code">Unique Code</string>
+    <string name="change_email_message">Please enter the email you would like to switch to</string>
+    <string name="locator_message">Please enter the unique code that was sent to you in order to display the device location</string>
+    <string name="chart_button">Data Chart</string>
+    <string name="email_subject">CordisMotus Emergency Contact</string>
+    <string name="home_activity">Home</string>
+    <string name="contact_activity">Contact List</string>
+    <string name="map_activity">Map</string>
+    <string name="bluetooth_activity">Bluetooth Connections</string>
+    <string name="bluetooth_chart_activity">Bluetooth Chart</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="contact_text_view_add">Please add an emergency contact you trust that we can notify in the event of cardiac arrest.</string>
+    <string name="change_password_message">In order to change your password please enter your old password followed by the new password you would like to use.</string>
+    <string name="change_password_string">Change Password</string>
+    <string name="old_password_hint">Old Password</string>
+    <string name="new_password_hint">New Password</string>
+    <string name="title_activity_user_tab">UserTabActivity</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+    <string name="title_activity_user_login">Sign in</string>
+    <string name="dialog_message_emergency">Are You Okay? </string>
+    <string name="dialog_positive_response">Yes,I am okay.</string>
+    <string name="dialog_negative_response">No,I am not okay.</string>
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password (optional)</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
+    <string name="user_map_button">Go to Map</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
