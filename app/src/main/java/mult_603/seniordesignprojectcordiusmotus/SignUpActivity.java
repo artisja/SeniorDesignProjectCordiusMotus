@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -40,6 +41,8 @@ import com.tapadoo.alerter.Alerter;
 import com.tapadoo.alerter.OnHideAlertListener;
 import com.tapadoo.alerter.OnShowAlertListener;
 import android.net.Uri;
+import android.widget.Switch;
+
 import org.hashids.Hashids;
 
 /**
@@ -49,7 +52,7 @@ import org.hashids.Hashids;
 public class SignUpActivity extends AppCompatActivity{
     public final String TAG = SignUpActivity.class.getSimpleName();
     private EditText setPasswordEdit,setEmailEdit, setUserNameEdit, confirmPassword;
-    private Button submitButton;
+    private Button submitButton,patientCatButton,doctorCatButton;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener authStateListener;
     private ImageView profileImage;
@@ -88,7 +91,7 @@ public class SignUpActivity extends AppCompatActivity{
         mFirebaseAuth = FirebaseAuth.getInstance();
         storageRef = mFirebaseStorage.getReference();
         userImageReference = storageRef.child("UserImages");
-
+        newUser.setDeviceType(UserTypes.DOCTOR);
         findViews();
         setUpClick();
 
@@ -104,7 +107,7 @@ public class SignUpActivity extends AppCompatActivity{
                     Log.i(TAG, "Current User is not null");
                     if(newUser.getShortHash() != null) {
                         Log.i(TAG, "Current User short hash is not null");
-                        userDictRef.child(newUser.getShortHash()).setValue(newUser);
+                        userDictRef.child(newUser.getDeviceType().toString()).child(newUser.getShortHash()).setValue(newUser);
                     }
                     else{
                         Log.i(TAG, "Current User short hash is null");
@@ -203,7 +206,6 @@ public class SignUpActivity extends AppCompatActivity{
                                     String hash = shortHash.encode(12345);
                                     Log.i(TAG, "Hash: " + hash);
                                     newUser.setShortHash(hash);
-
                                     // Sign the user in after allowing them to create an account
                                     mFirebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(SignUpActivity.this, new OnCompleteListener<com.google.firebase.auth.AuthResult>() {
                                         @Override
@@ -230,13 +232,18 @@ public class SignUpActivity extends AppCompatActivity{
                                                 // Update user profile, set device user's user name update user dictionary
                                                 currentUser.updateProfile(userProfileChangeRequest);
 
-//                                                // Update the user's profile information
+                                                // Update the user's profile information
                                                 if (currentUser != null) {
                                                     newUser.setUuid(currentUser.getUid());
                                                 }
 
-                                                userDictRef.child(newUser.getShortHash()).setValue(newUser);
-
+                                                UserTypes currentUserType = newUser.getDeviceType();
+                                                switch (currentUserType){
+                                                    case PATIENT: userDictRef.child(UserTypes.PATIENT.toString()).child(newUser.getShortHash()).setValue(newUser);
+                                                        break;
+                                                    case DOCTOR: userDictRef.child(UserTypes.DOCTOR.toString()).child(newUser.getShortHash()).setValue(newUser);
+                                                        break;
+                                                }
                                                 DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference(currentUser.getUid());
                                                 dbRef.child("CurrentUser").setValue(newUser);
 
@@ -346,14 +353,6 @@ public class SignUpActivity extends AppCompatActivity{
             }
         });
 
-        // User has granted permission to use the camera
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED){
-            Log.i(TAG, "The user has granted permission to use the camera ");
-        }
-        else{
-            Log.i(TAG, "User has not given us permission to use their camera ");
-            ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE }, 0);
-        }
 
         profileImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -361,6 +360,28 @@ public class SignUpActivity extends AppCompatActivity{
                 Intent cameraGalleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 cameraGalleryIntent.setType("image/*");
                 startActivityForResult(cameraGalleryIntent, 0);
+            }
+        });
+        doctorCatButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                doctorCatButton.setBackgroundResource(R.color.wordColorRed);
+                if (newUser.getDeviceType().equals(UserTypes.PATIENT)) {
+                    patientCatButton.setBackgroundColor(Color.TRANSPARENT);
+                }
+                newUser.setDeviceType(UserTypes.DOCTOR);
+            }
+        });
+
+
+        patientCatButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                patientCatButton.setBackgroundResource(R.color.wordColorRed);
+                if (newUser.getDeviceType().equals(UserTypes.DOCTOR)){
+                    doctorCatButton.setBackgroundColor(Color.TRANSPARENT);
+                }
+                newUser.setDeviceType(UserTypes.PATIENT);
             }
         });
     }
@@ -422,6 +443,8 @@ public class SignUpActivity extends AppCompatActivity{
         setUserNameEdit       = (EditText) findViewById(R.id.input_username_edit);
         profileImage          = (ImageView) findViewById(R.id.profile_image);
         submitButton          = (Button) findViewById(R.id.submit_signup_button);
+        patientCatButton      = (Button) findViewById(R.id.patient_signup_button);
+        doctorCatButton       = (Button) findViewById(R.id.doctor_signup_button);
     }
 }
 

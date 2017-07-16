@@ -23,10 +23,10 @@
         android:gravity="center"
         android:textSize="30sp"
         android:textColor="@color/wordColorRed"
-        android:text="@string/project_description"/>
+        android:text="@string/splash_title"/>
 
     <ImageView android:id="@+id/splash_icon"
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
-        android:src="@drawable/splash_heart"/>
+        android:src="@drawable/cardian_banner"/>
 </LinearLayout>

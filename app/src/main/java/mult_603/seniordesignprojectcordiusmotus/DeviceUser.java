@@ -15,10 +15,22 @@ public class DeviceUser {
     private String uuid;
     private String userImage;
     private String shortHash;
+    private static UserTypes deviceType = UserTypes.PATIENT;
 
     // Empty constructor
-    public DeviceUser(){ }
+    public DeviceUser(){
+    }
 
+    /**
+     * @return
+     */
+    public UserTypes getDeviceType() {
+        return deviceType;
+    }
+
+    public static void setDeviceType(UserTypes deviceType) {
+        DeviceUser.deviceType = deviceType;
+    }
 
     /**
      * Get the user's image associated with their profile

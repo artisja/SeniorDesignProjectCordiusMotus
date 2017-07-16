@@ -15,15 +15,25 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.Drawer;
 import com.tapadoo.alerter.Alerter;
 import com.tapadoo.alerter.OnShowAlertListener;
+
+import org.hashids.Hashids;
+
+import java.util.Arrays;
 
 /**
  * This is the initial screen that the user of our application sees
@@ -32,17 +42,20 @@ import com.tapadoo.alerter.OnShowAlertListener;
  */
 public class LoginActivity extends AppCompatActivity {
     public final String TAG = LoginActivity.class.getSimpleName();
-    private Button signUpButton, loginButton, forgotPasswordButton, mapsButton;
+    private Button signUpButton, loginButton, forgotPasswordButton;
     private EditText passwordEditText,emailEditText;
     private FirebaseAuth firebaseAuth;
     private FirebaseUser firebaseUser;
     private FirebaseDatabase firebaseDatabase;
     private ApplicationController appController;
+    private Button patientButton,doctorButton,contactButton;
     private AccountHeader headerResult;
     private Drawer drawerResult;
+    private UserTypes selectedUserType = UserTypes.DOCTOR;
     private NavigationDrawerHandler navHandler;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private ProgressDialog progressDialog;
+    public String deviceType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,22 +77,23 @@ public class LoginActivity extends AppCompatActivity {
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-
+//                FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
                 // If user is not null then push them to the add contact activity??
-                if(currentUser != null){
-                    Log.i(TAG, "Current User is not null in login activity");
-                    signUpButton.setTextColor(Color.GRAY);
-                    signUpButton.setEnabled(false);
-                }
-                else{
+//                if(currentUser != null){
+//                    Toast.makeText(appController, firebaseAuth.getCurrentUser().toString(), Toast.LENGTH_LONG).show();
+//                    Log.i(TAG, "Current User is not null in login activity");
+//                    signUpButton.setTextColor(Color.GRAY);
+//                    signUpButton.setEnabled(false);
+//                    Intent intent = new Intent(LoginActivity.this, UserTabActivity.class);
+//                    startActivity(intent);
+//                }
+//                else{
                     Log.i(TAG, "Current User is null in the login activity");
                     signUpButton.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.wordColorRed));
                     signUpButton.setEnabled(true);
-                }
+//                }
             }
         };
-        ActivityCompat.requestPermissions(LoginActivity.this, new String[]{android.Manifest.permission.CALL_PHONE},0);
 
 
         // Add the auth state listener
@@ -124,12 +138,42 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        mapsButton.setOnClickListener(new View.OnClickListener() {
+        doctorButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i(TAG, "Map Button Was Clicked");
-                Intent intent = new Intent(LoginActivity.this, UserMapsActivity.class);
-                startActivity(intent);
+                doctorButton.setBackgroundResource(R.color.wordColorRed);
+                if (selectedUserType.equals(UserTypes.CONTACT)){
+                    contactButton.setBackgroundColor(Color.TRANSPARENT);
+                }else {
+                    patientButton.setBackgroundColor(Color.TRANSPARENT);
+                }
+                selectedUserType = UserTypes.DOCTOR;
+            }
+        });
+
+        contactButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                contactButton.setBackgroundResource(R.color.wordColorRed);
+                if (selectedUserType.equals(UserTypes.DOCTOR)){
+                    doctorButton.setBackgroundColor(Color.TRANSPARENT);
+                }else{
+                    patientButton.setBackgroundColor(Color.TRANSPARENT);
+                }
+                selectedUserType = UserTypes.CONTACT;
+            }
+        });
+
+        patientButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                patientButton.setBackgroundResource(R.color.wordColorRed);
+                if (selectedUserType.equals(UserTypes.CONTACT)){
+                    contactButton.setBackgroundColor(Color.TRANSPARENT);
+                }else{
+                    doctorButton.setBackgroundColor(Color.TRANSPARENT);
+                }
+                selectedUserType = UserTypes.PATIENT;
             }
         });
     }
@@ -214,13 +258,48 @@ public class LoginActivity extends AppCompatActivity {
                     } else {
                         Log.i(TAG, "Successfully logging user in");
                         firebaseUser = firebaseAuth.getCurrentUser();
+                        DatabaseReference db =  FirebaseDatabase.getInstance().getReference();
+                        db.child(firebaseUser.getUid().toString()).child("CurrentUser").child("deviceType").addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                //Toast.makeText(appController, selectedUserType + " " + dataSnapshot.getValue().toString(), Toast.LENGTH_SHORT).show();
+                                deviceType = (String) dataSnapshot.getValue();
+                                if (selectedUserType.toString().equalsIgnoreCase(deviceType)){
+                                    Toast.makeText(appController, "Is the same!!!", Toast.LENGTH_SHORT).show();
+                                    Intent intent = new Intent(LoginActivity.this, UserTabActivity.class);
+                                    startActivity(intent);
+                                }else{
+                                    firebaseAuth.signOut();
+//                                    Toast.makeText(appController, firebaseAuth.getCurrentUser().toString(), Toast.LENGTH_LONG).show();
+//                                    Intent intent = new Intent(LoginActivity.this, LoginActivity.class);
+//                                    finish();
+                                    Alerter.create(LoginActivity.this)
+                                            .setTitle("Error Occurred")
+                                            .setText("Error: Incorrect Type of User")
+                                            .setBackgroundColor(R.color.colorPrimaryDark)
+                                            .enableIconPulse(true)
+                                            .setOnShowListener(new OnShowAlertListener() {
+                                                @Override
+                                                public void onShow() {
+                                                    progressDialog.cancel();
+                                                }
+                                            })
+                                            .show();
+//                                    startActivity(intent);
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
 
                         progressDialog.cancel();
 
                         //assume user is healthy
                         // Go to the user tab activity
-                        Intent intent = new Intent(LoginActivity.this, UserTabActivity.class);
-                        startActivity(intent);
+
                     }
                 }
             });
@@ -267,10 +346,12 @@ public class LoginActivity extends AppCompatActivity {
     private void findViews() {
         loginButton          = (Button) findViewById(R.id.login_button);
         signUpButton         = (Button) findViewById(R.id.sign_up_button);
-        mapsButton           = (Button) findViewById(R.id.user_map_button);
         forgotPasswordButton = (Button) findViewById(R.id.forgot_password_button);
         emailEditText        = (EditText) findViewById(R.id.email_edit);
         passwordEditText     = (EditText) findViewById(R.id.password_edit);
+        contactButton = (Button) findViewById(R.id.contact_button);
+        patientButton = (Button) findViewById(R.id.patient_button);
+        doctorButton = (Button) findViewById(R.id.doctor_button);
         appController        = (ApplicationController) getApplicationContext();
         firebaseDatabase     = FirebaseDatabase.getInstance();
     }

@@ -1,10 +1,16 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
+import android.*;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
@@ -24,35 +30,24 @@ public class SplashEntranceScreen extends Activity {
         setContentView(R.layout.activity_splash_entrance_screen);
         splashIcon = (ImageView) findViewById(R.id.splash_icon);
         titleSplash = (TextView) findViewById(R.id.title_splash);
-        SetUpAnimation();
-    }
-
-    private void SetUpAnimation() {
-        ObjectAnimator scalorDown = ObjectAnimator.ofPropertyValuesHolder(splashIcon,
-                PropertyValuesHolder.ofFloat("scaleX",1.2f),
-                PropertyValuesHolder.ofFloat("scaleY",1.2f));
-        scalorDown.setRepeatCount(30);
-        scalorDown.setRepeatMode(ObjectAnimator.REVERSE);
-        scalorDown.start();
-        final Animation animation = AnimationUtils.loadAnimation(getBaseContext(), R.anim.rotate);
-        titleSplash.startAnimation(animation);
-        animation.setAnimationListener(new Animation.AnimationListener() {
+        ActivityCompat.requestPermissions(SplashEntranceScreen.this, new String[]{android.Manifest.permission.CALL_PHONE},0);
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED){
+            //Log.i(TAG, "The user has granted permission to use the camera ");
+        }
+        else{
+           // Log.i(TAG, "User has not given us permission to use their camera ");
+            ActivityCompat.requestPermissions(this, new String[] { android.Manifest.permission.CAMERA, android.Manifest.permission.WRITE_EXTERNAL_STORAGE }, 0);
+        }
+        new Handler().postDelayed(new Runnable() {
             @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                finish();
+            public void run() {
                 Intent intent = new Intent(getBaseContext(), LoginActivity.class);
                 startActivity(intent);
             }
+        }, 5000);
 
-            @Override
-            public void onAnimationRepeat(Animation animation) {
 
-            }
-        });
+
     }
+
 }

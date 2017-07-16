@@ -40,6 +40,7 @@ public class NavigationDrawerHandler implements
         FirebaseAuth.AuthStateListener{
 
     private static final String TAG = NavigationDrawerHandler.class.getSimpleName();
+
     // Specific to the user
     public static Drawer             userDrawer;
     private static AccountHeader     currentUserAccountHeader;
@@ -49,14 +50,14 @@ public class NavigationDrawerHandler implements
     private static PrimaryDrawerItem forgotPassword;
     private static PrimaryDrawerItem changePassword;
     private static PrimaryDrawerItem changeEmail;
-    private static PrimaryDrawerItem login;
+
     // Regular activities
-    private static PrimaryDrawerItem signUp;
     private static PrimaryDrawerItem addContact;
     private static PrimaryDrawerItem contactList;
     private static PrimaryDrawerItem map;
     private static PrimaryDrawerItem bluetooth;
     private static PrimaryDrawerItem blueChart;
+
     // Tags
     private final static String LOGIN_TAG           = "Login";
     private final static String CHANGE_EMAIL_TAG    = "ChangeEmail";
@@ -131,14 +132,6 @@ public class NavigationDrawerHandler implements
                             context.startActivity(addContactIntent);
                             break;
 
-                        case SIGN_UP_TAG:
-                            Log.i(TAG, "Sign Up Tag Pressed");
-                            userDrawer.closeDrawer();
-                            Intent signUpIntent = new Intent(context, SignUpActivity.class);
-                            signUpIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            context.startActivity(signUpIntent);
-                            break;
-
                         case CONTACT_TAG:
                             Log.i(TAG, "Contact Tag Pressed");
                             userDrawer.closeDrawer();
@@ -146,14 +139,6 @@ public class NavigationDrawerHandler implements
                             contactIntent.putExtra("Page", 1);
                             contactIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             context.startActivity(contactIntent);
-                            break;
-
-                        case MAP_TAG:
-                            Log.i(TAG, "Map Tag Pressed");
-                            userDrawer.closeDrawer();
-                            Intent mapIntent = new Intent(context, UserMapsActivity.class);
-                            mapIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            context.startActivity(mapIntent);
                             break;
 
                         case BLUETOOTH_TAG:
@@ -172,14 +157,6 @@ public class NavigationDrawerHandler implements
                             bluetoothChartIntent.putExtra("Page", 3);
                             bluetoothChartIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             context.startActivity(bluetoothChartIntent);
-                            break;
-
-                        case LOGIN_TAG:
-                            Log.i(TAG, "Login Tag Pressed");
-                            userDrawer.closeDrawer();
-                            Intent loginIntent = new Intent(context, LoginActivity.class);
-                            loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            context.startActivity(loginIntent);
                             break;
 
                         case CHANGE_EMAIL_TAG:
@@ -350,7 +327,6 @@ public class NavigationDrawerHandler implements
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         addContact = new PrimaryDrawerItem();
         contactList = new PrimaryDrawerItem();
-        map = new PrimaryDrawerItem();
         bluetooth = new PrimaryDrawerItem();
         blueChart = new PrimaryDrawerItem();
 
@@ -360,13 +336,7 @@ public class NavigationDrawerHandler implements
         forgotPassword = new PrimaryDrawerItem();
         signOut = new PrimaryDrawerItem();
         deleteAccount = new PrimaryDrawerItem();
-        login = new PrimaryDrawerItem();
-        signUp = new PrimaryDrawerItem();
 
-        map.withDescription(R.string.map_activity)
-                .withSelectedColorRes(R.color.lightGrayWithRed)
-                .withIcon(R.drawable.ic_place_black_24dp)
-                .withTag(MAP_TAG);
 
 
         if(currentUser != null) {
@@ -441,16 +411,16 @@ public class NavigationDrawerHandler implements
                     .withDisplayBelowStatusBar(true)
                     .withToolbar(toolbar)
                     .addDrawerItems(
-                                    addContact,
-                                    contactList,
-                                    map,
-                                    bluetooth,
-                                    blueChart,
-                                    new DividerDrawerItem(),
+//                                    addContact,
+//                                    contactList,
+//                                    map,
+//                                    bluetooth,
+//                                    blueChart,
+//                                    new DividerDrawerItem(),
                                     changeEmail,
                                     changePassword,
                                     forgotPassword,
-                                    signOut,
+                                      signOut,
                                     deleteAccount
                     )
                     .withSelectedItem(-1)
@@ -485,16 +455,6 @@ public class NavigationDrawerHandler implements
                     .withTextColor(Color.BLACK);
 
             // Login Drawer Item
-            login = new PrimaryDrawerItem()
-                    .withDescription("Login")
-                    .withDescriptionTextColorRes(R.color.colorPrimaryDark)
-                    .withTag(LOGIN_TAG);
-
-            signUp = new PrimaryDrawerItem()
-                    .withDescription("Sign Up")
-                    .withDescriptionTextColorRes(R.color.colorPrimaryDark)
-                    .withTag(SIGN_UP_TAG);
-
             currentUserAccountHeader = new AccountHeaderBuilder()
                     .withActivity(activity)
                     .withHeaderBackground(R.drawable.header_nav_background_adjusted)
@@ -509,11 +469,6 @@ public class NavigationDrawerHandler implements
                     .withTranslucentStatusBar(false)
                     .withDisplayBelowStatusBar(true)
                     .withToolbar(toolbar)
-                    .addDrawerItems(
-                            map,
-                            new DividerDrawerItem(),
-                            login,
-                            signUp)
                     .withSelectedItem(-1)
                     .build();
 

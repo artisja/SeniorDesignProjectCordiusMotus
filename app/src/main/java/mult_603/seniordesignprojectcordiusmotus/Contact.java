@@ -8,12 +8,22 @@ package mult_603.seniordesignprojectcordiusmotus;
 
 public class Contact{
     public final String TAG = Contact.class.getSimpleName();
-    private String name,number,email,uuid;;
+    private String name,number,email,uuid;
+    private static UserTypes contactType = UserTypes.CONTACT;
 
     // Empty constructor for Firebase
     public Contact(){
 
     }
+
+    /**
+     *
+     * @return contact enum
+     */
+    public UserTypes getContactType(){
+        return contactType;
+    }
+
 
     /**
      * Initialize the contact with a name number and email address

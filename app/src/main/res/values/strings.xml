@@ -27,7 +27,7 @@
     <string name="add_button_label">Add Button</string>
     <string name="title_activity_contact_simple">ContactSimpleActivity</string>
     <string name="device_locator_instructions">Type in your Unique Password.</string>
-    <string name="project_description">Senior Design Project:MULT 603</string>
+    <string name="splash_title">Cardian Logo Standin</string>
     <string name="title_activity_navigation_drawer">NavigationDrawerActivity</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
