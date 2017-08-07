@@ -235,9 +235,9 @@ public class LoginActivity extends AppCompatActivity {
                     if (!task.isSuccessful()) {
                         // Hide the keyboard
                         inputMethodManager.hideSoftInputFromWindow(currentView.getWindowToken(), 0);
-
                         // Throw the exception that occurred
                         try{
+                            Toast.makeText(getApplicationContext(), task.toString(), Toast.LENGTH_LONG).show();
                             throw task.getException();
                         }
                         catch(Exception e) {
@@ -262,10 +262,8 @@ public class LoginActivity extends AppCompatActivity {
                         db.child(firebaseUser.getUid().toString()).child("CurrentUser").child("deviceType").addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                //Toast.makeText(appController, selectedUserType + " " + dataSnapshot.getValue().toString(), Toast.LENGTH_SHORT).show();
                                 deviceType = (String) dataSnapshot.getValue();
                                 if (selectedUserType.toString().equalsIgnoreCase(deviceType)){
-                                    Toast.makeText(appController, "Is the same!!!", Toast.LENGTH_SHORT).show();
                                     Intent intent = new Intent(LoginActivity.this, UserTabActivity.class);
                                     startActivity(intent);
                                 }else{

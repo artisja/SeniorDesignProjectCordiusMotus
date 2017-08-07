@@ -15,6 +15,7 @@ public class DeviceUser {
     private String uuid;
     private String userImage;
     private String shortHash;
+    private boolean isApproved;
     private static UserTypes deviceType = UserTypes.PATIENT;
 
     // Empty constructor
@@ -67,6 +68,14 @@ public class DeviceUser {
      * @return
      */
     public String getShortHash(){return this.shortHash;}
+
+    /**
+     *
+     * @return whether doctor is approved
+     */
+    public boolean isApproved() {
+        return isApproved;
+    }
 
     /**
      * Set user's profile image

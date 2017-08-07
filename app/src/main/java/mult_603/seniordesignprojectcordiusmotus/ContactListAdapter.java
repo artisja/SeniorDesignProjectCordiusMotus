@@ -185,8 +185,8 @@ public class ContactListAdapter extends BaseAdapter implements ListAdapter {
                         notifyDataSetChanged();
 
                         // Remove the item from the database
-                        reference.child(key).removeValue();
-
+                        reference.child("Contacts").child(key).removeValue();
+                        reference = FirebaseDatabase.getInstance().getReference("UserDictionary");
                         // Dismiss the dialog box
                         dialog.dismiss();
 

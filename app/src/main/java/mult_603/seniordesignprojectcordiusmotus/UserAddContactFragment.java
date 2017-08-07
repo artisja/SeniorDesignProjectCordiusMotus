@@ -1,12 +1,8 @@
 package mult_603.seniordesignprojectcordiusmotus;
 
 import android.app.PendingIntent;
-import android.bluetooth.BluetoothClass;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
-import android.location.Location;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -17,7 +13,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -42,11 +37,13 @@ public class UserAddContactFragment extends Fragment {
     private EditText contactName;
     private EditText contactPhone;
     private EditText contactEmail;
+    private String phoneNumber,emailString,hash;
     private FloatingActionButton fab;
     private DatabaseReference dbref;
     private FirebaseUser currentUser;
     private InputMethodManager inputMethodManager;
     private View view;
+    private String currentUsersType;
 
     /**
      * Empty Firebase constructor
@@ -91,6 +88,17 @@ public class UserAddContactFragment extends Fragment {
         currentUser = firebaseAuth.getCurrentUser();
         dbref  = firebaseDatabase.getReference(currentUser.getUid());
 
+        dbref.child("CurrentUser").child("deviceType").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                currentUsersType = dataSnapshot.getValue().toString();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
         assert fab != null;
         fab.setOnClickListener(new View.OnClickListener() {
@@ -111,11 +119,8 @@ public class UserAddContactFragment extends Fragment {
                     Alerter.create(getActivity())
                             .setIcon(R.drawable.account_black_48)
                             .setBackgroundColor(R.color.colorPrimaryDark)
-                            .setTitle("Contact Added")
-                            .setText("Contact \nName: " + name
-                                    + "\nPhone: " + phone
-                                    + "\nEmail: " + email
-                                    + " has been added.")
+                            .setTitle("Contact Requested")
+                            .setText("Contact must accept request.")
                             .enableIconPulse(true)
                             .setOnHideListener(new OnHideAlertListener() {
                                 @Override
@@ -158,7 +163,7 @@ public class UserAddContactFragment extends Fragment {
         final String userEmail = email;
 
         // Get the short hash from the database
-        DatabaseReference firebaseUserRef = firebaseDatabase.getReference("UserDictionary");
+        DatabaseReference firebaseUserRef = firebaseDatabase.getReference("UserDictionary").child(currentUsersType.toString());
         firebaseUserRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -174,10 +179,16 @@ public class UserAddContactFragment extends Fragment {
                         // Get the short hash and send it to the emergency contact via email or phone
                         String shortHash = deviceUser.getShortHash();
                         LocationHolder locationHolder = LocationService.getLocationHolder();
-                        String lat = Double.toString(locationHolder.getLatitude());
-                        String lng = Double.toString(locationHolder.getLongitude());
-                        Log.i(TAG, "Location Holder from Service: " + locationHolder.toString());
-                        sendNotificationToContact(userPhone, userEmail, shortHash, lat, lng);
+                        if(locationHolder==null){
+                            locationHolder = new LocationHolder();
+                        }
+//                        LocationService locationService = new LocationService();
+//                        locationService.startLocationUpdates();
+//                        String lat = Double.toString(locationHolder.getLatitude());
+//                        String lng = Double.toString(locationHolder.getLongitude());
+//                        Log.i(TAG, "Location Holder from Service: " + locationHolder.toString());
+                        addContactToUniversalList(userPhone,shortHash);
+                        sendNotificationToContact(userPhone, userEmail, shortHash);
                     }
                 }
             }
@@ -189,6 +200,11 @@ public class UserAddContactFragment extends Fragment {
         });
     }
 
+    private void addContactToUniversalList(String phoneNumber,String shortHash) {
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Universal Contact List").child(phoneNumber.toString()).child(shortHash.toString()).child("approved");
+        reference.setValue(true);
+    }
+
     // TODO can we ask for permission to use text messaging and email if someone doesn't let us?
 
     /**
@@ -196,33 +212,20 @@ public class UserAddContactFragment extends Fragment {
      * @param phone
      * @param email
      * @param shortHash
-     * @param latitude
-     * @param longitude
      */
-    private void sendNotificationToContact(String phone, String email, String shortHash, String latitude, String longitude){
+    private void sendNotificationToContact(final String phone, String email, String shortHash){
         // Try to send a message to the current users emergency contact
-
+        this.phoneNumber = phone;
+        this.emailString = email;
+        this.hash = shortHash;
         try {
-            SmsManager smsManager = SmsManager.getDefault();
-            String message = "You have been added as an emergency contact for User "
-                    + email
-                    + "\n This is your UUID for the device location -> "
-                    + shortHash;
-            PendingIntent pi = PendingIntent.getActivity(getActivity(),0,new Intent(getActivity(),UserAddContactFragment.class),0);
-            SmsManager sms = SmsManager.getDefault();
-            sms.sendTextMessage(phone,null,message,pi,null);
-
-//            smsManager.sendTextMessage(phone, null,message, null, null);
-//            Intent sendMessageIntent = new Intent(Intent.ACTION_VIEW);
-//            sendMessageIntent.setType("vnd.android-dir/mms-sms");
-
-//            Intent emailIntent = new Intent(Intent.ACTION_SEND);
-//            emailIntent.setType("text/html");
-//            emailIntent.putExtra(Intent.EXTRA_EMAIL,"artisja@vcu.edu");
-//            emailIntent.putExtra(Intent.EXTRA_SUBJECT,"Cardian Emergency Contact");
-//            emailIntent.putExtra(Intent.EXTRA_TEXT, message);
-//            startActivity(Intent.createChooser(emailIntent,"Send Email"));
-
+//            SmsManager smsManager = SmsManager.getDefault();
+//            String message = "You have been requested as an emergency contact for User "
+//                    + "\n This is your UUID for the device location and for accepting the contact request -> "
+//                    + hash + "\n Please install app from google play store,and login as a Contact user to accept request";
+//            PendingIntent pi = PendingIntent.getActivity(getActivity(),0,new Intent(getActivity(),UserAddContactFragment.class),0);
+//            SmsManager sms = SmsManager.getDefault();
+//            sms.sendTextMessage(phoneNumber,null,message,pi,null);
         }catch (Exception e){
             e.printStackTrace();
             Alerter.create(getActivity())

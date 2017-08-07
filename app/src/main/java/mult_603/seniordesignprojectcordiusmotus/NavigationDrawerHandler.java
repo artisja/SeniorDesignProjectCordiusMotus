@@ -416,7 +416,7 @@ public class NavigationDrawerHandler implements
 //                                    map,
 //                                    bluetooth,
 //                                    blueChart,
-//                                    new DividerDrawerItem(),
+                                    new DividerDrawerItem(),
                                     changeEmail,
                                     changePassword,
                                     forgotPassword,

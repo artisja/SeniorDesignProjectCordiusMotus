@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary">
+
+    <TextView
+        android:layout_margin="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/label_for_confirm_contact"
+        />
+
+    <EditText android:id="@+id/edit_confirm_hash"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Hash"
+        android:gravity="center"
+        android:maxLength="25"
+        android:singleLine="true"
+        android:layout_marginTop="15dp"
+        android:textColorHint="@color/wordColorRed"/>
+
+    <EditText android:id="@+id/edit_confirm_number"
+        android:layout_margin="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/phone_number_hint"
+        android:inputType="phone"
+        android:gravity="center"
+        android:maxLength="25"
+        android:singleLine="true"
+        android:layout_marginTop="15dp"
+        android:textColorHint="@color/wordColorRed"/>
+
+    <Button
+        android:id="@+id/confirm_contact_button"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:text="@string/confirm_contact_button_label"
+        android:textColor="@color/wordColorRed"
+        android:background="?android:attr/selectableItemBackground"
+        />
+
+</LinearLayout>

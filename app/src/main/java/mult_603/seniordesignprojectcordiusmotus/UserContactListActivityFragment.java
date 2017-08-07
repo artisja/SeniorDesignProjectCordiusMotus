@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -36,6 +38,8 @@ public class UserContactListActivityFragment extends Fragment {
     private ArrayList<Contact> contactList;
     private FirebaseUser currentUser;
     private DatabaseReference databaseReference;
+    private String hasher,confirmed;
+    private Contact newContact;
 
 
     // Empty Public Constructor
@@ -69,9 +73,11 @@ public class UserContactListActivityFragment extends Fragment {
         currentUser = firebaseAuth.getCurrentUser();
         databaseReference = firebaseDatabase.getReference(currentUser.getUid()).child("Contacts");
 
+        getUserUUID();
         // Set the contact List Adapter
         contactListAdapter = new ContactListAdapter(contactList, view.getContext());
         contactListView.setAdapter(contactListAdapter);
+
 
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
@@ -80,22 +86,53 @@ public class UserContactListActivityFragment extends Fragment {
                     // Get the key of the child
                     String key = contact.getKey();
                     Log.i(TAG, "Contact Database Key : " + key);
-                    Contact newContact = contact.getValue(Contact.class);
+                    newContact = contact.getValue(Contact.class);
                     Log.i(TAG, "Contact From Database " + newContact.toString());
-
+                    DatabaseReference contactCheckRef= FirebaseDatabase.getInstance().getReference("Universal Contact List");
                     // If the contact is not contained in the array list then add it
-                    if(!contactList.contains(newContact)) {
-                        contactList.add(newContact);
-                    }
-
-                    // Notify the adapter that the contacl list has changed
-                    contactListAdapter.notifyDataSetChanged();
+                    checkContactConfirmed(newContact.getNumber().toString(),contactCheckRef);
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 Log.i(TAG, "Database Error occurred " + databaseError.getDetails());
+            }
+        });
+    }
+
+    private void getUserUUID() {
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference(currentUser.getUid().toString()).child("CurrentUser").child("shortHash");
+        reference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                    UserContactListActivityFragment.this.hasher = dataSnapshot.getValue().toString();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void checkContactConfirmed(String phoneNumber,DatabaseReference databaseReference) {
+        getUserUUID();
+       databaseReference = databaseReference.child(phoneNumber).child(hasher).child("approved");
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                UserContactListActivityFragment.this.confirmed = dataSnapshot.getValue().toString();
+                if(!contactList.contains(newContact) && confirmed.equalsIgnoreCase("true")) {
+                    contactList.add(newContact);
+                }
+                // Notify the adapter that the contacl list has changed
+                contactListAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
             }
         });
     }

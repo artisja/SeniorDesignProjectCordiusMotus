@@ -44,6 +44,16 @@
             android:layout_height="wrap_content"
             android:text="Patient"
             android:background="?android:attr/selectableItemBackground"/>
+        <TextView
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="@color/md_black_1000"/>
+
+        <Button android:id="@+id/contact_signup_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Contact"
+            android:background="?android:attr/selectableItemBackground"/>
     </LinearLayout>
 
     <EditText

@@ -28,6 +28,8 @@
     <string name="title_activity_contact_simple">ContactSimpleActivity</string>
     <string name="device_locator_instructions">Type in your Unique Password.</string>
     <string name="splash_title">Cardian Logo Standin</string>
+    <string name="confirm_contact_button_label">Press to accept contact request</string>
+    <string name="label_for_confirm_contact">Type in number and Click Confirm button to accept Request</string>
     <string name="title_activity_navigation_drawer">NavigationDrawerActivity</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>

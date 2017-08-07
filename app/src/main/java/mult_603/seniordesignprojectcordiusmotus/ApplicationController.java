@@ -11,6 +11,10 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.FirebaseInstanceIdService;
+import com.google.firebase.messaging.FirebaseMessagingService;
+
 import java.util.HashMap;
 
 /**
@@ -53,6 +57,7 @@ public class ApplicationController extends Application {
 //        playAlertSound();
 
     }
+
 
     public void playAlertSound(){
         int MAX_VOLUME = 100;

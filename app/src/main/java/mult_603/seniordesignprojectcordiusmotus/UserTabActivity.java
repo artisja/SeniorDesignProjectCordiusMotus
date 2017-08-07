@@ -9,6 +9,15 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.Drawer;
 import java.util.ArrayList;
@@ -25,6 +34,7 @@ public class UserTabActivity extends AppCompatActivity {
     private NavigationDrawerHandler navHandler;
     private ViewPager viewPager;
     private TabLayout tabLayout;
+    public String currentUserType;
     private int[] tabIcons = {R.drawable.ic_add_circle_black_24dp,
                                 R.drawable.ic_list_black_24dp,
                                 R.drawable.ic_settings_bluetooth_black_24dp,
@@ -35,6 +45,10 @@ public class UserTabActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_tab);
 
+        FirebaseUser firebaseAuth = FirebaseAuth.getInstance().getCurrentUser();
+        DatabaseReference db = FirebaseDatabase.getInstance().getReference(firebaseAuth.getUid().toString()).child("CurrentUser").child("deviceType");
+
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         navHandler = new NavigationDrawerHandler(this, savedInstanceState, getApplicationContext(), toolbar);
         headerResult = navHandler.setAccountHeader(this, savedInstanceState, getApplicationContext());
@@ -43,7 +57,19 @@ public class UserTabActivity extends AppCompatActivity {
         int defaultPage = 0;
         int page = getIntent().getIntExtra("Page", defaultPage);
         viewPager = (ViewPager) findViewById(R.id.container);
-        setupViewPager(viewPager);
+        db.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String string = (String) dataSnapshot.getValue();
+                currentUserType = string;
+                setupViewPager(viewPager);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         viewPager.setCurrentItem(page);
@@ -61,7 +87,7 @@ public class UserTabActivity extends AppCompatActivity {
             tabLayout.getTabAt(0).setIcon(tabIcons[0]);
             tabLayout.getTabAt(1).setIcon(tabIcons[1]);
             tabLayout.getTabAt(2).setIcon(tabIcons[2]);
-            tabLayout.getTabAt(3).setIcon(tabIcons[3]);
+
         }
         catch(NullPointerException n){
             Log.i(TAG, "Null pointer exception: " + n.getMessage());
@@ -74,8 +100,12 @@ public class UserTabActivity extends AppCompatActivity {
      */
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(new UserAddContactFragment(), "Add Contact");
-        adapter.addFragment(new UserContactListActivityFragment(), "Contact List");
+        if(currentUserType.equals(UserTypes.PATIENT.toString())){
+            adapter.addFragment(new UserAddContactFragment(), "Add Contact");
+            adapter.addFragment(new UserContactListActivityFragment(), "Contact List");
+        }else if(currentUserType.equals(UserTypes.CONTACT.toString())) {
+            adapter.addFragment(new UserContactConfirmRequest(), "Confirm Request");
+        }
         adapter.addFragment(new UserBluetoothListFragment(), "Bluetooth Devices");
         adapter.addFragment(new UserBluetoothChartFragment(), "Bluetooth Chart");
         viewPager.setAdapter(adapter);

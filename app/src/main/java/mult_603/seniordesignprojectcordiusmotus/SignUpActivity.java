@@ -72,6 +72,7 @@ public class SignUpActivity extends AppCompatActivity{
     private String userImageRefToSave;
     public static DeviceUser newUser = new DeviceUser();
     public static DatabaseReference userDictRef = FirebaseDatabase.getInstance().getReference("UserDictionary");;
+    private Button contactCatButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -243,33 +244,12 @@ public class SignUpActivity extends AppCompatActivity{
                                                         break;
                                                     case DOCTOR: userDictRef.child(UserTypes.DOCTOR.toString()).child(newUser.getShortHash()).setValue(newUser);
                                                         break;
+                                                    case CONTACT: userDictRef.child(UserTypes.DOCTOR.toString()).child(newUser.getShortHash()).setValue(newUser);
                                                 }
                                                 DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference(currentUser.getUid());
                                                 dbRef.child("CurrentUser").setValue(newUser);
 
-                                                // Show success alert
-                                                Alerter.create(SignUpActivity.this)
-                                                        .enableIconPulse(true)
-                                                        .setTitle("New User Created")
-                                                        .setBackgroundColor(R.color.colorPrimaryDark)
-                                                        .setText("New user with the following email address " + email + " was created. Logging in...")
-                                                        .setDuration(5000).setOnShowListener(new OnShowAlertListener() {
-                                                        @Override
-                                                         public void onShow() {
-                                                                Log.i(TAG, "Sign Up Alert Shown");
-                                                            }
-                                                         })
-                                                        .setOnHideListener(new OnHideAlertListener() {
-                                                        @Override
-                                                        public void onHide() {
-                                                                Log.i(TAG, "Sign Up Alert Hidden");
-
-                                                                // Go to the add contact / bluetooth page
-                                                                Intent userIntent = new Intent(SignUpActivity.this, UserTabActivity.class);
-                                                                startActivity(userIntent);
-                                                            }
-                                                        })
-                                                        .show();
+                                                toCorrectTab(currentUserType);
                                             }
                                         }
                                     });
@@ -362,6 +342,7 @@ public class SignUpActivity extends AppCompatActivity{
                 startActivityForResult(cameraGalleryIntent, 0);
             }
         });
+
         doctorCatButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -384,6 +365,92 @@ public class SignUpActivity extends AppCompatActivity{
                 newUser.setDeviceType(UserTypes.PATIENT);
             }
         });
+
+        contactCatButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                contactCatButton.setBackgroundResource(R.color.wordColorRed);
+                if (newUser.getDeviceType().equals(UserTypes.DOCTOR)){
+                    doctorCatButton.setBackgroundColor(Color.TRANSPARENT);
+                }else{
+                    patientCatButton.setBackgroundColor(Color.TRANSPARENT);
+                }
+                newUser.setDeviceType(UserTypes.CONTACT);
+            }
+        });
+    }
+
+    private void toCorrectTab(UserTypes currentUserType) {
+        if (!currentUserType.equals(UserTypes.DOCTOR) && !currentUserType.equals(UserTypes.PATIENT)) {
+            // Show success alert
+            Alerter.create(SignUpActivity.this)
+                    .enableIconPulse(true)
+                    .setTitle("New Contact User Created")
+                    .setBackgroundColor(R.color.colorPrimaryDark)
+                    .setText("New user with the following email address " + email + " was created. Logging in...")
+                    .setDuration(5000).setOnShowListener(new OnShowAlertListener() {
+                @Override
+                public void onShow() {
+                    Log.i(TAG, "Sign Up Alert Shown");
+                }
+            })
+                    .setOnHideListener(new OnHideAlertListener() {
+                        @Override
+                        public void onHide() {
+                            Log.i(TAG, "Sign Up Alert Hidden");
+
+                            // Go to the add contact / bluetooth page
+                            Intent userIntent = new Intent(SignUpActivity.this, UserTabActivity.class);
+                            startActivity(userIntent);
+                        }
+                    })
+                    .show();
+        }else if (currentUserType.equals(UserTypes.PATIENT)) {
+            Alerter.create(SignUpActivity.this)
+                    .enableIconPulse(true)
+                    .setTitle("New Patient User Created")
+                    .setBackgroundColor(R.color.colorPrimaryDark)
+                    .setText("New user with the following email address " + email + " was created. Logging in...")
+                    .setDuration(5000).setOnShowListener(new OnShowAlertListener() {
+                @Override
+                public void onShow() {
+                    Log.i(TAG, "Sign Up Alert Shown");
+                }
+            })
+                    .setOnHideListener(new OnHideAlertListener() {
+                        @Override
+                        public void onHide() {
+                            Log.i(TAG, "Sign Up Alert Hidden");
+
+                            // Go to the add contact / bluetooth page
+                            Intent userIntent = new Intent(SignUpActivity.this, UserTabActivity.class);
+                            startActivity(userIntent);
+                        }
+                    })
+                    .show();
+        }else {
+            Alerter.create(SignUpActivity.this)
+                    .enableIconPulse(true)
+                    .setTitle("Doctor Request Sent for Approval")
+                    .setBackgroundColor(R.color.colorPrimaryDark)
+                    .setText("Your request to be a Caridan Doctor will be processed.")
+                    .setDuration(5000).setOnShowListener(new OnShowAlertListener() {
+                @Override
+                public void onShow() {
+                }
+            })
+                    .setOnHideListener(new OnHideAlertListener() {
+                        @Override
+                        public void onHide() {
+                            Log.i(TAG, "Sign Up Alert Hidden");
+
+                            // Go to the add contact / bluetooth page
+                            Intent userIntent = new Intent(SignUpActivity.this, UserTabActivity.class);
+                            startActivity(userIntent);
+                        }
+                    })
+                    .show();
+        }
     }
 
     @Override
@@ -445,6 +512,7 @@ public class SignUpActivity extends AppCompatActivity{
         submitButton          = (Button) findViewById(R.id.submit_signup_button);
         patientCatButton      = (Button) findViewById(R.id.patient_signup_button);
         doctorCatButton       = (Button) findViewById(R.id.doctor_signup_button);
+        contactCatButton      = (Button) findViewById(R.id.contact_signup_button);
     }
 }
 

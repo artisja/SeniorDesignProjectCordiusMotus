@@ -9,6 +9,7 @@ package mult_603.seniordesignprojectcordiusmotus;
 public class Contact{
     public final String TAG = Contact.class.getSimpleName();
     private String name,number,email,uuid;
+    private Boolean isApproved;
     private static UserTypes contactType = UserTypes.CONTACT;
 
     // Empty constructor for Firebase
@@ -62,6 +63,14 @@ public class Contact{
     }
 
     /**
+     *
+     * @return if member approved of app
+     */
+    public Boolean getApproved() {
+        return isApproved;
+    }
+
+    /**
      * Set the contact's name
      * @param name
      */
@@ -99,6 +108,14 @@ public class Contact{
      */
     public void setUuid(String id) {
         uuid=id;
+    }
+
+    /**
+     * Set the approval to true if contact accepts
+     * @param approved
+     */
+    public void setApproved(Boolean approved) {
+        isApproved = approved;
     }
 
     /**
